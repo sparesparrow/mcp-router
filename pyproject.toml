@@ -1,0 +1,105 @@
+[tool.poetry]
+name = "system-context-monitor"
+version = "0.1.0"
+description = "A comprehensive system monitoring solution with cognitive workflows"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "system_context_monitor"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+sqlalchemy = "^2.0.23"
+alembic = "^1.12.1"
+psycopg2-binary = "^2.9.9"
+redis = "^5.0.1"
+pydantic = "^2.5.1"
+pydantic-settings = "^2.1.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+aiohttp = "^3.9.1"
+websockets = "^12.0"
+prometheus-client = "^0.19.0"
+structlog = "^23.2.0"
+httpx = "^0.25.2"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+black = "^23.11.0"
+isort = "^5.12.0"
+mypy = "^1.7.1"
+Pillow = "^10.2.0"
+python-dotenv = "^1.0.1"
+aiofiles = "^23.2.1"
+asyncpg = "^0.29.0"
+python-slugify = "^8.0.4"
+pyyaml = "^6.0.1"
+requests = "^2.31.0"
+tenacity = "^8.2.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+black = "^23.11.0"
+isort = "^5.12.0"
+mypy = "^1.7.1"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--cov=services --cov-report=term-missing --cov-report=html:test_coverage"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+python_mode = "auto"
+
+[tool.coverage.run]
+source = ["services"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "pass",
+    "raise ImportError",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pylint.messages_control]
+disable = ["C0111", "C0103"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py39" 

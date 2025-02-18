@@ -1,0 +1,54 @@
+.card {
+  background: var(--card-bg, #ffffff);
+  border-radius: var(--border-radius-md, 8px);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.elevation-low {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.elevation-medium {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.elevation-high {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.padding-none {
+  padding: 0;
+}
+
+.padding-small {
+  padding: 0.5rem;
+}
+
+.padding-medium {
+  padding: 1rem;
+}
+
+.padding-large {
+  padding: 1.5rem;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.clickable:active {
+  transform: translateY(0);
+}
+
+/* Dark theme support */
+:global(.theme-dark) .card {
+  --card-bg: #2a2a2a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+} 

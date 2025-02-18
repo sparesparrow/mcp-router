@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ARCHITECTURE.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="system-architecture-documentation">System Architecture Documentation</h1>
+<h2 id="overview">Overview</h2>
+<p>The System Context Monitor is built using a modern, scalable architecture that emphasizes real-time monitoring, efficient state management, and robust error handling.</p>
+<h2 id="system-components">System Components</h2>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#2ecc71',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#27ae60',
+      'lineColor': '#3498db',
+      'secondaryColor': '#ff0000'
+    }
+  }
+}%%
+graph TD
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef primary fill:#2ecc71,stroke:#27ae60,color:#fff;
+    classDef secondary fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef storage fill:#e74c3c,stroke:#c0392b,color:#fff;
+
+    subgraph "Frontend Layer" ["Frontend Layer"]
+        UI[React UI]
+        Store[Zustand Store]
+        MCP[MCP Provider]
+        ErrorB[Error Boundaries]
+        
+        UI --> Store
+        UI --> MCP
+        UI --> ErrorB
+    end
+
+    subgraph "API Layer" ["API Layer"]
+        API[FastAPI Server]
+        WS[WebSocket Server]
+        Auth[Authentication]
+        Rate[Rate Limiter]
+        
+        API --> WS
+        API --> Auth
+        API --> Rate
+    end
+
+    subgraph "Service Layer" ["Service Layer"]
+        MS[Monitoring Service]
+        CS[Context Service]
+        WF[Workflow Service]
+        
+        MS --> CS
+        WF --> CS
+    end
+
+    subgraph "Data Layer" ["Data Layer"]
+        Cache[Redis Cache]
+        DB[State Store]
+        Queue[Message Queue]
+        
+        Cache --> DB
+        Queue --> DB
+    end
+
+    UI <--> API
+    MCP <--> WS
+    API <--> MS
+    API <--> WF
+    MS --> Queue
+    WF --> Queue
+
+    class UI,Store,MCP,ErrorB primary;
+    class API,WS,Auth,Rate secondary;
+    class MS,CS,WF secondary;
+    class Cache,DB,Queue storage;
+</div></code></pre>
+<h2 id="component-details">Component Details</h2>
+<h3 id="frontend-components">Frontend Components</h3>
+<ol>
+<li>
+<p><strong>Dashboard (SystemContextDashboard)</strong></p>
+<ul>
+<li>Main application container</li>
+<li>Manages global state and routing</li>
+<li>Handles error boundaries</li>
+</ul>
+</li>
+<li>
+<p><strong>Monitoring Panel</strong></p>
+<ul>
+<li>Displays real-time monitoring data</li>
+<li>Manages tab-based navigation</li>
+<li>Handles data visualization</li>
+</ul>
+</li>
+<li>
+<p><strong>Context Viewer</strong></p>
+<ul>
+<li>Shows current system context</li>
+<li>Provides context manipulation</li>
+<li>Real-time updates</li>
+</ul>
+</li>
+<li>
+<p><strong>Workflow Manager</strong></p>
+<ul>
+<li>Workflow CRUD operations</li>
+<li>Status monitoring</li>
+<li>Error handling</li>
+</ul>
+</li>
+<li>
+<p><strong>QR Display</strong></p>
+<ul>
+<li>Context sharing</li>
+<li>Mobile integration</li>
+<li>Dynamic updates</li>
+</ul>
+</li>
+</ol>
+<h3 id="state-management">State Management</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#3498db',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#2980b9',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+graph LR
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef store fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef cache fill:#e74c3c,stroke:#c0392b,color:#fff;
+    classDef queue fill:#f1c40f,stroke:#f39c12,color:#fff;
+
+    subgraph "Frontend State"
+        ZS[Zustand Store]
+        MC[MCP Context]
+        LC[Local Cache]
+        
+        ZS --> MC
+        ZS --> LC
+    end
+
+    subgraph "Backend State"
+        RS[Redis Store]
+        PS[Persistent Store]
+        MQ[Message Queue]
+        
+        RS --> PS
+        MQ --> PS
+    end
+
+    ZS <--> RS
+    MC <--> MQ
+
+    class ZS,MC store;
+    class LC,RS,PS cache;
+    class MQ queue;
+
+    linkStyle default stroke-width:2px;
+</div></code></pre>
+<h3 id="data-flow">Data Flow</h3>
+<ol>
+<li>
+<p><strong>Monitoring Data Flow</strong></p>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#3498db',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#2980b9',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c',
+      'tertiaryColor': '#2ecc71'
+    }
+  }
+}%%
+sequenceDiagram
+    participant UI as Frontend UI
+    participant API as API Gateway
+    participant MS as Monitoring Service
+    participant Q as Message Queue
+    participant DB as State Store
+    
+    autonumber
+    
+    Note over UI,API: Real-time Monitoring Flow
+    UI->>+API: Request monitoring data
+    API->>+MS: Forward request
+    MS->>Q: Publish data
+    Q->>DB: Store data
+    DB-->>UI: Send updates via WebSocket
+    
+    Note over MS,DB: Async Processing
+    MS->>MS: Process metrics
+    MS->>Q: Publish metrics
+    Q->>DB: Store metrics
+    
+    Note over UI,DB: Error Handling
+    alt Error occurs
+        DB-->>API: Error notification
+        API-->>UI: Display error
+    else Success
+        DB-->>UI: Confirmation
+    end
+</div></code></pre>
+</li>
+<li>
+<p><strong>Workflow Execution Flow</strong></p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+    participant UI as Frontend
+    participant WF as Workflow Service
+    participant CS as Context Service
+    participant DB as Database
+    
+    UI->>WF: Execute workflow
+    WF->>CS: Get context
+    CS->>DB: Update state
+    DB-->>UI: Send state update
+</div></code></pre>
+</li>
+</ol>
+<h2 id="technical-specifications">Technical Specifications</h2>
+<h3 id="frontend-stack">Frontend Stack</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// State Management</span>
+<span class="hljs-keyword">interface</span> AppState {
+  context: SystemContext;
+  isLoading: <span class="hljs-built_in">boolean</span>;
+  error: <span class="hljs-built_in">Error</span> | <span class="hljs-literal">null</span>;
+  <span class="hljs-comment">// ... other state properties</span>
+}
+
+<span class="hljs-comment">// MCP Provider</span>
+<span class="hljs-keyword">interface</span> MCPContext {
+  isConnected: <span class="hljs-built_in">boolean</span>;
+  isInitialized: <span class="hljs-built_in">boolean</span>;
+  capabilities: Record&lt;<span class="hljs-built_in">string</span>, <span class="hljs-built_in">boolean</span>&gt;;
+  <span class="hljs-comment">// ... other context properties</span>
+}
+
+<span class="hljs-comment">// Component Architecture</span>
+<span class="hljs-keyword">type</span> ComponentProps = {
+  data: DataType;
+  isLoading?: <span class="hljs-built_in">boolean</span>;
+  error?: <span class="hljs-built_in">Error</span> | <span class="hljs-literal">null</span>;
+  onAction: <span class="hljs-function">(<span class="hljs-params">data: ActionData</span>) =&gt;</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">void</span>&gt;;
+};
+</div></code></pre>
+<h3 id="backend-stack">Backend Stack</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># FastAPI Application</span>
+app = FastAPI(
+    title=<span class="hljs-string">"System Context Monitor"</span>,
+    description=<span class="hljs-string">"Backend API for system monitoring"</span>,
+    version=<span class="hljs-string">"1.0.0"</span>,
+    docs_url=<span class="hljs-string">"/docs"</span>,
+    redoc_url=<span class="hljs-string">"/redoc"</span>
+)
+
+<span class="hljs-comment"># Service Layer</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MonitoringService</span>:</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">capture_screenshot</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># Implementation</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">monitor_clipboard</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># Implementation</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">track_network</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># Implementation</span>
+        <span class="hljs-keyword">pass</span>
+
+<span class="hljs-comment"># Data Layer</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StateManager</span>:</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_context</span><span class="hljs-params">(self, context: SystemContext)</span>:</span>
+        <span class="hljs-comment"># Implementation</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_context</span><span class="hljs-params">(self)</span> -&gt; SystemContext:</span>
+        <span class="hljs-comment"># Implementation</span>
+        <span class="hljs-keyword">pass</span>
+</div></code></pre>
+<h2 id="security-architecture">Security Architecture</h2>
+<h3 id="authentication-flow">Authentication Flow</h3>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+    participant Client
+    participant Auth
+    participant API
+    participant Service
+    
+    Client->>Auth: Request access
+    Auth->>Auth: Validate credentials
+    Auth-->>Client: Issue token
+    Client->>API: Request with token
+    API->>Auth: Validate token
+    Auth-->>API: Token valid
+    API->>Service: Process request
+</div></code></pre>
+<h3 id="security-measures">Security Measures</h3>
+<ol>
+<li>
+<p><strong>Data Protection</strong></p>
+<ul>
+<li>End-to-end encryption for sensitive data</li>
+<li>Secure WebSocket connections</li>
+<li>Rate limiting on API endpoints</li>
+</ul>
+</li>
+<li>
+<p><strong>Access Control</strong></p>
+<ul>
+<li>Role-based access control</li>
+<li>Token-based authentication</li>
+<li>Session management</li>
+</ul>
+</li>
+<li>
+<p><strong>Resource Protection</strong></p>
+<ul>
+<li>Request rate limiting</li>
+<li>Data storage quotas</li>
+<li>CPU/Memory restrictions</li>
+</ul>
+</li>
+</ol>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="frontend-optimization">Frontend Optimization</h3>
+<ol>
+<li>
+<p><strong>Component Optimization</strong></p>
+<ul>
+<li>React.memo for pure components</li>
+<li>Lazy loading for routes</li>
+<li>Virtual scrolling for large lists</li>
+</ul>
+</li>
+<li>
+<p><strong>State Management</strong></p>
+<ul>
+<li>Selective state updates</li>
+<li>Optimistic updates</li>
+<li>Proper memoization</li>
+</ul>
+</li>
+<li>
+<p><strong>Network Optimization</strong></p>
+<ul>
+<li>Request batching</li>
+<li>Data compression</li>
+<li>Proper caching</li>
+</ul>
+</li>
+</ol>
+<h3 id="backend-optimization">Backend Optimization</h3>
+<ol>
+<li>
+<p><strong>API Optimization</strong></p>
+<ul>
+<li>Response compression</li>
+<li>Query optimization</li>
+<li>Connection pooling</li>
+</ul>
+</li>
+<li>
+<p><strong>Caching Strategy</strong></p>
+<ul>
+<li>Redis for frequent data</li>
+<li>In-memory caching</li>
+<li>Cache invalidation</li>
+</ul>
+</li>
+<li>
+<p><strong>Resource Management</strong></p>
+<ul>
+<li>Worker processes</li>
+<li>Connection pooling</li>
+<li>Memory management</li>
+</ul>
+</li>
+</ol>
+<h2 id="deployment-architecture">Deployment Architecture</h2>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    subgraph "Production Environment"
+        LB[Load Balancer]
+        
+        subgraph "Application Servers"
+            API1[API Server 1]
+            API2[API Server 2]
+            WS1[WebSocket Server 1]
+            WS2[WebSocket Server 2]
+        end
+        
+        subgraph "Data Storage"
+            Redis[Redis Cluster]
+            DB[Database Cluster]
+            MQ[Message Queue]
+        end
+        
+        LB --> API1 & API2
+        LB --> WS1 & WS2
+        API1 & API2 --> Redis
+        API1 & API2 --> DB
+        WS1 & WS2 --> MQ
+    end
+</div></code></pre>
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="error-categories">Error Categories</h3>
+<ol>
+<li>
+<p><strong>Frontend Errors</strong></p>
+<ul>
+<li>Network errors</li>
+<li>State management errors</li>
+<li>Rendering errors</li>
+</ul>
+</li>
+<li>
+<p><strong>Backend Errors</strong></p>
+<ul>
+<li>API errors</li>
+<li>Service errors</li>
+<li>Database errors</li>
+</ul>
+</li>
+</ol>
+<h3 id="error-recovery">Error Recovery</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#e74c3c',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#c0392b',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#2ecc71'
+    }
+  }
+}%%
+sequenceDiagram
+    participant UI as Frontend UI
+    participant API as API Gateway
+    participant Service as Service Layer
+    participant DB as Database
+    
+    autonumber
+    
+    Note over UI,DB: Error Detection & Recovery
+    UI->>+API: Initial request
+    API->>Service: Process request
+    Service->>DB: Database operation
+    
+    alt Database Error
+        DB-->>Service: Operation failed
+        Service-->>API: Service error
+        API-->>UI: Show error UI
+        Note over UI: Implement retry logic
+        UI->>API: Retry request
+        API->>Service: Reprocess
+        Service->>DB: Retry operation
+        DB-->>UI: Success response
+    else Network Error
+        API-->>UI: Network failed
+        Note over UI: Auto-reconnect
+        UI->>API: Reconnect
+        API-->>UI: Connection restored
+    else Service Error
+        Service-->>API: Service failed
+        API-->>UI: Service error
+        Note over UI: Fallback logic
+        UI->>API: Use fallback
+        API-->>UI: Fallback response
+    end
+</div></code></pre>
+<h2 id="monitoring-and-logging">Monitoring and Logging</h2>
+<h3 id="system-monitoring-flow">System Monitoring Flow</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#3498db',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#2980b9',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c',
+      'tertiaryColor': '#2ecc71'
+    }
+  }
+}%%
+sequenceDiagram
+    participant UI as Frontend
+    participant MS as Monitoring Service
+    participant MQ as Message Queue
+    participant DB as Database
+    participant Log as Logger
+    
+    autonumber
+    
+    Note over UI,Log: Real-time Monitoring Workflow
+    
+    UI->>+MS: Initialize monitoring
+    activate MS
+    
+    par Screenshot Monitoring
+        MS->>MS: Capture screenshot
+        MS->>MQ: Publish screenshot
+        MQ->>DB: Store screenshot
+        DB-->>UI: Update UI
+    and Clipboard Monitoring
+        MS->>MS: Monitor clipboard
+        MS->>MQ: Publish changes
+        MQ->>DB: Store changes
+        DB-->>UI: Update UI
+    and Network Monitoring
+        MS->>MS: Track network
+        MS->>MQ: Publish activity
+        MQ->>DB: Store activity
+        DB-->>UI: Update UI
+    end
+    
+    alt Error Occurs
+        MS->>Log: Log error
+        Log-->>UI: Show error
+        Note over MS: Implement recovery
+    else Resource Limit
+        MS->>Log: Log warning
+        MS->>MS: Adjust sampling
+    end
+    
+    Note over UI,Log: Continuous Monitoring Loop
+    
+    deactivate MS
+</div></code></pre>
+<h3 id="logging-architecture">Logging Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#f1c40f',
+      'primaryTextColor': '#000',
+      'primaryBorderColor': '#f39c12',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+graph TD
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef logger fill:#f1c40f,stroke:#f39c12,color:#000;
+    classDef storage fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef processor fill:#2ecc71,stroke:#27ae60,color:#fff;
+    
+    subgraph "Logging System"
+        L1[Application Logger]
+        L2[Access Logger]
+        L3[Error Logger]
+        L4[Audit Logger]
+        
+        P1[Log Processor]
+        P2[Log Aggregator]
+        P3[Log Analyzer]
+        
+        S1[Log Storage]
+        S2[Metrics DB]
+        S3[Archive]
+        
+        L1 & L2 & L3 & L4 --> P1
+        P1 --> P2
+        P2 --> P3
+        P3 --> S1 & S2
+        S1 --> S3
+    end
+    
+    class L1,L2,L3,L4 logger;
+    class P1,P2,P3 processor;
+    class S1,S2,S3 storage;
+    
+    linkStyle default stroke-width:2px;
+</div></code></pre>
+<h2 id="future-considerations">Future Considerations</h2>
+<ol>
+<li>
+<p><strong>Scalability</strong></p>
+<ul>
+<li>Horizontal scaling</li>
+<li>Microservices architecture</li>
+<li>Distributed caching</li>
+</ul>
+</li>
+<li>
+<p><strong>Features</strong></p>
+<ul>
+<li>AI-powered analysis</li>
+<li>Advanced visualization</li>
+<li>Mobile applications</li>
+</ul>
+</li>
+<li>
+<p><strong>Integration</strong></p>
+<ul>
+<li>Third-party services</li>
+<li>API marketplace</li>
+<li>Plugin system</li>
+</ul>
+</li>
+</ol>
+<h2 id="component-architecture">Component Architecture</h2>
+<h3 id="frontend-component-structure">Frontend Component Structure</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#3498db',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#2980b9',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+classDiagram
+    class SystemContextDashboard {
+        +render()
+        -handleRefreshContext()
+        -handleMCPReconnect()
+    }
+    
+    class DashboardContent {
+        -isLoading: boolean
+        -error: Error
+        +initializeApp()
+        +clearError()
+        -handleDeleteWorkflow()
+        -handleRestartWorkflow()
+    }
+    
+    class MonitoringPanel {
+        -screenshots: ScreenshotData[]
+        -clipboard: ClipboardData[]
+        -network: NetworkData[]
+        +handleTabChange()
+    }
+    
+    class ContextViewer {
+        -context: SystemContext
+        +onRefresh()
+        -getStatusColor()
+        -getStatusIcon()
+    }
+    
+    class WorkflowManager {
+        -workflows: WorkflowState[]
+        +onDeleteWorkflow()
+        +onRestartWorkflow()
+        -handleOpenDetails()
+    }
+    
+    class QRDisplay {
+        -data: QRDisplayData
+        +onRefresh()
+        -handleRefresh()
+    }
+    
+    SystemContextDashboard --> DashboardContent
+    DashboardContent --> MonitoringPanel
+    DashboardContent --> ContextViewer
+    DashboardContent --> WorkflowManager
+    DashboardContent --> QRDisplay
+</div></code></pre>
+<h3 id="service-layer-architecture">Service Layer Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#2ecc71',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#27ae60',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+classDiagram
+    class BaseService {
+        <<abstract>>
+        #config: ServiceConfig
+        #logger: Logger
+        +initialize()*
+        +start()*
+        +stop()*
+        #validate_config()*
+    }
+    
+    class MonitoringService {
+        -screenshot_manager: ScreenshotManager
+        -clipboard_monitor: ClipboardMonitor
+        -network_tracker: NetworkTracker
+        +capture_screenshot()
+        +monitor_clipboard()
+        +track_network()
+    }
+    
+    class ContextService {
+        -context_store: ContextStore
+        -event_bus: EventBus
+        +update_context()
+        +get_context()
+        -notify_subscribers()
+    }
+    
+    class WorkflowService {
+        -workflow_registry: WorkflowRegistry
+        -executor: WorkflowExecutor
+        +execute_workflow()
+        +delete_workflow()
+        +restart_workflow()
+    }
+    
+    BaseService <|-- MonitoringService
+    BaseService <|-- ContextService
+    BaseService <|-- WorkflowService
+</div></code></pre>
+<h3 id="data-flow-architecture">Data Flow Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#f1c40f',
+      'primaryTextColor': '#000',
+      'primaryBorderColor': '#f39c12',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#3498db'
+    }
+  }
+}%%
+graph TB
+    classDef input fill:#f1c40f,stroke:#f39c12,color:#000;
+    classDef process fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef storage fill:#e74c3c,stroke:#c0392b,color:#fff;
+    classDef output fill:#2ecc71,stroke:#27ae60,color:#fff;
+
+    subgraph "Data Sources"
+        SS[Screenshot Capture]
+        CB[Clipboard Events]
+        NW[Network Activity]
+    end
+
+    subgraph "Processing Layer"
+        DP[Data Processor]
+        TF[Transform]
+        VL[Validate]
+        AG[Aggregate]
+    end
+
+    subgraph "Storage Layer"
+        RC[Redis Cache]
+        DB[Database]
+        MQ[Message Queue]
+    end
+
+    subgraph "Output Layer"
+        RT[Real-time Updates]
+        AN[Analytics]
+        NT[Notifications]
+    end
+
+    SS & CB & NW --> DP
+    DP --> TF --> VL --> AG
+    AG --> RC & DB & MQ
+    RC & DB & MQ --> RT & AN & NT
+
+    class SS,CB,NW input;
+    class DP,TF,VL,AG process;
+    class RC,DB,MQ storage;
+    class RT,AN,NT output;
+</div></code></pre>
+<h3 id="state-management-architecture">State Management Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#9b59b6',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#8e44ad',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+graph LR
+    classDef store fill:#9b59b6,stroke:#8e44ad,color:#fff;
+    classDef action fill:#e74c3c,stroke:#c0392b,color:#fff;
+    classDef effect fill:#2ecc71,stroke:#27ae60,color:#fff;
+    classDef component fill:#3498db,stroke:#2980b9,color:#fff;
+
+    subgraph "Store Layer"
+        ZS[Zustand Store]
+        MC[MCP Context]
+        PS[Persistent Storage]
+    end
+
+    subgraph "Action Layer"
+        AC[Action Creators]
+        TH[Thunks]
+        MD[Middleware]
+    end
+
+    subgraph "Effect Layer"
+        SE[Side Effects]
+        WS[WebSocket]
+        API[API Calls]
+    end
+
+    subgraph "Component Layer"
+        UI[UI Components]
+        HK[Hooks]
+        SL[Selectors]
+    end
+
+    UI --> HK --> SL
+    SL --> ZS
+    ZS --> AC --> TH
+    TH --> MD --> SE
+    SE --> WS & API
+    WS & API --> MC
+    MC --> PS
+
+    class ZS,MC,PS store;
+    class AC,TH,MD action;
+    class SE,WS,API effect;
+    class UI,HK,SL component;
+</div></code></pre>
+<h3 id="error-handling-architecture">Error Handling Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#e74c3c',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#c0392b',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#3498db'
+    }
+  }
+}%%
+graph TB
+    classDef error fill:#e74c3c,stroke:#c0392b,color:#fff;
+    classDef handler fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef recovery fill:#2ecc71,stroke:#27ae60,color:#fff;
+    classDef boundary fill:#f1c40f,stroke:#f39c12,color:#000;
+
+    subgraph "Error Types"
+        NE[Network Errors]
+        SE[Service Errors]
+        DE[Data Errors]
+        VE[Validation Errors]
+    end
+
+    subgraph "Error Handlers"
+        GH[Global Handler]
+        BH[Boundary Handler]
+        CH[Component Handler]
+        SH[Service Handler]
+    end
+
+    subgraph "Recovery Strategies"
+        RT[Retry Logic]
+        FL[Fallback Logic]
+        CR[Circuit Breaker]
+        CP[Checkpoint]
+    end
+
+    subgraph "Error Boundaries"
+        EB[Error Boundary]
+        EL[Error Logger]
+        EM[Error Metrics]
+    end
+
+    NE & SE & DE & VE --> GH
+    GH --> BH & CH & SH
+    BH & CH & SH --> RT & FL & CR & CP
+    RT & FL & CR & CP --> EB
+    EB --> EL --> EM
+
+    class NE,SE,DE,VE error;
+    class GH,BH,CH,SH handler;
+    class RT,FL,CR,CP recovery;
+    class EB,EL,EM boundary;
+</div></code></pre>
+<p>These diagrams provide a comprehensive view of:</p>
+<ol>
+<li>Frontend component relationships and hierarchy</li>
+<li>Service layer abstraction and implementation</li>
+<li>Data flow through the system</li>
+<li>State management architecture</li>
+<li>Error handling patterns and recovery strategies</li>
+</ol>
+<p>Would you like me to:</p>
+<ol>
+<li>Add more detailed class diagrams for specific components?</li>
+<li>Create diagrams for other architectural aspects?</li>
+<li>Add more detailed relationships between components?</li>
+<li>Include implementation details in the diagrams?</li>
+</ol>
+<h3 id="monitoring-architecture">Monitoring Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#2ecc71',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#27ae60',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+classDiagram
+    class MonitoringAgent {
+        -collectors: Map<string, DataCollector>
+        -processors: Map<string, DataProcessor>
+        -alertManager: AlertManager
+        +monitor()
+        -collectData()
+        -processMetrics()
+        #handleMonitoringError()
+    }
+
+    class DataCollector {
+        <<interface>>
+        +collect()
+        +validate()
+        +transform()
+    }
+
+    class DataProcessor {
+        -validator: Validator
+        -transformer: Transformer
+        +process()
+        -validateData()
+        -normalizeData()
+        -aggregateData()
+    }
+
+    class AlertManager {
+        -rules: Map<string, AlertRule>
+        -notifiers: Map<string, Notifier>
+        +evaluateAlerts()
+        -correlateAlerts()
+        -sendNotifications()
+    }
+
+    class MetricsManager {
+        -store: MetricsStore
+        -aggregator: MetricsAggregator
+        +recordMetric()
+        +queryMetrics()
+        -aggregateMetrics()
+    }
+
+    MonitoringAgent --> DataCollector
+    MonitoringAgent --> DataProcessor
+    MonitoringAgent --> AlertManager
+    MonitoringAgent --> MetricsManager
+    DataCollector --> DataProcessor
+    DataProcessor --> AlertManager
+    AlertManager --> MetricsManager
+</div></code></pre>
+<h3 id="testing-architecture">Testing Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#3498db',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#2980b9',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#e74c3c'
+    }
+  }
+}%%
+graph TB
+    classDef test fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef mock fill:#e74c3c,stroke:#c0392b,color:#fff;
+    classDef fixture fill:#2ecc71,stroke:#27ae60,color:#fff;
+    classDef runner fill:#9b59b6,stroke:#8e44ad,color:#fff;
+
+    subgraph "Test Suites"
+        UT[Unit Tests]
+        IT[Integration Tests]
+        E2E[E2E Tests]
+        PT[Performance Tests]
+    end
+
+    subgraph "Test Fixtures"
+        TF[Test Factory]
+        TD[Test Data]
+        TS[Test State]
+    end
+
+    subgraph "Mock System"
+        MS[Mock Server]
+        MC[Mock Client]
+        MD[Mock Database]
+    end
+
+    subgraph "Test Runner"
+        TR[Test Runner]
+        RP[Result Processor]
+        RG[Report Generator]
+    end
+
+    UT & IT & E2E & PT --> TR
+    TR --> RP --> RG
+    TF --> UT & IT & E2E
+    TD --> TF
+    TS --> TF
+    MS & MC & MD --> IT & E2E
+
+    class UT,IT,E2E,PT test;
+    class MS,MC,MD mock;
+    class TF,TD,TS fixture;
+    class TR,RP,RG runner;
+</div></code></pre>
+<h3 id="container-architecture">Container Architecture</h3>
+<pre><code class="language-mermaid"><div class="mermaid">%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#f1c40f',
+      'primaryTextColor': '#000',
+      'primaryBorderColor': '#f39c12',
+      'lineColor': '#2c3e50',
+      'secondaryColor': '#3498db'
+    }
+  }
+}%%
+graph TB
+    classDef container fill:#f1c40f,stroke:#f39c12,color:#000;
+    classDef volume fill:#3498db,stroke:#2980b9,color:#fff;
+    classDef network fill:#2ecc71,stroke:#27ae60,color:#fff;
+
+    subgraph "Container Stack"
+        FE[Frontend Container]
+        BE[Backend Container]
+        DB[Database Container]
+        MQ[Message Queue Container]
+    end
+
+    subgraph "Volumes"
+        DV[Data Volume]
+        LV[Log Volume]
+        CV[Config Volume]
+    end
+
+    subgraph "Networks"
+        FN[Frontend Network]
+        BN[Backend Network]
+        DN[Database Network]
+    end
+
+    FE --> FN
+    BE --> FN & BN
+    DB --> BN & DN
+    MQ --> BN
+    BE --> DV & LV & CV
+    DB --> DV
+
+    class FE,BE,DB,MQ container;
+    class DV,LV,CV volume;
+    class FN,BN,DN network;
+</div></code></pre>
+<p>Now, let me create a Podman/Docker compose file to orchestrate these containers.</p>
+
+</body>
+</html>

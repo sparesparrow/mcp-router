@@ -1,0 +1,1 @@
+"""Cognitive processing components for system context monitoring.""" 

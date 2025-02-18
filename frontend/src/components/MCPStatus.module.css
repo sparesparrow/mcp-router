@@ -1,0 +1,41 @@
+.mcpStatus {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.statusIndicator {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.success {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.error {
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.reconnectButton {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.reconnectButton:hover {
+  background-color: var(--color-primary-dark);
+} 
