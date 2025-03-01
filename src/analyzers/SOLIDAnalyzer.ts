@@ -15,14 +15,14 @@ export class SOLIDAnalyzer {
     this.patterns.set('SingleResponsibility', [
       {
         name: 'MultipleResponsibilities',
-        detect: (ast: AST) => this.detectMultipleResponsibilities(ast)
+        detect: (ast: AST) => Promise.resolve(this.detectMultipleResponsibilities(ast))
       }
     ]);
     
     this.patterns.set('OpenClosed', [
       {
         name: 'ModificationOverExtension',
-        detect: (ast: AST) => this.detectModificationOverExtension(ast)
+        detect: (ast: AST) => Promise.resolve(this.detectModificationOverExtension(ast))
       }
     ]);
     
@@ -40,7 +40,8 @@ export class SOLIDAnalyzer {
         metrics: this.calculateMetrics(violations)
       };
     } catch (error) {
-      throw new Error(`Analysis failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Analysis failed: ${errorMessage}`);
     }
   }
 

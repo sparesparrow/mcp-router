@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for MCP Router
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: systemcontext_test
+          POSTGRES_DB: mcp_router_test
         ports:
           - 5432:5432
         options: >-
@@ -49,7 +49,7 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+        cache-dependency-path: package-lock.json
 
     - name: Install system dependencies
       run: |
@@ -63,24 +63,25 @@ jobs:
         pip install pytest-cov pytest-asyncio
 
     - name: Install Node.js dependencies
-      working-directory: frontend
       run: npm ci
 
     - name: Run backend tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/systemcontext_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mcp_router_test
         REDIS_URL: redis://localhost:6379/0
       run: |
         pytest tests/ --cov=services --cov-report=xml
 
     - name: Run frontend tests
-      working-directory: frontend
       run: npm test -- --coverage
+
+    - name: Lint frontend code
+      run: npm run lint
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
       with:
-        files: ./coverage.xml,./frontend/coverage/coverage-final.json
+        files: ./coverage.xml,./coverage/coverage-final.json
 
   build:
     needs: test
@@ -132,4 +133,9 @@ jobs:
     steps:
     - name: Deploy to production
       run: |
-        echo "Add deployment steps here" 
+        echo "Deploying MCP Router to production environment"
+        # Add actual deployment steps here, such as:
+        # - SSH into server
+        # - Pull latest Docker images
+        # - Update docker-compose.yml
+        # - Restart services 

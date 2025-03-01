@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mcp_integration.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="model-context-protocol-mcp-integration">Model Context Protocol (MCP) Integration</h1>
+<h2 id="overview">Overview</h2>
+<p>The Model Context Protocol (MCP) integration provides a standardized way for clients to interact with AI models, audio services, and system monitoring capabilities through WebSocket connections. This implementation follows best practices for security, performance, and reliability.</p>
+<h2 id="protocol-version-20-updates">Protocol Version 2.0 Updates</h2>
+<h3 id="new-features">New Features</h3>
+<ul>
+<li>Enhanced protocol diagnostics</li>
+<li>Real-time performance monitoring</li>
+<li>Improved security measures</li>
+<li>Rate limiting protection</li>
+<li>Extended message validation</li>
+<li>New message types for diagnostics and heartbeat</li>
+</ul>
+<h2 id="message-types">Message Types</h2>
+<p>The protocol supports the following message types:</p>
+<ol>
+<li>Request Messages</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"request"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"req-123"</span>,
+  <span class="hljs-attr">"method"</span>: <span class="hljs-string">"tools/call"</span>,
+  <span class="hljs-attr">"params"</span>: {},
+  <span class="hljs-attr">"context"</span>: {}
+}
+</div></code></pre>
+<ol start="2">
+<li>Response Messages</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"response"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"resp-123"</span>,
+  <span class="hljs-attr">"request_id"</span>: <span class="hljs-string">"req-123"</span>,
+  <span class="hljs-attr">"result"</span>: {},
+  <span class="hljs-attr">"metrics"</span>: {}
+}
+</div></code></pre>
+<ol start="3">
+<li>Event Messages</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"event"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"evt-123"</span>,
+  <span class="hljs-attr">"event_type"</span>: <span class="hljs-string">"status_update"</span>,
+  <span class="hljs-attr">"data"</span>: {},
+  <span class="hljs-attr">"source"</span>: <span class="hljs-string">"system"</span>
+}
+</div></code></pre>
+<ol start="4">
+<li>Error Messages</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"error"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"err-123"</span>,
+  <span class="hljs-attr">"error_code"</span>: <span class="hljs-string">"RATE_LIMIT_EXCEEDED"</span>,
+  <span class="hljs-attr">"error_message"</span>: <span class="hljs-string">"Too many requests"</span>,
+  <span class="hljs-attr">"details"</span>: {},
+  <span class="hljs-attr">"request_id"</span>: <span class="hljs-string">"req-123"</span>
+}
+</div></code></pre>
+<ol start="5">
+<li>Diagnostic Messages (New)</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"diagnostic"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"diag-123"</span>,
+  <span class="hljs-attr">"level"</span>: <span class="hljs-string">"warning"</span>,
+  <span class="hljs-attr">"component"</span>: <span class="hljs-string">"transport"</span>,
+  <span class="hljs-attr">"message"</span>: <span class="hljs-string">"High latency detected"</span>,
+  <span class="hljs-attr">"details"</span>: {},
+  <span class="hljs-attr">"metrics"</span>: {}
+}
+</div></code></pre>
+<ol start="6">
+<li>Heartbeat Messages (New)</li>
+</ol>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"protocol_version"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"message_type"</span>: <span class="hljs-string">"heartbeat"</span>,
+  <span class="hljs-attr">"message_id"</span>: <span class="hljs-string">"hb-123"</span>,
+  <span class="hljs-attr">"client_id"</span>: <span class="hljs-string">"client-456"</span>,
+  <span class="hljs-attr">"uptime"</span>: <span class="hljs-number">3600.5</span>,
+  <span class="hljs-attr">"metrics"</span>: {}
+}
+</div></code></pre>
+<h2 id="security-enhancements">Security Enhancements</h2>
+<h3 id="rate-limiting">Rate Limiting</h3>
+<ul>
+<li>100 messages per minute per client</li>
+<li>Automatic violation recording</li>
+<li>Progressive penalty system</li>
+</ul>
+<h3 id="message-validation">Message Validation</h3>
+<ul>
+<li>Strict schema validation</li>
+<li>Size limits on fields</li>
+<li>Protocol version enforcement</li>
+<li>Message ID format validation</li>
+</ul>
+<h3 id="connection-security">Connection Security</h3>
+<ul>
+<li>Enhanced handshake process</li>
+<li>Client metadata tracking</li>
+<li>Security violation monitoring</li>
+<li>Automatic connection termination on repeated violations</li>
+</ul>
+<h2 id="protocol-diagnostics">Protocol Diagnostics</h2>
+<h3 id="real-time-monitoring">Real-time Monitoring</h3>
+<ul>
+<li>Message throughput</li>
+<li>Error rates</li>
+<li>Protocol violations</li>
+<li>Performance metrics</li>
+</ul>
+<h3 id="diagnostic-reports">Diagnostic Reports</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"message_counts"</span>: {
+    <span class="hljs-attr">"sent"</span>: <span class="hljs-number">1000</span>,
+    <span class="hljs-attr">"received"</span>: <span class="hljs-number">950</span>
+  },
+  <span class="hljs-attr">"protocol_violations"</span>: [
+    {
+      <span class="hljs-attr">"timestamp"</span>: <span class="hljs-string">"2024-02-17T23:10:15Z"</span>,
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"rate_limit_exceeded"</span>,
+      <span class="hljs-attr">"details"</span>: {}
+    }
+  ],
+  <span class="hljs-attr">"active_connections"</span>: <span class="hljs-number">5</span>,
+  <span class="hljs-attr">"performance_metrics"</span>: {},
+  <span class="hljs-attr">"error_summary"</span>: {
+    <span class="hljs-attr">"total_violations"</span>: <span class="hljs-number">10</span>,
+    <span class="hljs-attr">"violation_types"</span>: {
+      <span class="hljs-attr">"rate_limit_exceeded"</span>: <span class="hljs-number">5</span>,
+      <span class="hljs-attr">"invalid_message"</span>: <span class="hljs-number">3</span>,
+      <span class="hljs-attr">"protocol_version_mismatch"</span>: <span class="hljs-number">2</span>
+    }
+  }
+}
+</div></code></pre>
+<h2 id="client-library-updates">Client Library Updates</h2>
+<h3 id="python-client">Python Client</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> mcp_client <span class="hljs-keyword">import</span> MCPClient
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">connect_mcp</span><span class="hljs-params">()</span>:</span>
+    client = MCPClient(
+        uri=<span class="hljs-string">"ws://localhost:8000/api/mcp/ws"</span>,
+        api_key=<span class="hljs-string">"your-api-key"</span>,
+        protocol_version=<span class="hljs-string">"2.0"</span>
+    )
+    
+    <span class="hljs-comment"># Enable diagnostics</span>
+    client.enable_diagnostics()
+    
+    <span class="hljs-comment"># Connect with automatic reconnection</span>
+    <span class="hljs-keyword">await</span> client.connect()
+    
+    <span class="hljs-comment"># Subscribe to diagnostic events</span>
+<span class="hljs-meta">    @client.on_diagnostic</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_diagnostic</span><span class="hljs-params">(message)</span>:</span>
+        print(<span class="hljs-string">f"Diagnostic: <span class="hljs-subst">{message.level}</span> - <span class="hljs-subst">{message.message}</span>"</span>)
+    
+    <span class="hljs-comment"># Call system diagnostics tool</span>
+    response = <span class="hljs-keyword">await</span> client.call_tool(
+        <span class="hljs-string">"system/diagnostics"</span>,
+        {
+            <span class="hljs-string">"components"</span>: [<span class="hljs-string">"all"</span>],
+            <span class="hljs-string">"level"</span>: <span class="hljs-string">"basic"</span>
+        }
+    )
+    
+    <span class="hljs-comment"># Get client diagnostics</span>
+    diagnostics = client.get_diagnostics()
+    print(diagnostics)
+
+asyncio.run(connect_mcp())
+</div></code></pre>
+<h3 id="javascript-client">JavaScript Client</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> { MCPClient } <span class="hljs-keyword">from</span> <span class="hljs-string">'@mcp/client'</span>;
+
+<span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> MCPClient({
+  <span class="hljs-attr">url</span>: <span class="hljs-string">'ws://localhost:8000/api/mcp/ws'</span>,
+  <span class="hljs-attr">apiKey</span>: <span class="hljs-string">'your-api-key'</span>,
+  <span class="hljs-attr">protocolVersion</span>: <span class="hljs-string">'2.0'</span>,
+  <span class="hljs-attr">diagnostics</span>: <span class="hljs-literal">true</span>
+});
+
+<span class="hljs-comment">// Connect with automatic reconnection</span>
+<span class="hljs-keyword">await</span> client.connect();
+
+<span class="hljs-comment">// Subscribe to diagnostic events</span>
+client.onDiagnostic(<span class="hljs-function">(<span class="hljs-params">message</span>) =&gt;</span> {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Diagnostic: <span class="hljs-subst">${message.level}</span> - <span class="hljs-subst">${message.message}</span>`</span>);
+});
+
+<span class="hljs-comment">// Call performance metrics tool</span>
+<span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> client.callTool(<span class="hljs-string">'system/performance'</span>, {
+  <span class="hljs-attr">metrics</span>: [<span class="hljs-string">'cpu'</span>, <span class="hljs-string">'memory'</span>],
+  <span class="hljs-attr">interval</span>: <span class="hljs-number">1</span>
+});
+
+<span class="hljs-comment">// Get client diagnostics</span>
+<span class="hljs-keyword">const</span> diagnostics = client.getDiagnostics();
+<span class="hljs-built_in">console</span>.log(diagnostics);
+</div></code></pre>
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="error-types">Error Types</h3>
+<ol>
+<li>
+<p>Protocol Errors</p>
+<ul>
+<li>INVALID_MESSAGE_FORMAT</li>
+<li>INVALID_PROTOCOL_VERSION</li>
+<li>INVALID_MESSAGE_ID</li>
+<li>MESSAGE_TOO_LARGE</li>
+</ul>
+</li>
+<li>
+<p>Security Errors</p>
+<ul>
+<li>RATE_LIMIT_EXCEEDED</li>
+<li>INVALID_API_KEY</li>
+<li>UNAUTHORIZED_ACCESS</li>
+<li>SECURITY_VIOLATION</li>
+</ul>
+</li>
+<li>
+<p>Connection Errors</p>
+<ul>
+<li>CONNECTION_FAILED</li>
+<li>CONNECTION_LOST</li>
+<li>RECONNECTION_FAILED</li>
+<li>HEARTBEAT_TIMEOUT</li>
+</ul>
+</li>
+</ol>
+<h3 id="error-recovery">Error Recovery</h3>
+<ul>
+<li>Automatic reconnection with exponential backoff</li>
+<li>Message retry for transient failures</li>
+<li>State recovery after reconnection</li>
+<li>Diagnostic event emission</li>
+</ul>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="connection-management">Connection Management</h3>
+<ul>
+<li>Heartbeat monitoring (30s interval)</li>
+<li>Automatic reconnection</li>
+<li>Connection pooling</li>
+<li>Resource cleanup</li>
+</ul>
+<h3 id="message-processing">Message Processing</h3>
+<ul>
+<li>Asynchronous message handling</li>
+<li>Message batching support</li>
+<li>Streaming response optimization</li>
+<li>Resource usage monitoring</li>
+</ul>
+<h2 id="monitoring-and-metrics">Monitoring and Metrics</h2>
+<h3 id="system-metrics">System Metrics</h3>
+<ul>
+<li>CPU and memory usage</li>
+<li>Network I/O</li>
+<li>Message throughput</li>
+<li>Error rates</li>
+</ul>
+<h3 id="client-metrics">Client Metrics</h3>
+<ul>
+<li>Connection status</li>
+<li>Message latency</li>
+<li>Error counts</li>
+<li>Reconnection attempts</li>
+</ul>
+<h3 id="tool-metrics">Tool Metrics</h3>
+<ul>
+<li>Execution time</li>
+<li>Success rate</li>
+<li>Resource usage</li>
+<li>Error distribution</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li>
+<p>Connection Management</p>
+<ul>
+<li>Always enable heartbeat monitoring</li>
+<li>Implement reconnection logic</li>
+<li>Handle connection state changes</li>
+<li>Clean up resources properly</li>
+</ul>
+</li>
+<li>
+<p>Error Handling</p>
+<ul>
+<li>Implement proper error recovery</li>
+<li>Log diagnostic messages</li>
+<li>Monitor error rates</li>
+<li>Handle reconnection gracefully</li>
+</ul>
+</li>
+<li>
+<p>Security</p>
+<ul>
+<li>Secure API key storage</li>
+<li>Monitor rate limits</li>
+<li>Handle security violations</li>
+<li>Validate all messages</li>
+</ul>
+</li>
+<li>
+<p>Performance</p>
+<ul>
+<li>Enable message batching</li>
+<li>Monitor resource usage</li>
+<li>Optimize message size</li>
+<li>Use streaming when appropriate</li>
+</ul>
+</li>
+</ol>
+<h2 id="architecture">Architecture</h2>
+<p>The MCP integration consists of several key components:</p>
+<h3 id="1-mcp-server-servicesapimcpserverpy">1. MCP Server (<code>services/api/mcp/server.py</code>)</h3>
+<ul>
+<li>Core message handling and routing</li>
+<li>Tool registration and management</li>
+<li>Service integration</li>
+<li>Error handling</li>
+<li>Streaming response support</li>
+</ul>
+<h3 id="2-mcp-transport-servicesapimcptransportpy">2. MCP Transport (<code>services/api/mcp/transport.py</code>)</h3>
+<ul>
+<li>WebSocket transport layer</li>
+<li>Connection management</li>
+<li>Message validation</li>
+<li>Error recovery</li>
+<li>Metrics collection</li>
+<li>Connection metadata tracking</li>
+</ul>
+<h3 id="3-tool-registry-servicesapimcptoolspy">3. Tool Registry (<code>services/api/mcp/tools.py</code>)</h3>
+<ul>
+<li>Dynamic tool registration</li>
+<li>Built-in system tools</li>
+<li>Performance metrics</li>
+<li>Workflow analysis</li>
+<li>Audio analysis</li>
+<li>System diagnostics</li>
+</ul>
+<h3 id="4-fastapi-integration-servicesapiroutersmcppy">4. FastAPI Integration (<code>services/api/routers/mcp.py</code>)</h3>
+<ul>
+<li>WebSocket endpoint</li>
+<li>Connection status endpoint</li>
+<li>API key authentication</li>
+<li>Error handling</li>
+</ul>
+<h2 id="available-tools">Available Tools</h2>
+<h3 id="system-performance-systemperformance">System Performance (<code>system/performance</code>)</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"system/performance"</span>,
+  <span class="hljs-attr">"description"</span>: <span class="hljs-string">"Get detailed system performance metrics with historical data"</span>,
+  <span class="hljs-attr">"input_schema"</span>: {
+    <span class="hljs-attr">"metrics"</span>: [<span class="hljs-string">"cpu"</span>, <span class="hljs-string">"memory"</span>, <span class="hljs-string">"disk"</span>, <span class="hljs-string">"network"</span>],
+    <span class="hljs-attr">"interval"</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">"history_minutes"</span>: <span class="hljs-number">5</span>
+  }
+}
+</div></code></pre>
+<h3 id="workflow-analysis-workflowanalyze">Workflow Analysis (<code>workflow/analyze</code>)</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"workflow/analyze"</span>,
+  <span class="hljs-attr">"description"</span>: <span class="hljs-string">"Analyze workflow execution patterns and performance"</span>,
+  <span class="hljs-attr">"input_schema"</span>: {
+    <span class="hljs-attr">"workflow_id"</span>: <span class="hljs-string">"string"</span>,
+    <span class="hljs-attr">"time_range"</span>: <span class="hljs-string">"1h"</span>,
+    <span class="hljs-attr">"include_metrics"</span>: <span class="hljs-literal">true</span>
+  }
+}
+</div></code></pre>
+<h3 id="audio-analysis-audioanalyze">Audio Analysis (<code>audio/analyze</code>)</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"audio/analyze"</span>,
+  <span class="hljs-attr">"description"</span>: <span class="hljs-string">"Analyze audio stream quality and performance"</span>,
+  <span class="hljs-attr">"input_schema"</span>: {
+    <span class="hljs-attr">"stream_id"</span>: <span class="hljs-string">"string"</span>,
+    <span class="hljs-attr">"metrics"</span>: [<span class="hljs-string">"quality"</span>, <span class="hljs-string">"latency"</span>, <span class="hljs-string">"errors"</span>]
+  }
+}
+</div></code></pre>
+<h3 id="system-diagnostics-systemdiagnostics">System Diagnostics (<code>system/diagnostics</code>)</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"system/diagnostics"</span>,
+  <span class="hljs-attr">"description"</span>: <span class="hljs-string">"Run system diagnostics and health checks"</span>,
+  <span class="hljs-attr">"input_schema"</span>: {
+    <span class="hljs-attr">"components"</span>: [<span class="hljs-string">"all"</span>, <span class="hljs-string">"system"</span>, <span class="hljs-string">"network"</span>, <span class="hljs-string">"services"</span>],
+    <span class="hljs-attr">"level"</span>: <span class="hljs-string">"basic"</span>
+  }
+}
+</div></code></pre>
+<h2 id="websocket-protocol">WebSocket Protocol</h2>
+<h3 id="connection">Connection</h3>
+<ol>
+<li>Connect to <code>/api/mcp/ws</code> with API key in header</li>
+<li>Receive welcome message with client ID</li>
+<li>Begin sending/receiving messages</li>
+</ol>
+<h3 id="message-format">Message Format</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"unique-message-id"</span>,
+  <span class="hljs-attr">"method"</span>: <span class="hljs-string">"tools/call"</span>,
+  <span class="hljs-attr">"params"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"tool-name"</span>,
+    <span class="hljs-attr">"arguments"</span>: {}
+  }
+}
+</div></code></pre>
+<h3 id="response-format">Response Format</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"unique-message-id"</span>,
+  <span class="hljs-attr">"result"</span>: {}
+}
+</div></code></pre>
+<h3 id="error-format">Error Format</h3>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"unique-message-id"</span>,
+  <span class="hljs-attr">"error"</span>: {
+    <span class="hljs-attr">"code"</span>: <span class="hljs-string">"error-code"</span>,
+    <span class="hljs-attr">"message"</span>: <span class="hljs-string">"Error description"</span>
+  }
+}
+</div></code></pre>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<ol>
+<li>
+<p>Connection Management</p>
+<ul>
+<li>Heartbeat monitoring</li>
+<li>Automatic reconnection</li>
+<li>Resource cleanup</li>
+</ul>
+</li>
+<li>
+<p>Message Processing</p>
+<ul>
+<li>Async/await throughout</li>
+<li>Proper error handling</li>
+<li>Resource pooling</li>
+</ul>
+</li>
+<li>
+<p>Metrics Collection</p>
+<ul>
+<li>Latency tracking</li>
+<li>Error rate monitoring</li>
+<li>Resource usage tracking</li>
+</ul>
+</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>Common issues and solutions:</p>
+<ol>
+<li>
+<p>Connection Failed</p>
+<ul>
+<li>Verify API key is valid</li>
+<li>Check network connectivity</li>
+<li>Ensure server is running</li>
+</ul>
+</li>
+<li>
+<p>Message Errors</p>
+<ul>
+<li>Validate message format</li>
+<li>Check tool name and parameters</li>
+<li>Review error message details</li>
+</ul>
+</li>
+<li>
+<p>Performance Issues</p>
+<ul>
+<li>Monitor system resources</li>
+<li>Check network latency</li>
+<li>Review message patterns</li>
+</ul>
+</li>
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>refactoring.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="mcp-router-project-structure-analysis--recommendations">MCP Router: Project Structure Analysis &amp; Recommendations</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#current-structure">Current Structure</a></li>
+<li><a href="#architecture-overview">Architecture Overview</a></li>
+<li><a href="#recommended-structure">Recommended Structure</a></li>
+<li><a href="#migration-strategy">Migration Strategy</a></li>
+</ol>
+<h2 id="current-structure">Current Structure</h2>
+<p>The MCP Router project currently has a complex structure with multiple overlapping directories and unclear boundaries.</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    root[mcp-router/] --> src[src/]
+    root --> services[services/]
+    root --> backend[backend/]
+    root --> core[core/]
+    root --> system[system_context_monitor/]
+    root --> alembic[alembic/]
+    root --> docs[docs/]
+    root --> tests[tests/]
+    root --> pubdir[public/]
+    root --> infra[Docker & Nginx]
+    
+    src --> components[components/]
+    src --> utils[utils/]
+    src --> types[types/]
+    src --> core2[core/]
+    
+    components --> nodes[nodes/]
+    components --> canvas[WorkflowCanvas]
+    components --> palette[NodePalette]
+    components --> properties[PropertiesPanel]
+    components --> mermaid[MermaidPanel]
+    
+    style root fill:#f5f5f5,stroke:#333
+    style src fill:#f9d5e5,stroke:#333
+    style components fill:#f9d5e5,stroke:#333
+    style nodes fill:#f9d5e5,stroke:#333
+    style services fill:#d5e5f9,stroke:#333
+    style backend fill:#d5e5f9,stroke:#333
+    style core fill:#d5e5f9,stroke:#333
+    style system fill:#d5e5f9,stroke:#333
+    style infra fill:#e5f9d5,stroke:#333
+</div></code></pre>
+<h3 id="key-issues">Key Issues:</h3>
+<ul>
+<li>Inconsistent organization patterns</li>
+<li>Duplicate functionality across directories</li>
+<li>Unclear boundaries between <code>src/</code>, <code>frontend/</code>, <code>backend/</code>, <code>services/</code>, and <code>core/</code></li>
+<li>Mixed development artifacts in repository</li>
+<li>Inconsistent naming conventions</li>
+</ul>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>The MCP Router application consists of four main layers:</p>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TD
+    subgraph Frontend["Frontend Layer"]
+        WD[Workflow Designer]
+        WC[Workflow Canvas]
+        NP[Node Palette] 
+        PP[Properties Panel]
+        MP[Mermaid Panel]
+    end
+    
+    subgraph Core["Core Layer"]
+        Router[Router Logic]
+        Discovery[Server Discovery]
+        Validation[Workflow Validation]
+    end
+    
+    subgraph Backend["Backend Services Layer"]
+        API[API Endpoints]
+        MCP[MCP Services]
+        Monitor[System Monitoring]
+        DB[Data Persistence]
+    end
+    
+    subgraph Infra["Infrastructure Layer"]
+        Docker[Docker]
+        Nginx[Nginx]
+        Database[Database]
+        CICD[CI/CD Pipeline]
+    end
+    
+    Frontend <--> Core
+    Core <--> Backend
+    Backend --> Infra
+    Frontend --> Infra
+    
+    style Frontend fill:#f9d5e5,stroke:#333
+    style Core fill:#f5d5f9,stroke:#333
+    style Backend fill:#d5e5f9,stroke:#333
+    style Infra fill:#e5f9d5,stroke:#333
+</div></code></pre>
+<ol>
+<li><strong>Frontend Layer</strong>: Visual workflow designer with node-based editing</li>
+<li><strong>Core Layer</strong>: Router functionality for MCP server communication</li>
+<li><strong>Backend Services Layer</strong>: API endpoints and system monitoring</li>
+<li><strong>Infrastructure Layer</strong>: Docker, Nginx, database, and CI/CD</li>
+</ol>
+<h2 id="recommended-structure">Recommended Structure</h2>
+<p>We recommend a monorepo structure with clear package boundaries:</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    root[mcp-router/] --> packages[packages/]
+    root --> infra[infra/]
+    root --> docs[docs/]
+    root --> scripts[scripts/]
+    root --> config[config/]
+    root --> github[.github/]
+    
+    packages --> frontend[frontend/]
+    packages --> backend[backend/]
+    packages --> shared[shared/]
+    
+    frontend --> fsrc[src/]
+    fsrc --> features[features/]
+    features --> workflow[workflow-designer/]
+    features --> mermaid[mermaid-integration/]
+    features --> dashboard[dashboard/]
+    
+    workflow --> components[components/]
+    workflow --> hooks[hooks/]
+    workflow --> contexts[contexts/]
+    
+    components --> canvas[Canvas/]
+    components --> palette[NodePalette/]
+    components --> panel[PropertiesPanel/]
+    components --> nodes[Nodes/]
+    
+    backend --> bsrc[src/]
+    bsrc --> api[api/]
+    bsrc --> services[services/]
+    bsrc --> core[core/]
+    bsrc --> db[db/]
+    
+    infra --> docker[docker/]
+    infra --> nginx[nginx/]
+    infra --> k8s[k8s/]
+    
+    style root fill:#f5f5f5,stroke:#333
+    style packages fill:#e5e5f9,stroke:#333
+    style frontend fill:#f9d5e5,stroke:#333
+    style fsrc fill:#f9d5e5,stroke:#333
+    style features fill:#f9d5e5,stroke:#333
+    style workflow fill:#f9d5e5,stroke:#333
+    style components fill:#f9d5e5,stroke:#333
+    style backend fill:#d5e5f9,stroke:#333
+    style bsrc fill:#d5e5f9,stroke:#333
+    style shared fill:#d5f9e5,stroke:#333
+    style infra fill:#f9f9d5,stroke:#333
+</div></code></pre>
+<ol>
+<li>
+<p><strong>packages/</strong></p>
+<ul>
+<li><strong>frontend/</strong>: React application with feature-based organization</li>
+<li><strong>backend/</strong>: Backend services with clear API boundaries</li>
+<li><strong>shared/</strong>: Common code used by both frontend and backend</li>
+</ul>
+</li>
+<li>
+<p><strong>infra/</strong>: All infrastructure configuration</p>
+</li>
+<li>
+<p><strong>docs/</strong>: Project documentation</p>
+</li>
+<li>
+<p><strong>scripts/</strong>: Build and deployment scripts</p>
+</li>
+<li>
+<p><strong>config/</strong>: Project-wide configuration</p>
+</li>
+</ol>
+<h3 id="key-benefits">Key Benefits:</h3>
+<ol>
+<li><strong>Clear Package Boundaries</strong>: Frontend, backend, and shared code separated</li>
+<li><strong>Feature-Based Organization</strong>: Frontend organized by features</li>
+<li><strong>Consistent Structure</strong>: Each package follows consistent patterns</li>
+<li><strong>Infrastructure Separation</strong>: Infrastructure code separate from application code</li>
+<li><strong>Better Developer Experience</strong>: Makes it easier to find and work with code</li>
+</ol>
+<h2 id="migration-strategy">Migration Strategy</h2>
+<p>We recommend a phased approach to migration:</p>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TB
+    Start([Start]) --> Phase1
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
+    Phase4 --> Phase5
+    Phase5 --> End([Complete])
+    
+    subgraph Phase1[Phase 1: Planning]
+        direction TB
+        P1A[Create directory structure]
+        P1B[Define coding standards]
+        P1C[Establish interfaces]
+        P1D[Create migration plan]
+        P1E[Set up testing]
+    end
+    
+    subgraph Phase2[Phase 2: Infrastructure]
+        direction TB
+        P2A[Update Docker config]
+        P2B[Update CI/CD pipelines]
+        P2C[Update workflows]
+    end
+    
+    subgraph Phase3[Phase 3: Packages]
+        direction TB
+        P3A[Migrate shared code]
+        P3B[Migrate backend code]
+        P3C[Migrate frontend code]
+    end
+    
+    subgraph Phase4[Phase 4: Features]
+        direction TB
+        P4A[Migrate small features]
+        P4B[Update dependencies]
+        P4C[Migrate complex features]
+    end
+    
+    subgraph Phase5[Phase 5: Cleanup]
+        direction TB
+        P5A[Remove duplicate code]
+        P5B[Update documentation]
+        P5C[Final testing]
+    end
+    
+    style Phase1 fill:#ffe6cc,stroke:#d79b00
+    style Phase2 fill:#d5e8d4,stroke:#82b366
+    style Phase3 fill:#dae8fc,stroke:#6c8ebf
+    style Phase4 fill:#e1d5e7,stroke:#9673a6
+    style Phase5 fill:#fff2cc,stroke:#d6b656
+</div></code></pre>
+<ol>
+<li>
+<p><strong>Phase 1: Planning</strong></p>
+<ul>
+<li>Create directory structure</li>
+<li>Define coding standards</li>
+<li>Establish interfaces</li>
+<li>Create migration plan</li>
+<li>Set up testing</li>
+</ul>
+</li>
+<li>
+<p><strong>Phase 2: Infrastructure</strong></p>
+<ul>
+<li>Update Docker configuration</li>
+<li>Update CI/CD pipelines</li>
+<li>Update development workflows</li>
+</ul>
+</li>
+<li>
+<p><strong>Phase 3: Packages</strong></p>
+<ul>
+<li>Migrate shared code</li>
+<li>Migrate backend code</li>
+<li>Migrate frontend code</li>
+</ul>
+</li>
+<li>
+<p><strong>Phase 4: Features</strong></p>
+<ul>
+<li>Migrate small features first</li>
+<li>Update dependencies</li>
+<li>Migrate complex features</li>
+</ul>
+</li>
+<li>
+<p><strong>Phase 5: Cleanup</strong></p>
+<ul>
+<li>Remove duplicate code</li>
+<li>Update documentation</li>
+<li>Final testing</li>
+</ul>
+</li>
+</ol>
+<h3 id="implementation-tips">Implementation Tips:</h3>
+<ul>
+<li>Use Git branches to isolate changes</li>
+<li>Implement automated tests before changes</li>
+<li>Migrate gradually with thorough testing</li>
+<li>Update imports one pattern at a time</li>
+<li>Keep the team informed of progress</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>This restructuring will make the codebase more maintainable, scalable, and easier for new team members to understand. The migration process should be gradual, focusing on one package or feature at a time, with thorough testing at each step.</p>
+
+</body>
+</html>

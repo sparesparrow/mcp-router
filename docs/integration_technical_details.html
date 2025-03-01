@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>integration_technical_details.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="technical-integration-details">Technical Integration Details</h1>
+<p>This document provides technical implementation details for the integration between Python, TypeScript, and React components in the System Context Monitor.</p>
+<h2 id="type-definitions">Type Definitions</h2>
+<h3 id="shared-interfaces-typescript">Shared Interfaces (TypeScript)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/types/shared.ts</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> SystemContext {
+    id: <span class="hljs-built_in">string</span>;
+    timestamp: <span class="hljs-built_in">number</span>;
+    metrics: SystemMetrics;
+    status: SystemStatus;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> SystemMetrics {
+    cpu_usage: <span class="hljs-built_in">number</span>;
+    memory_usage: <span class="hljs-built_in">number</span>;
+    network_stats: NetworkStats;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> SystemStatus = <span class="hljs-string">'active'</span> | <span class="hljs-string">'idle'</span> | <span class="hljs-string">'error'</span>;
+</div></code></pre>
+<h3 id="python-models-pydantic">Python Models (Pydantic)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/monitoring/models.py</span>
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Optional
+<span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> datetime
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SystemContext</span><span class="hljs-params">(BaseModel)</span>:</span>
+    id: str
+    timestamp: datetime
+    metrics: SystemMetrics
+    status: SystemStatus
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SystemMetrics</span><span class="hljs-params">(BaseModel)</span>:</span>
+    cpu_usage: float
+    memory_usage: float
+    network_stats: NetworkStats
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SystemStatus</span><span class="hljs-params">(str, Enum)</span>:</span>
+    ACTIVE = <span class="hljs-string">'active'</span>
+    IDLE = <span class="hljs-string">'idle'</span>
+    ERROR = <span class="hljs-string">'error'</span>
+</div></code></pre>
+<h2 id="websocket-integration">WebSocket Integration</h2>
+<h3 id="frontend-websocket-client-typescript">Frontend WebSocket Client (TypeScript)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/services/websocket.ts</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> WebSocketClient {
+    <span class="hljs-keyword">private</span> ws: WebSocket;
+    <span class="hljs-keyword">private</span> messageHandlers: Map&lt;<span class="hljs-built_in">string</span>, MessageHandler&gt;;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">url: <span class="hljs-built_in">string</span></span>) {
+        <span class="hljs-keyword">this</span>.ws = <span class="hljs-keyword">new</span> WebSocket(url);
+        <span class="hljs-keyword">this</span>.messageHandlers = <span class="hljs-keyword">new</span> Map();
+        <span class="hljs-keyword">this</span>.setupEventHandlers();
+    }
+
+    <span class="hljs-keyword">private</span> setupEventHandlers() {
+        <span class="hljs-keyword">this</span>.ws.onmessage = <span class="hljs-function">(<span class="hljs-params">event</span>) =&gt;</span> <span class="hljs-keyword">this</span>.handleMessage(event);
+        <span class="hljs-keyword">this</span>.ws.onerror = <span class="hljs-function">(<span class="hljs-params">error</span>) =&gt;</span> <span class="hljs-keyword">this</span>.handleError(error);
+    }
+
+    <span class="hljs-keyword">public</span> send(message: WebSocketMessage) {
+        <span class="hljs-keyword">this</span>.ws.send(<span class="hljs-built_in">JSON</span>.stringify(message));
+    }
+}
+</div></code></pre>
+<h3 id="backend-websocket-manager-python">Backend WebSocket Manager (Python)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/transport/websocket.py</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> WebSocket
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> List, Dict
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WebSocketManager</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.active_connections: List[WebSocket] = []
+        self.connection_map: Dict[str, WebSocket] = {}
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">connect</span><span class="hljs-params">(self, websocket: WebSocket, client_id: str)</span>:</span>
+        <span class="hljs-keyword">await</span> websocket.accept()
+        self.active_connections.append(websocket)
+        self.connection_map[client_id] = websocket
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">broadcast</span><span class="hljs-params">(self, message: dict)</span>:</span>
+        <span class="hljs-keyword">for</span> connection <span class="hljs-keyword">in</span> self.active_connections:
+            <span class="hljs-keyword">await</span> connection.send_json(message)
+</div></code></pre>
+<h2 id="api-integration">API Integration</h2>
+<h3 id="frontend-api-client-typescript">Frontend API Client (TypeScript)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/services/api.ts</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> APIClient {
+    <span class="hljs-keyword">private</span> baseUrl: <span class="hljs-built_in">string</span>;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">baseUrl: <span class="hljs-built_in">string</span></span>) {
+        <span class="hljs-keyword">this</span>.baseUrl = baseUrl;
+    }
+
+    <span class="hljs-keyword">async</span> getSystemMetrics(): <span class="hljs-built_in">Promise</span>&lt;SystemMetrics&gt; {
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.baseUrl}</span>/api/metrics`</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> response.json();
+    }
+
+    <span class="hljs-keyword">async</span> updateContext(context: Partial&lt;SystemContext&gt;): <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">void</span>&gt; {
+        <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.baseUrl}</span>/api/context`</span>, {
+            method: <span class="hljs-string">'POST'</span>,
+            headers: { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> },
+            body: <span class="hljs-built_in">JSON</span>.stringify(context)
+        });
+    }
+}
+</div></code></pre>
+<h3 id="backend-api-routes-python">Backend API Routes (Python)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/api/routes.py</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> APIRouter, Depends
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> List
+
+router = APIRouter()
+
+<span class="hljs-meta">@router.get("/api/metrics")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_metrics</span><span class="hljs-params">(
+    service: MonitoringService = Depends<span class="hljs-params">(get_monitoring_service)</span>
+)</span> -&gt; SystemMetrics:</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">await</span> service.get_current_metrics()
+
+<span class="hljs-meta">@router.post("/api/context")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_context</span><span class="hljs-params">(
+    context: SystemContext,
+    service: ContextService = Depends<span class="hljs-params">(get_context_service)</span>
+)</span> -&gt; <span class="hljs-keyword">None</span>:</span>
+    <span class="hljs-keyword">await</span> service.update_context(context)
+</div></code></pre>
+<h2 id="react-component-integration">React Component Integration</h2>
+<h3 id="monitoring-panel-component">Monitoring Panel Component</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/components/MonitoringPanel.tsx</span>
+<span class="hljs-keyword">import</span> React, { useEffect, useState } <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<span class="hljs-keyword">import</span> { useWebSocket } <span class="hljs-keyword">from</span> <span class="hljs-string">'../hooks/useWebSocket'</span>;
+<span class="hljs-keyword">import</span> { useAPI } <span class="hljs-keyword">from</span> <span class="hljs-string">'../hooks/useAPI'</span>;
+<span class="hljs-keyword">import</span> { SystemMetrics } <span class="hljs-keyword">from</span> <span class="hljs-string">'../types/shared'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> MonitoringPanel: React.FC = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> [metrics, setMetrics] = useState&lt;SystemMetrics | <span class="hljs-literal">null</span>&gt;(<span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">const</span> ws = useWebSocket();
+    <span class="hljs-keyword">const</span> api = useAPI();
+
+    useEffect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+        <span class="hljs-comment">// Initial metrics load</span>
+        api.getSystemMetrics().then(setMetrics);
+
+        <span class="hljs-comment">// Subscribe to real-time updates</span>
+        ws.subscribe(<span class="hljs-string">'metrics'</span>, <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> setMetrics(data));
+
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ws.unsubscribe(<span class="hljs-string">'metrics'</span>);
+    }, []);
+
+    <span class="hljs-keyword">return</span> (
+        &lt;div className=<span class="hljs-string">"monitoring-panel"</span>&gt;
+            {metrics &amp;&amp; (
+                &lt;&gt;
+                    &lt;MetricsDisplay metrics={metrics} /&gt;
+                    &lt;ChartComponent data={metrics} /&gt;
+                &lt;<span class="hljs-regexp">/&gt;
+            )}
+        &lt;/</span>div&gt;
+    );
+};
+</div></code></pre>
+<h2 id="service-integration">Service Integration</h2>
+<h3 id="monitoring-service-python">Monitoring Service (Python)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/monitoring/service.py</span>
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Optional
+<span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> datetime
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MonitoringService</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, websocket_manager: WebSocketManager)</span>:</span>
+        self.ws_manager = websocket_manager
+        self.metrics_collector = MetricsCollector()
+        self.data_processor = DataProcessor()
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_monitoring</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+            <span class="hljs-keyword">try</span>:
+                raw_metrics = <span class="hljs-keyword">await</span> self.metrics_collector.collect()
+                processed_metrics = self.data_processor.process(raw_metrics)
+                <span class="hljs-keyword">await</span> self.ws_manager.broadcast({
+                    <span class="hljs-string">'type'</span>: <span class="hljs-string">'metrics'</span>,
+                    <span class="hljs-string">'data'</span>: processed_metrics
+                })
+            <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:
+                <span class="hljs-keyword">await</span> self.handle_monitoring_error(e)
+</div></code></pre>
+<h2 id="error-handling-integration">Error Handling Integration</h2>
+<h3 id="frontend-error-boundary-react">Frontend Error Boundary (React)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/components/ErrorBoundary.tsx</span>
+<span class="hljs-keyword">import</span> React, { Component, ErrorInfo } <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+
+<span class="hljs-keyword">interface</span> Props {
+    children: React.ReactNode;
+}
+
+<span class="hljs-keyword">interface</span> State {
+    hasError: <span class="hljs-built_in">boolean</span>;
+    error: <span class="hljs-built_in">Error</span> | <span class="hljs-literal">null</span>;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> ErrorBoundary <span class="hljs-keyword">extends</span> Component&lt;Props, State&gt; {
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">props: Props</span>) {
+        <span class="hljs-keyword">super</span>(props);
+        <span class="hljs-keyword">this</span>.state = { hasError: <span class="hljs-literal">false</span>, error: <span class="hljs-literal">null</span> };
+    }
+
+    <span class="hljs-keyword">static</span> getDerivedStateFromError(error: <span class="hljs-built_in">Error</span>) {
+        <span class="hljs-keyword">return</span> { hasError: <span class="hljs-literal">true</span>, error };
+    }
+
+    componentDidCatch(error: <span class="hljs-built_in">Error</span>, errorInfo: ErrorInfo) {
+        <span class="hljs-built_in">console</span>.error(<span class="hljs-string">'Error caught by boundary:'</span>, error, errorInfo);
+    }
+
+    render() {
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.state.hasError) {
+            <span class="hljs-keyword">return</span> &lt;ErrorDisplay error={<span class="hljs-keyword">this</span>.state.error} /&gt;;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.props.children;
+    }
+}
+</div></code></pre>
+<h3 id="backend-error-handler-python">Backend Error Handler (Python)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/api/error_handler.py</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> Request
+<span class="hljs-keyword">from</span> fastapi.responses <span class="hljs-keyword">import</span> JSONResponse
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Union
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">global_error_handler</span><span class="hljs-params">(
+    request: Request,
+    exc: Union[Exception, HTTPException]
+)</span> -&gt; JSONResponse:</span>
+    error_id = generate_error_id()
+    
+    <span class="hljs-keyword">await</span> log_error(error_id, exc, request)
+    
+    <span class="hljs-keyword">return</span> JSONResponse(
+        status_code=getattr(exc, <span class="hljs-string">'status_code'</span>, <span class="hljs-number">500</span>),
+        content={
+            <span class="hljs-string">'error_id'</span>: error_id,
+            <span class="hljs-string">'message'</span>: str(exc),
+            <span class="hljs-string">'type'</span>: exc.__class__.__name__
+        }
+    )
+</div></code></pre>
+<h2 id="state-management-integration">State Management Integration</h2>
+<h3 id="frontend-state-store-typescript">Frontend State Store (TypeScript)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// frontend/src/store/index.ts</span>
+<span class="hljs-keyword">import</span> create <span class="hljs-keyword">from</span> <span class="hljs-string">'zustand'</span>;
+<span class="hljs-keyword">import</span> { SystemContext, SystemMetrics } <span class="hljs-keyword">from</span> <span class="hljs-string">'../types/shared'</span>;
+
+<span class="hljs-keyword">interface</span> AppState {
+    context: SystemContext | <span class="hljs-literal">null</span>;
+    metrics: SystemMetrics | <span class="hljs-literal">null</span>;
+    setContext: <span class="hljs-function">(<span class="hljs-params">context: SystemContext</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+    updateMetrics: <span class="hljs-function">(<span class="hljs-params">metrics: SystemMetrics</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> useStore = create&lt;AppState&gt;<span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params"><span class="hljs-keyword">set</span></span>) =&gt; (<span class="hljs-params">{
+    context: <span class="hljs-literal">null</span>,
+    metrics: <span class="hljs-literal">null</span>,
+    setContext: (<span class="hljs-params">context</span>) =&gt; <span class="hljs-keyword">set</span>(<span class="hljs-params">{ context }</span>),
+    updateMetrics: (<span class="hljs-params">metrics</span>) =&gt; <span class="hljs-keyword">set</span>(<span class="hljs-params">{ metrics }</span>)
+}</span>)</span>);
+</span></div></code></pre>
+<h3 id="backend-state-manager-python">Backend State Manager (Python)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># services/context/state.py</span>
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Dict, Any
+<span class="hljs-keyword">from</span> redis <span class="hljs-keyword">import</span> Redis
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StateManager</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, redis_client: Redis)</span>:</span>
+        self.redis = redis_client
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_state</span><span class="hljs-params">(self, key: str)</span> -&gt; Dict[str, Any]:</span>
+        state_data = <span class="hljs-keyword">await</span> self.redis.get(key)
+        <span class="hljs-keyword">return</span> json.loads(state_data) <span class="hljs-keyword">if</span> state_data <span class="hljs-keyword">else</span> {}
+
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_state</span><span class="hljs-params">(self, key: str, data: Dict[str, Any])</span> -&gt; <span class="hljs-keyword">None</span>:</span>
+        <span class="hljs-keyword">await</span> self.redis.set(key, json.dumps(data))
+</div></code></pre>
+<p>These technical details complement the visual diagrams by providing concrete implementation examples for each integration point in the system.</p>
+
+</body>
+</html>

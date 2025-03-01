@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Router - Workflow Designer</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .workflow-container {
+      padding: 1rem;
+      height: calc(100vh - 100px);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .workflow-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .workflow-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .workflow-sidebar {
+      position: absolute;
+      left: 10px;
+      top: 100px;
+      background-color: #f0f4f8;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+    
+    .workflow-sidebar h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+    
+    .node-types {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .draggable-node {
+      padding: 0.5rem;
+      background-color: white;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      user-select: none;
+    }
+    
+    .draggable-node:hover {
+      background-color: #edf2f7;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    
+    .btn:hover {
+      background-color: #2c5282;
+    }
+    
+    .btn-secondary {
+      background-color: #718096;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #4a5568;
+    }
+    
+    /* React Flow specific styles */
+    .react-flow__node {
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    
+    .react-flow__node.selected {
+      box-shadow: 0 0 0 2px #3182ce;
+    }
+    
+    .react-flow__attribution {
+      font-size: 0.6rem;
+      background: rgba(255,255,255,0.7);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <h1>MCP Router</h1>
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/workflow-designer" class="active">Workflow Designer</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="workflow-container">
+      <div class="workflow-header">
+        <h2>LLM Agent Workflow Designer</h2>
+        <div class="workflow-actions">
+          <button class="btn" id="save-workflow">Save</button>
+          <button class="btn btn-secondary" id="load-workflow">Load</button>
+          <button class="btn btn-secondary" id="export-workflow">Export</button>
+        </div>
+      </div>
+      
+      <div id="workflow-root" style="height: 100%; width: 100%;"></div>
+    </div>
+    
+    <div class="workflow-sidebar">
+      <h3>Agent Components</h3>
+      <div class="node-types">
+        <div class="draggable-node" draggable="true" data-node-type="llm">
+          <strong>LLM</strong> - Large Language Model
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="tool">
+          <strong>Tool</strong> - Function Call
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="router">
+          <strong>Router</strong> - Request Routing
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="parallel">
+          <strong>Parallel</strong> - Concurrent Processing
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="orchestrator">
+          <strong>Orchestrator</strong> - Task Coordination
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="evaluator">
+          <strong>Evaluator</strong> - Quality Assessment
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="input">
+          <strong>Input</strong> - Workflow Start
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="output">
+          <strong>Output</strong> - Workflow End
+        </div>
+        <div class="draggable-node" draggable="true" data-node-type="condition">
+          <strong>Condition</strong> - Conditional Logic
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  
+  <!-- This would normally be bundled, but for simplicity we're loading from CDN -->
+  <script src="https://unpkg.com/reactflow@11/dist/umd/reactflow.min.js"></script>
+  <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+  
+  <script>
+    // Initialize drag events for node types
+    document.querySelectorAll('.draggable-node').forEach(node => {
+      node.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData('application/reactflow', event.target.getAttribute('data-node-type'));
+        event.dataTransfer.setData('nodeName', event.target.querySelector('strong').textContent);
+        event.dataTransfer.effectAllowed = 'move';
+      });
+    });
+    
+    // Mount workflow designer when page is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // In a real implementation, this would be the entry point to mount the React app
+      console.log('Workflow Designer loaded');
+      // ReactDOM.render(<WorkflowDesigner />, document.getElementById('workflow-root'));
+    });
+  </script>
+</body>
+</html> 

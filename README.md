@@ -1,312 +1,216 @@
-# System Context Monitor
+# MCP Router with LLM Agent Workflows
 
-A comprehensive system monitoring solution with cognitive workflows and enhanced security.
+A comprehensive router for Model Context Protocol (MCP) servers with an integrated LLM Agent Workflow Designer.
+
+## Overview
+
+The MCP Router enables communication between various MCP clients and servers, providing a central hub for managing AI workflows through the Model Context Protocol. Its LLM Agent Workflow Designer allows for visual creation of sophisticated agent patterns as described in Anthropic's "Building Effective Agents" guide.
+
+```mermaid
+graph TD
+    User([User]) --> Router[MCP Router]
+    Router --> Designer[Workflow Designer]
+    Designer --> AgentPatterns[Agent Patterns]
+    Router --> MCPServers[MCP Servers]
+    
+    subgraph "Agent Patterns"
+        PC[Prompt Chaining]
+        RT[Routing]
+        PR[Parallelization]
+        OW[Orchestrator-Workers]
+        EO[Evaluator-Optimizer]
+        AA[Autonomous Agent]
+    end
+    
+    AgentPatterns --> PC
+    AgentPatterns --> RT
+    AgentPatterns --> PR
+    AgentPatterns --> OW
+    AgentPatterns --> EO
+    AgentPatterns --> AA
+    
+    style Router fill:#1E88E5,color:white
+    style Designer fill:#4CAF50,color:white
+    style AgentPatterns fill:#FF7043,color:white
+```
 
 ## Features
 
-- Enhanced security with API key validation and rate limiting
-- Comprehensive protocol validation for MCP messages
-- Real-time monitoring through WebSocket connections
-- Tool registry with validation and metrics collection
-- Redis-based rate limiting and caching
-- Structured logging with context tracking
-- Extensive test coverage
+- **Advanced MCP Protocol Network Routing**: Connect and manage multiple MCP servers
+- **LLM Agent Workflow Designer**: Create, monitor, and deploy agent workflows using visual tools
+- **Agent Pattern Library**: Implement architectures from Anthropic's agent design patterns
+- **Integrated Mermaid Diagrams**: Visualize and document workflows with automatic diagram generation
+- **Advanced Testing Framework**: Test and simulate agent workflows before deployment
+- **Comprehensive Monitoring**: Track performance metrics and diagnose issues
 
-## Installation
+## Project Structure
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/system-context-monitor.git
-cd system-context-monitor
+```
+mcp-router/
+├── src/                  # Main TypeScript source code
+│   ├── components/       # React components for workflow designer
+│   ├── core/             # Core routing functionality
+│   ├── types/            # TypeScript type definitions
+│   ├── utils/            # Utility functions
+│   │   └── mermaid/      # Mermaid diagram utilities
+│   └── web/              # Web server implementation
+├── public/               # Static frontend assets
+├── config/               # Configuration files
+├── docs/                 # Documentation
+├── backend/              # Python backend components
+├── dev/                  # Development resources and prototypes
+├── services/             # Microservices and supporting services
+├── test_logs/            # Test execution logs
+├── frontend/             # React-based frontend application
+├── tests/                # Automated tests
+├── nginx/                # Nginx configuration
+├── screenshots/          # Application screenshots
+├── dashboard/            # Dashboard components
+├── test_coverage/        # Code coverage reports
+├── core/                 # Core Python modules
+├── system_context_monitor/ # System monitoring components
+├── Projects/             # Related projects and subprojects
+├── alembic/              # Database migration scripts
+├── start.sh              # Production startup script
+├── dev.sh                # Development startup script
+└── docker-compose.yml    # Docker Compose configuration
 ```
 
-2. Install dependencies with Poetry:
+## Directory Documentation
+
+- [src/](src/README.md) - Main TypeScript source code
+  - [src/components/](src/components/README.md) - React components for workflow designer
+  - [src/utils/mermaid/](src/utils/mermaid/) - Mermaid diagram utilities
+- [public/](public/README.md) - Static frontend assets
+- [config/](config/README.md) - Configuration files
+- [docs/](docs/README.md) - Documentation
+- [backend/](backend/README.md) - Python backend components
+- [dev/](dev/README.md) - Development resources and prototypes
+- [services/](services/README.md) - Microservices and supporting services
+- [test_logs/](test_logs/README.md) - Test execution logs
+- [frontend/](frontend/README.md) - React-based frontend application
+- [tests/](tests/README.md) - Automated tests
+- [nginx/](nginx/README.md) - Nginx configuration
+- [screenshots/](screenshots/README.md) - Application screenshots
+- [dashboard/](dashboard/README.md) - Dashboard components
+- [test_coverage/](test_coverage/README.md) - Code coverage reports
+- [core/](core/README.md) - Core Python modules
+- [system_context_monitor/](system_context_monitor/README.md) - System monitoring components
+- [Projects/](Projects/README.md) - Related projects and subprojects
+- [alembic/](alembic/README.md) - Database migration scripts
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 16.x or higher
+- Python 3.9 or higher (for backend)
+- Modern web browser
+
+### Installation
+
+#### Main Application
+
 ```bash
-poetry install
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-Or with pip:
+#### Frontend
+
 ```bash
-pip install -r services/requirements.txt
+cd frontend
+npm install
+npm start
 ```
 
-3. Set up environment variables:
+#### Backend
+
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+cd backend
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ```
 
-4. Start Redis and PostgreSQL:
+#### Using Development Script
+
+For quick development setup:
+
 ```bash
-docker-compose up -d redis db
+./dev.sh
 ```
 
-5. Run database migrations:
+#### Production Deployment
+
+For production deployment:
+
 ```bash
-poetry run alembic upgrade head
+./start.sh
 ```
 
-## Development
+## Accessing the Application
 
-1. Start the development server:
-```bash
-poetry run uvicorn services.api.main:app --reload
-```
+- **Main Dashboard**: http://localhost:8080/
+- **Workflow Designer**: http://localhost:8080/workflow-designer
+- **API Documentation**: http://localhost:8080/docs
 
-2. Run tests:
-```bash
-poetry run pytest tests/
-```
+## LLM Agent Workflow Designer
 
-3. Run linting:
-```bash
-poetry run black services/
-poetry run isort services/
-poetry run mypy services/
-```
+The Workflow Designer provides a visual interface for creating, testing, and deploying agent workflows based on Anthropic's agent patterns.
 
-## API Documentation
+![Workflow Designer Screenshot](screenshots/workflow-designer.png)
 
-Once running, visit:
-- OpenAPI documentation: http://localhost:8000/docs
-- ReDoc documentation: http://localhost:8000/redoc
+Key capabilities:
+- Drag-and-drop interface for connecting agent components
+- Pattern library with pre-built agent architectures
+- MCP server integration for resources, tools, and prompts
+- Visual execution monitoring
+- Testing and simulation framework
+- Mermaid diagram import/export
 
-## Architecture
+### Workflow Designer Components
 
-The System Context Monitor is built with:
-- FastAPI for high-performance API endpoints
-- WebSocket support for real-time monitoring
-- Redis for rate limiting and caching
-- PostgreSQL for persistent storage
-- Structured logging with context tracking
-- Comprehensive test suite
+The workflow designer consists of these main components:
 
-### Security Features
+1. **WorkflowCanvas**: Main canvas for designing agent workflows
+2. **MermaidPanel**: Interface for editing and importing/exporting mermaid diagrams
+3. **Node Components**: Specialized components for different node types (LLM, Tool, Router, etc.)
 
-- API key validation
-- Rate limiting with Redis
-- Protocol validation for all messages
-- Security headers
-- CORS configuration
-- Input validation with Pydantic
+For more details, see the [Workflow Designer Components README](src/components/README.md).
 
-### Monitoring Features
+## Agent Patterns
 
-- Real-time system metrics
-- Tool execution metrics
-- Error tracking and categorization
-- Performance monitoring
-- Resource usage tracking
+The designer implements all core agent patterns from Anthropic's "Building Effective Agents" guide:
+
+1. **Prompt Chaining**: Sequential LLM processing with validation gates
+2. **Routing**: Dynamic classification and specialized handler routing
+3. **Parallelization**: Concurrent task processing with aggregation
+4. **Orchestrator-Workers**: Coordinated multi-agent task distribution
+5. **Evaluator-Optimizer**: Iterative improvement with evaluation feedback
+6. **Autonomous Agent**: Independent planning and execution loop
+
+## Documentation
+
+- [Frontend README](frontend/README.md)
+- [Workflow Designer Components](src/components/README.md)
+- [LLM Agent Workflow Designer](docs/workflow-designer.md)
+- [Agent Pattern Library](docs/agent-patterns.md)
+- [API Documentation](docs/api.md)
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Material-UI for the component library
-- FastAPI for the backend framework
-- Docker for containerization
-- The open-source community for various tools and libraries
-
-Below is the new `diagrams.md` file containing the requested Mermaid diagrams. All diagrams have been created following the Mermaid Diagram Generator standards (mermaid-generator.mdc), including proper syntax validation, incremental building, and style management.
-
----
-
-# Diagrams for the System Context Monitor
-
-This file includes multiple Mermaid diagrams documenting the architecture, workflows, and processes of our System Context Monitor codebase.
-
----
-
-## 1. High-Level Code Structure Diagram
-
-This diagram visualizes the overall directory structure and main modules in the project.
-
-```mermaid
-graph LR
-    A[SystemContextMonitor]
-    A --> B[core]
-    A --> C[services]
-    A --> D[frontend]
-    A --> E[infrastructure]
-
-    B --> B1[agents]
-    B --> B2[cognitive]
-    B --> B3[workflows]
-
-    C --> C1[monitoring]
-    C --> C2[context]
-
-    D --> D1[Dashboard UI]
-    D --> D2[Workflow Manager]
-    D --> D3[Monitoring Panel]
-```
-
----
-
-## 2. System Monitoring Workflow Flow Diagram
-
-This flowchart illustrates the process within the SystemMonitoringWorkflow—from context validation to service initialization, concurrent monitoring, and error handling.
-
-```mermaid
-flowchart TD
-    A[Start Workflow Execution]
-    B[Validate Context]
-    C[Initialize Services]
-    D[Setup Service Map]
-    E[Create Service Instances]
-    F[Start Monitoring]
-    G[Run Services Concurrently]
-    H[Return Initial State]
-    I{Error Occurred?}
-    J[Perform Cleanup]
-    K[Stop All Services]
-    
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-    G -- Error --> I
-    I -- Yes --> J
-    J --> K
-```
-
----
-
-## 3. Cognitive Orchestrator Workflow Execution Sequence Diagram
-
-This sequence diagram details how the CognitiveOrchestrator executes a workflow, including context validation, resource checks, execution, and state updates.
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Orchestrator
-    participant Workflow
-    Client->>Orchestrator: execute_workflow(workflow_id, context)
-    Orchestrator->>Orchestrator: Validate context (Pydantic)
-    Orchestrator->>Workflow: Instantiate workflow instance
-    Orchestrator->>Orchestrator: Check resource limits
-    Orchestrator->>Workflow: execute(context)
-    Workflow-->>Orchestrator: Return results or error
-    Orchestrator->>Orchestrator: Update state (completed/failed)
-    Orchestrator-->>Client: Return execution_id
-```
-
----
-
-## 4. Context Management Flow Diagram
-
-This diagram highlights the process of adding context data and notifying subscribers via the ContextShepherd module.
-
-```mermaid
-sequenceDiagram
-    participant App
-    participant Shepherd as ContextShepherd
-    participant Subscriber
-    App->>Shepherd: add_context(source, content, importance)
-    Shepherd->>Shepherd: Validate context data
-    Shepherd->>Subscriber: Notify subscriber of update
-```
-
----
-
-## 5. Monitoring Service Lifecycle Diagram
-
-This flowchart outlines the lifecycle of a monitoring service—from initialization and metric collection to error handling and cleanup.
-
-```mermaid
-flowchart TD
-    A[Initialize Monitoring Service]
-    B[Start Service]
-    C[Enter Monitoring Loop]
-    D[Check Resource Usage]
-    E[Collect Metric]
-    F[Store Metric]
-    G[Cleanup Old Metrics]
-    H[Error Handling]
-    I[Stop Service]
-    
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> C
-    C -- Error --> H
-    H --> I
-```
-
----
-
-## 6. Service Initialization Error Handling Diagram
-
-This sequence diagram visualizes the error handling flow during service initialization, especially when configuration data is invalid.
-
-```mermaid
-sequenceDiagram
-    participant Workflow as SystemMonitoringWorkflow
-    participant Service as MonitoringService
-    participant Logger
-    Workflow->>Service: Create service instance with config
-    Service->>Service: Validate configuration (e.g., output_dir exists)
-    alt Config Valid
-        Service-->>Workflow: Instance created successfully
-    else Invalid Config
-        Service-->>Workflow: Raise error ("dict' object has no attribute 'output_dir'")
-        Workflow->>Logger: Log error
-    end
-```
-
----
-
-## 7. Clipboard Service Monitoring Flow Diagram
-
-This diagram shows the flow of clipboard monitoring—from periodic checking to detecting content changes and notifying subscribers.
-
-```mermaid
-sequenceDiagram
-    participant Clipboard as ClipboardService
-    participant Provider as pyperclip
-    participant Handler as _handle_clipboard_change
-    participant Subscriber
-    Clipboard->>Provider: Get current content
-    alt Content Changed
-        Clipboard->>Handler: Process new content
-        Handler->>Subscriber: Notify change
-    else No Change
-        Clipboard->>Clipboard: Continue monitoring
-    end
-```
-
----
-
-## 8. Test Execution Flow Diagram
-
-This diagram illustrates the overall test execution flow, highlighting service startup, workflow execution, error logging, and cleanup sequences.
-
-```mermaid
-sequenceDiagram
-    participant TestRunner as run_tests.py
-    participant Service as MonitoringService
-    participant Workflow as SystemMonitoringWorkflow
-    participant Logger
-    TestRunner->>Service: Start service
-    Service-->>TestRunner: Service started
-    TestRunner->>Workflow: Execute workflow
-    Workflow-->>Logger: Log error (e.g., resource limit exceeded)
-    TestRunner->>Service: Stop service
-    Service-->>TestRunner: Service stopped
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

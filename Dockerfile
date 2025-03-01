@@ -26,6 +26,7 @@ COPY services/ ./services/
 COPY tests/ ./tests/
 COPY alembic.ini .
 COPY alembic/ ./alembic/
+COPY system_context_monitor/ ./system_context_monitor/
 
 # Set Python path
 ENV PYTHONPATH=/app
@@ -35,10 +36,17 @@ FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app
 
-COPY frontend/package*.json ./
+# Copy package files and install dependencies
+COPY package*.json ./
 RUN npm ci
 
-COPY frontend/ ./
+# Copy source code
+COPY src/ ./src/
+COPY public/ ./public/
+COPY tsconfig.json .
+COPY babel.config.json .
+
+# Build the React application
 RUN npm run build
 
 # Runtime image for frontend
@@ -70,9 +78,12 @@ COPY --from=backend-builder /usr/local/lib/python3.11/site-packages/ /usr/local/
 COPY --from=backend-builder /app/services/ ./services/
 COPY --from=backend-builder /app/alembic.ini .
 COPY --from=backend-builder /app/alembic/ ./alembic/
+COPY --from=backend-builder /app/system_context_monitor/ ./system_context_monitor/
 
+# Set environment variables
 ENV PYTHONPATH=/app
 ENV PORT=8000
+ENV NODE_ENV=production
 
 EXPOSE 8000
 
