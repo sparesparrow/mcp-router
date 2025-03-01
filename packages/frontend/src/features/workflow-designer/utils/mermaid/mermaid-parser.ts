@@ -3,7 +3,8 @@
  * Utility for parsing Mermaid diagrams into workflow definitions
  */
 
-import { Workflow, AgentNodeType, AgentNode, Edge } from '../../types/agent-types';
+import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
+import { Workflow, AgentNode, Edge } from '../../types/agent-types';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

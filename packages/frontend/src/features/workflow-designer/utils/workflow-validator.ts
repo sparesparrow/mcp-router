@@ -3,7 +3,8 @@
  * Utility for validating workflow structures
  */
 
-import { Workflow, AgentNodeType } from '../types/agent-types';
+import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
+import { Workflow } from '../types/agent-types';
 
 export interface ValidationError {
   nodeId?: string;
