@@ -257,9 +257,10 @@ const MCPWorkflowDesigner: React.FC = () => {
         const element = document.getElementById('workflow-preview');
         if (element) {
           element.innerHTML = '';
-          mermaid.render('workflow-diagram', diagram, (svgCode: string) => {
-            if (element) element.innerHTML = svgCode;
-          }, document.createElement('div'));
+          const tempContainer = document.createElement('div');
+          mermaid.render('workflow-diagram', diagram).then((result) => {
+            if (element) element.innerHTML = result.svg;
+          });
         }
       } catch (err) {
         console.error('Failed to render diagram:', err);

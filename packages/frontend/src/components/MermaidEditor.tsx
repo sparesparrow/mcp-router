@@ -130,9 +130,9 @@ const MermaidEditor: React.FC = () => {
         const element = document.getElementById('diagram-preview');
         if (element) {
           element.innerHTML = '';
-          mermaid.render('mermaid-diagram', sourceCode, (svgCode: string) => {
-            if (element) element.innerHTML = svgCode;
-          }, document.createElement('div'));
+          mermaid.render('mermaid-diagram', sourceCode).then((result) => {
+            if (element) element.innerHTML = result.svg;
+          });
         }
       } catch (err) {
         setIsValid(false);

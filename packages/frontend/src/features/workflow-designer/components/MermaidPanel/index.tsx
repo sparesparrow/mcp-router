@@ -47,11 +47,11 @@ const MermaidPanel: React.FC<MermaidPanelProps> = ({
     if (diagramRef.current && !editMode) {
       try {
         diagramRef.current.innerHTML = '';
-        mermaid.render('mermaid-diagram', mermaidCode, (svg: string) => {
+        mermaid.render('mermaid-diagram', mermaidCode).then((result) => {
           if (diagramRef.current) {
-            diagramRef.current.innerHTML = svg;
+            diagramRef.current.innerHTML = result.svg;
           }
-        }, document.createElement('div'));
+        });
       } catch (error) {
         console.error('Failed to render Mermaid diagram:', error);
         if (diagramRef.current) {
