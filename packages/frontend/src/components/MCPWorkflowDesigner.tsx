@@ -253,20 +253,32 @@ const MCPWorkflowDesigner: React.FC = () => {
     
     // Render the diagram
     if (activeTab === 'preview') {
-      try {
-        const element = document.getElementById('workflow-preview');
-        if (element) {
-          element.innerHTML = '';
-          const tempContainer = document.createElement('div');
-          mermaid.render('workflow-diagram', diagram).then((result) => {
-            if (element) element.innerHTML = result.svg;
-          });
-        }
-      } catch (err) {
-        console.error('Failed to render diagram:', err);
-      }
+      renderDiagram(diagram);
     }
   }, [nodes, edges, colorTheme, layout, activeTab]);
+  
+  const renderDiagram = async (diagram: string) => {
+    try {
+      // Clear previous diagram
+      const element = document.getElementById('workflow-preview');
+      if (element) {
+        element.innerHTML = '';
+        
+        // Modern mermaid.render returns a Promise with { svg, bindFunctions }
+        const { svg, bindFunctions } = await mermaid.render('workflow-preview', diagram, {});
+        
+        if (svg) {
+          element.innerHTML = svg;
+          // Bind any interactive elements if the function exists
+          if (bindFunctions) {
+            bindFunctions(element);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error rendering mermaid diagram:', error);
+    }
+  };
   
   // Add a new node
   const addNode = (type: NodeType, content: any) => {

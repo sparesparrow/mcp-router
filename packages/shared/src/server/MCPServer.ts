@@ -15,10 +15,10 @@ export class MCPServer {
       }
     } catch (error) {
       if (error instanceof MCPError) {
-        return { id: message.id, error };
+        return { id: message.id, success: false, error };
       } else {
         const mcpError = new MCPError("internal_error", "Internal server error");
-        return { id: message.id, error: mcpError };
+        return { id: message.id, success: false, error: mcpError };
       }
     }
   }
@@ -35,6 +35,7 @@ export class MCPServer {
 
     return {
       id: message.id,
+      success: true,
       result: {
         status: "handshake_ok",
         serverName: "MCPServer",
@@ -48,6 +49,7 @@ export class MCPServer {
     // Example tools list - in a real implementation, this would be dynamic
     return {
       id: message.id,
+      success: true,
       result: {
         tools: [
           {

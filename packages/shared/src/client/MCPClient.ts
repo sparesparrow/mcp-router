@@ -3,6 +3,7 @@ import { Transport, Message, Response, ClientConfig, MCPError } from '../types/m
 export class MCPClient {
   private isConnected: boolean = false;
   private messageHandlers: Map<string, (response: Response) => void> = new Map();
+  private pendingRequests: Map<string, { resolve: (value: Response) => void, reject: (reason: any) => void }> = new Map();
 
   constructor(private transport: Transport, private config: ClientConfig) {}
 
@@ -37,6 +38,7 @@ export class MCPClient {
       await this.transport.close();
       this.isConnected = false;
       this.messageHandlers.clear();
+      this.pendingRequests.clear();
     } catch (error) {
       console.error("Disconnection failed:", error);
       throw error;
@@ -63,7 +65,7 @@ export class MCPClient {
       }
     };
 
-    return await this.transport.send(message);
+    return this.sendAndWaitForResponse(message);
   }
 
   private async sendRequest(method: string, params?: any): Promise<Response> {
@@ -73,16 +75,40 @@ export class MCPClient {
       params
     };
 
-    return await this.transport.send(message);
+    return this.sendAndWaitForResponse(message);
+  }
+
+  private async sendAndWaitForResponse(message: Message): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      this.pendingRequests.set(message.id, { resolve, reject });
+      this.transport.send(message).catch(err => {
+        this.pendingRequests.delete(message.id);
+        reject(err);
+      });
+    });
   }
 
   private setupMessageHandling(): void {
-    this.transport.onMessage((message: Message) => {
-      const handler = this.messageHandlers.get(message.id);
-      if (handler) {
-        handler(message as Response);
-        this.messageHandlers.delete(message.id);
+    this.transport.onMessage(async (message: Message): Promise<Response> => {
+      const response = message as unknown as Response;
+      const pendingRequest = this.pendingRequests.get(response.id);
+      if (pendingRequest) {
+        pendingRequest.resolve(response);
+        this.pendingRequests.delete(response.id);
       }
+      
+      const handler = this.messageHandlers.get(response.id);
+      if (handler) {
+        handler(response);
+        this.messageHandlers.delete(response.id);
+      }
+      
+      // Return a response since the interface requires it
+      return {
+        id: message.id,
+        success: true,
+        result: { status: 'message_received' }
+      };
     });
   }
 

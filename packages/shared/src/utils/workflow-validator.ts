@@ -3,7 +3,48 @@
  * Utility for validating workflow structures
  */
 
-import { Workflow, AgentNodeType } from '../types/agent-types';
+import { AgentNodeType } from '../types/mcp';
+
+// Define the Workflow interface locally since it's not in the shared package
+export interface AgentNode {
+  id: string;
+  data?: {
+    type?: AgentNodeType;
+    label?: string;
+    provider?: string;
+    model?: string;
+    serverName?: string;
+    toolName?: string;
+    uri?: string;
+    routingField?: string;
+    routes?: Record<string, string>;
+    targetNodeIds?: string[];
+    maxWorkers?: number;
+    workerTemplate?: any;
+    maxIterations?: number;
+    targetNodeId?: string;
+    evaluationCriteria?: string;
+    condition?: string;
+    trueTargetNodeId?: string;
+    falseTargetNodeId?: string;
+    [key: string]: any;
+  };
+}
+
+export interface Edge {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description?: string;
+  nodes: AgentNode[];
+  edges: Edge[];
+}
 
 export interface ValidationError {
   nodeId?: string;

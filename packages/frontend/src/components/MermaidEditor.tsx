@@ -126,20 +126,34 @@ const MermaidEditor: React.FC = () => {
   // Render the diagram when in preview mode
   React.useEffect(() => {
     if (currentTab === 'preview') {
-      try {
-        const element = document.getElementById('diagram-preview');
-        if (element) {
-          element.innerHTML = '';
-          mermaid.render('mermaid-diagram', sourceCode).then((result) => {
-            if (element) element.innerHTML = result.svg;
-          });
-        }
-      } catch (err) {
-        setIsValid(false);
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      }
+      renderDiagram();
     }
   }, [sourceCode, currentTab]);
+
+  // Function to render the diagram
+  const renderDiagram = async () => {
+    try {
+      const element = document.getElementById('diagram-preview');
+      if (element) {
+        element.innerHTML = '';
+        
+        // Using the modern mermaid.render API that returns a Promise
+        const { svg, bindFunctions } = await mermaid.render('mermaid-diagram', sourceCode, {});
+        
+        if (svg) {
+          element.innerHTML = svg;
+          // Bind any interactive elements if available
+          if (bindFunctions) {
+            bindFunctions(element);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error rendering diagram:', error);
+      setIsValid(false);
+      setError(error instanceof Error ? error.message : 'Unknown error rendering diagram');
+    }
+  };
 
   return (
     <div>

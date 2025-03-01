@@ -7,10 +7,10 @@
  *  - An MCPClient that connects, sends messages, and processes responses
  */
 
-import { LocalTransport } from '../transport/LocalTransport';
-import { MCPServer } from '../server/MCPServer';
-import { MCPClient } from '../client/MCPClient';
-import { ClientConfig } from '../types/mcp';
+import { LocalTransport } from './LocalTransport';
+import { MCPServer } from './MCPServer';
+import { MCPClient } from './client/MCPClient';
+import { ClientConfig } from './types/mcp';
 
 async function main() {
   try {

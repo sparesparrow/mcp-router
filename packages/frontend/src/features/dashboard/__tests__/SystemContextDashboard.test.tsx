@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ThemeProvider, createTheme } from '@mui/material';
 import SystemContextDashboard from '../SystemContextDashboard';
-import { MCPProvider } from '../../src/contexts/MCPContext';
-import { useStore } from '../../src/store';
+import { MCPProvider } from '../../../contexts/MCPContext';
+import { useStore } from '../../../store';
 
 // Mock dependencies
 vi.mock('../../src/contexts/MCPContext', () => ({

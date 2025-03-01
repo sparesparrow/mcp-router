@@ -44,10 +44,5 @@ export interface SimpleAgentRegistry {
   listAgents: () => Promise<SimpleAgentConfig[]>;
 }
 
-// Export temporary simplified types
-export {
-  SimpleAgentConfig,
-  SimpleAgentMessage,
-  SimpleAgentResponse,
-  SimpleAgentRegistry
-}; 
+// Export AgentNodeType for convenience
+export { AgentNodeType }; 

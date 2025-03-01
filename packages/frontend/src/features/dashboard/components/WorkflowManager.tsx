@@ -27,7 +27,7 @@ import {
   Info as InfoIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { useMCP } from '../../src/contexts/MCPContext';
+import { useMCP } from '../../../contexts/MCPContext';
 
 interface WorkflowState {
   workflow_id: string;

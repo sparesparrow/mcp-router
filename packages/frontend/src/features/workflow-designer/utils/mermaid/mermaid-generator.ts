@@ -3,7 +3,8 @@
  * Utility for generating Mermaid diagrams from workflow definitions
  */
 
-import { Workflow, AgentNodeType } from '../../types/agent-types';
+import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
+import { Workflow } from '../../../workflow-designer/types/agent-types';
 
 interface MermaidOptions {
   direction?: 'TB' | 'BT' | 'RL' | 'LR';

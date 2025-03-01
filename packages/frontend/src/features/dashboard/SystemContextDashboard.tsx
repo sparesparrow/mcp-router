@@ -8,8 +8,8 @@ import {
   CircularProgress,
   useTheme,
 } from '@mui/material';
-import { SystemHealth } from '../types/monitoring';
-import { fetchSystemHealth } from '../api/monitoring';
+import { SystemHealth } from '../../types/monitoring';
+import { fetchSystemHealth } from '../../api/monitoring';
 
 const SystemContextDashboard: React.FC = () => {
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);

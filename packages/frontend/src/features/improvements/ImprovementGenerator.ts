@@ -1,4 +1,4 @@
-import { Violation } from '../types/analyzer';
+import { Violation } from '@mcp-router/shared/src/types/analyzer';
 
 export interface Improvement {
   description: string;

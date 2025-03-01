@@ -8,5 +8,5 @@
     "declarationMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "src/routes.ts", "src/server.ts", "src/solidAnalyzerIntegration.ts"]
 } 
