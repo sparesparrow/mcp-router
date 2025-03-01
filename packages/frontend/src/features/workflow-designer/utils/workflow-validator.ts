@@ -4,7 +4,7 @@
  */
 
 import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
-import { Workflow } from '../types/agent-types';
+import { Workflow, AgentNode } from '../types/agent-types';
 
 export interface ValidationError {
   nodeId?: string;
@@ -48,15 +48,16 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
   }
   
   // Validate that nodes have proper structure
-  workflow.nodes.forEach(node => {
+  workflow.nodes.forEach((node: AgentNode) => {
     if (!node.id) {
       validationErrors.push({
         message: 'Node is missing an ID',
         severity: 'error',
       });
+      return; // Skip further validation for this node
     }
     
-    if (!node.data?.type) {
+    if (!node.type) {
       validationErrors.push({
         nodeId: node.id,
         message: `Node ${node.id} is missing a type`,
@@ -64,7 +65,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
       });
     }
     
-    if (!node.data?.label) {
+    if (!node.label) {
       validationErrors.push({
         nodeId: node.id,
         message: `Node ${node.id} is missing a label`,
@@ -73,18 +74,9 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
     }
     
     // Validate node fields based on type
-    switch (node.data?.type) {
+    switch (node.type) {
       case AgentNodeType.LLM:
-        if (!node.data.provider) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'provider',
-            message: `LLM node ${node.id} is missing a provider`,
-            severity: 'warning',
-          });
-        }
-        
-        if (!node.data.model) {
+        if (!node.data?.model) {
           validationErrors.push({
             nodeId: node.id,
             field: 'model',
@@ -95,66 +87,66 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
         break;
         
       case AgentNodeType.TOOL:
-        if (!node.data.serverName) {
+        if (!node.data?.serverName) {
           validationErrors.push({
             nodeId: node.id,
             field: 'serverName',
-            message: `Tool node ${node.id} is missing a server`,
+            message: `Tool node ${node.id} is missing a server name`,
             severity: 'warning',
           });
         }
         
-        if (!node.data.toolName) {
+        if (!node.data?.toolName) {
           validationErrors.push({
             nodeId: node.id,
             field: 'toolName',
             message: `Tool node ${node.id} is missing a tool name`,
-            severity: 'error',
+            severity: 'warning',
           });
         }
         break;
         
       case AgentNodeType.RESOURCE:
-        if (!node.data.uri) {
+        if (!node.data?.uri) {
           validationErrors.push({
             nodeId: node.id,
             field: 'uri',
             message: `Resource node ${node.id} is missing a URI`,
-            severity: 'error',
+            severity: 'warning',
           });
         }
         break;
         
       case AgentNodeType.ROUTER:
-        if (!node.data.routingField) {
+        if (!node.data?.routingField) {
           validationErrors.push({
             nodeId: node.id,
             field: 'routingField',
             message: `Router node ${node.id} is missing a routing field`,
-            severity: 'error',
+            severity: 'warning',
           });
         }
         
-        if (!node.data.routes || Object.keys(node.data.routes).length === 0) {
+        if (!node.data?.routes || node.data.routes.length === 0) {
           validationErrors.push({
             nodeId: node.id,
             field: 'routes',
             message: `Router node ${node.id} has no routes defined`,
-            severity: 'error',
+            severity: 'warning',
           });
         }
         break;
         
       case AgentNodeType.PARALLEL:
-        if (!node.data.targetNodeIds || node.data.targetNodeIds.length === 0) {
+        if (!node.data?.targetNodeIds || node.data.targetNodeIds.length === 0) {
           validationErrors.push({
             nodeId: node.id,
             field: 'targetNodeIds',
             message: `Parallel node ${node.id} has no target nodes`,
-            severity: 'error',
+            severity: 'warning',
           });
         } else {
-          // Check if all target nodes exist
+          // Check that all target nodes exist
           node.data.targetNodeIds.forEach(targetId => {
             if (!workflow.nodes.some(n => n.id === targetId)) {
               validationErrors.push({
@@ -169,7 +161,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
         break;
         
       case AgentNodeType.ORCHESTRATOR:
-        if (typeof node.data.maxWorkers !== 'number' || node.data.maxWorkers < 1) {
+        if (typeof node.data?.maxWorkers !== 'number' || node.data.maxWorkers < 1) {
           validationErrors.push({
             nodeId: node.id,
             field: 'maxWorkers',
@@ -178,7 +170,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.workerTemplate) {
+        if (!node.data?.workerTemplate) {
           validationErrors.push({
             nodeId: node.id,
             field: 'workerTemplate',
@@ -189,7 +181,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
         break;
         
       case AgentNodeType.EVALUATOR:
-        if (typeof node.data.maxIterations !== 'number' || node.data.maxIterations < 1) {
+        if (typeof node.data?.maxIterations !== 'number' || node.data.maxIterations < 1) {
           validationErrors.push({
             nodeId: node.id,
             field: 'maxIterations',
@@ -198,34 +190,26 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.targetNodeId) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'targetNodeId',
-            message: `Evaluator node ${node.id} is missing a target node`,
-            severity: 'error',
-          });
-        } else if (!workflow.nodes.some(n => n.id === node.data.targetNodeId)) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'targetNodeId',
-            message: `Evaluator node ${node.id} references non-existent node: ${node.data.targetNodeId}`,
-            severity: 'error',
-          });
-        }
-        
-        if (!node.data.evaluationCriteria) {
+        if (!node.data?.evaluationCriteria || node.data.evaluationCriteria.length === 0) {
           validationErrors.push({
             nodeId: node.id,
             field: 'evaluationCriteria',
-            message: `Evaluator node ${node.id} is missing evaluation criteria`,
+            message: `Evaluator node ${node.id} has no evaluation criteria defined`,
             severity: 'warning',
           });
         }
         break;
         
+      case AgentNodeType.INPUT:
+        // No specific validations for INPUT nodes
+        break;
+        
+      case AgentNodeType.OUTPUT:
+        // No specific validations for OUTPUT nodes
+        break;
+        
       case AgentNodeType.CONDITION:
-        if (!node.data.condition) {
+        if (!node.data?.condition) {
           validationErrors.push({
             nodeId: node.id,
             field: 'condition',
@@ -234,7 +218,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.trueTargetNodeId) {
+        if (!node.data?.trueTargetNodeId) {
           validationErrors.push({
             nodeId: node.id,
             field: 'trueTargetNodeId',
@@ -250,7 +234,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.falseTargetNodeId) {
+        if (!node.data?.falseTargetNodeId) {
           validationErrors.push({
             nodeId: node.id,
             field: 'falseTargetNodeId',
@@ -273,7 +257,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
   if (workflow.edges && workflow.edges.length > 0) {
     workflow.nodes.forEach(node => {
       // Skip INPUT nodes as they don't need incoming edges
-      if (node.data?.type === AgentNodeType.INPUT) {
+      if (node.type === AgentNodeType.INPUT) {
         return;
       }
       
@@ -283,13 +267,13 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
       if (!hasIncomingEdge && !hasOutgoingEdge) {
         validationErrors.push({
           nodeId: node.id,
-          message: `Node ${node.id} (${node.data?.label || 'Unnamed'}) is orphaned (no connections)`,
+          message: `Node ${node.id} (${node.label || 'Unnamed'}) is orphaned (no connections)`,
           severity: 'warning',
         });
       }
       
       // OUTPUT nodes should have incoming but not necessarily outgoing edges
-      if (node.data?.type === AgentNodeType.OUTPUT && !hasIncomingEdge) {
+      if (node.type === AgentNodeType.OUTPUT && !hasIncomingEdge) {
         validationErrors.push({
           nodeId: node.id,
           message: `Output node ${node.id} has no incoming connections`,
@@ -300,7 +284,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
   }
   
   // Check for missing entry point (INPUT node)
-  const hasInputNode = workflow.nodes.some(node => node.data?.type === AgentNodeType.INPUT);
+  const hasInputNode = workflow.nodes.some(node => node.type === AgentNodeType.INPUT);
   if (!hasInputNode) {
     validationErrors.push({
       message: 'Workflow is missing an Input node',
@@ -309,11 +293,11 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
   }
   
   // Check for missing exit point (OUTPUT node)
-  const hasOutputNode = workflow.nodes.some(node => node.data?.type === AgentNodeType.OUTPUT);
+  const hasOutputNode = workflow.nodes.some(node => node.type === AgentNodeType.OUTPUT);
   if (!hasOutputNode) {
     validationErrors.push({
       message: 'Workflow is missing an Output node',
-      severity: 'error',
+      severity: 'warning',
     });
   }
   
@@ -321,9 +305,9 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
 }
 
 /**
- * Checks if a workflow has any critical validation errors (severity: error)
- * @param workflow The workflow to validate
- * @returns True if the workflow has any critical errors
+ * Checks if a workflow has any validation errors
+ * @param workflow The workflow to check
+ * @returns True if the workflow has validation errors
  */
 export function hasValidationErrors(workflow: Workflow): boolean {
   const errors = validateWorkflow(workflow);
@@ -331,13 +315,33 @@ export function hasValidationErrors(workflow: Workflow): boolean {
 }
 
 /**
- * Gets a human-readable summary of validation errors
- * @param errors Array of validation errors
- * @returns Summary string of errors
+ * Checks if a workflow has any validation warnings
+ * @param workflow The workflow to check
+ * @returns True if the workflow has validation warnings
  */
-export function getValidationSummary(errors: ValidationError[]): string {
-  const errorCount = errors.filter(e => e.severity === 'error').length;
-  const warningCount = errors.filter(e => e.severity === 'warning').length;
-  
-  return `Found ${errorCount} error${errorCount !== 1 ? 's' : ''} and ${warningCount} warning${warningCount !== 1 ? 's' : ''} in workflow`;
+export function hasValidationWarnings(workflow: Workflow): boolean {
+  const errors = validateWorkflow(workflow);
+  return errors.some(error => error.severity === 'warning');
+}
+
+/**
+ * Gets all validation errors for a specific node
+ * @param workflow The workflow containing the node
+ * @param nodeId The ID of the node to check
+ * @returns Array of validation errors for the node
+ */
+export function getNodeValidationErrors(workflow: Workflow, nodeId: string): ValidationError[] {
+  const errors = validateWorkflow(workflow);
+  return errors.filter(error => error.nodeId === nodeId);
+}
+
+/**
+ * Gets all validation errors for a specific edge
+ * @param workflow The workflow containing the edge
+ * @param edgeId The ID of the edge to check
+ * @returns Array of validation errors for the edge
+ */
+export function getEdgeValidationErrors(workflow: Workflow, edgeId: string): ValidationError[] {
+  const errors = validateWorkflow(workflow);
+  return errors.filter(error => error.edgeId === edgeId);
 } 
