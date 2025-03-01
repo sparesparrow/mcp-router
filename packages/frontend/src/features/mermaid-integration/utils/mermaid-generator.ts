@@ -4,7 +4,7 @@
  */
 
 import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
-import { Workflow, AgentNode } from '../../../features/workflow-designer/types/agent-types';
+import { Workflow, AgentNode } from '../../workflow-designer/types/agent-types';
 
 /**
  * Generate a Mermaid flowchart diagram from a workflow
