@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import WorkflowDesigner from './components/WorkflowDesigner';
+import WorkflowDesigner from './features/workflow-designer';
 
 const App: React.FC = () => {
   return (
