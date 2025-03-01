@@ -45,172 +45,217 @@ graph TD
 
 ## Project Structure
 
+The project has been restructured into a monorepo with clear package boundaries:
+
 ```
 mcp-router/
-├── src/                  # Main TypeScript source code
-│   ├── components/       # React components for workflow designer
-│   ├── core/             # Core routing functionality
-│   ├── types/            # TypeScript type definitions
-│   ├── utils/            # Utility functions
-│   │   └── mermaid/      # Mermaid diagram utilities
-│   └── web/              # Web server implementation
-├── public/               # Static frontend assets
-├── config/               # Configuration files
-├── docs/                 # Documentation
-├── backend/              # Python backend components
-├── dev/                  # Development resources and prototypes
-├── services/             # Microservices and supporting services
-├── test_logs/            # Test execution logs
-├── frontend/             # React-based frontend application
-├── tests/                # Automated tests
-├── nginx/                # Nginx configuration
-├── screenshots/          # Application screenshots
-├── dashboard/            # Dashboard components
-├── test_coverage/        # Code coverage reports
-├── core/                 # Core Python modules
-├── system_context_monitor/ # System monitoring components
-├── Projects/             # Related projects and subprojects
-├── alembic/              # Database migration scripts
-├── start.sh              # Production startup script
-├── dev.sh                # Development startup script
-└── docker-compose.yml    # Docker Compose configuration
+├── packages/               # Main packages directory
+│   ├── frontend/           # React frontend application
+│   ├── backend/            # Backend services and API
+│   └── shared/             # Shared code between frontend and backend
+├── infra/                  # Infrastructure configuration
+│   ├── docker/             # Docker configurations
+│   └── nginx/              # Nginx configuration
+├── docs/                   # Project documentation
+├── scripts/                # Build and deployment scripts
+└── config/                 # Project-wide configuration
 ```
 
-## Directory Documentation
+### Packages
 
-- [src/](src/README.md) - Main TypeScript source code
-  - [src/components/](src/components/README.md) - React components for workflow designer
-  - [src/utils/mermaid/](src/utils/mermaid/) - Mermaid diagram utilities
-- [public/](public/README.md) - Static frontend assets
-- [config/](config/README.md) - Configuration files
-- [docs/](docs/README.md) - Documentation
-- [backend/](backend/README.md) - Python backend components
-- [dev/](dev/README.md) - Development resources and prototypes
-- [services/](services/README.md) - Microservices and supporting services
-- [test_logs/](test_logs/README.md) - Test execution logs
-- [frontend/](frontend/README.md) - React-based frontend application
-- [tests/](tests/README.md) - Automated tests
-- [nginx/](nginx/README.md) - Nginx configuration
-- [screenshots/](screenshots/README.md) - Application screenshots
-- [dashboard/](dashboard/README.md) - Dashboard components
-- [test_coverage/](test_coverage/README.md) - Code coverage reports
-- [core/](core/README.md) - Core Python modules
-- [system_context_monitor/](system_context_monitor/README.md) - System monitoring components
-- [Projects/](Projects/README.md) - Related projects and subprojects
-- [alembic/](alembic/README.md) - Database migration scripts
+#### Frontend (`packages/frontend`)
 
-## Getting Started
+The frontend package contains the React application, organized by features:
+
+```
+frontend/
+├── public/                 # Static assets
+└── src/                    # Source code
+    ├── features/           # Feature modules
+    │   ├── workflow-designer/    # Workflow designer feature
+    │   │   ├── components/       # React components
+    │   │   │   ├── Canvas/       # Canvas component
+    │   │   │   ├── NodePalette/  # Node palette component
+    │   │   │   ├── PropertiesPanel/ # Properties panel
+    │   │   │   └── Nodes/        # Node components
+    │   │   ├── hooks/            # React hooks
+    │   │   └── contexts/         # React contexts
+    │   ├── mermaid-integration/  # Mermaid integration feature
+    │   └── improvements/         # Code improvements feature
+    ├── assets/              # Assets (images, etc.)
+    └── utils/               # Utility functions
+```
+
+#### Backend (`packages/backend`)
+
+The backend package contains the server-side code:
+
+```
+backend/
+├── src/                     # Source code
+│   ├── api/                 # API endpoints
+│   ├── services/            # Service implementations
+│   │   ├── analyzers/       # Code analyzers
+│   │   ├── mcp/             # MCP services
+│   │   │   ├── context/     # Context services
+│   │   └── system-monitor/  # System monitoring
+│   ├── core/                # Core functionality
+│   │   ├── router/          # Router implementation
+│   │   └── discovery/       # Server discovery
+│   ├── db/                  # Database access
+│   │   └── migrations/      # Database migrations
+│   └── utils/               # Utility functions
+└── tests/                   # Backend tests
+```
+
+#### Shared (`packages/shared`)
+
+The shared package contains code used by both frontend and backend:
+
+```
+shared/
+└── src/                     # Source code
+    ├── types/               # TypeScript type definitions
+    ├── client/              # Client implementations
+    ├── server/              # Server implementations
+    └── utils/               # Shared utilities
+```
+
+## Migration Status
+
+The project has been restructured from the old organization to the new monorepo structure. Key components have been moved to their appropriate locations:
+
+- Frontend components have been migrated to `packages/frontend/src/features/`
+- Backend services have been migrated to `packages/backend/src/services/`
+- Shared code has been migrated to `packages/shared/src/`
+
+For detailed migration status, see [refactoring.md](docs/refactoring.md).
+
+## Migration Tools
+
+Several scripts have been created to assist with the migration process:
+
+- `scripts/migrate_remaining.sh`: Script for migrating files to the new structure
+- `scripts/update_imports.sh`: Script for updating import paths in the migrated files
+- `scripts/deduplicate_files.sh`: Script for handling files that exist in multiple locations
+
+## Development
 
 ### Prerequisites
 
-- Node.js 16.x or higher
-- Python 3.9 or higher (for backend)
-- Modern web browser
+- Node.js (v16+)
+- Docker and Docker Compose
+- Python 3.9+
 
-### Installation
+### Getting Started
 
-#### Main Application
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/mcp-router.git
+   cd mcp-router
+   ```
 
-```bash
-# Install dependencies
-npm install
+2. Install dependencies for all packages:
+   ```
+   npm install
+   ```
 
-# Start the development server
-npm run dev
+3. Start the development environment:
+   ```
+   docker-compose up -d
+   ```
 
-# Build for production
+4. Start both frontend and backend development servers:
+   ```
+   npm run dev
+   ```
+
+   Alternatively, you can start them separately:
+   ```
+   # Start frontend only
+   npm run start:frontend
+
+   # Start backend only
+   npm run start:backend
+   ```
+
+### Building
+
+To build all packages:
+
+```
 npm run build
 ```
 
-#### Frontend
+To build individual packages:
 
-```bash
-cd frontend
-npm install
-npm start
+```
+npm run build:frontend
+npm run build:backend
+npm run build:shared
 ```
 
-#### Backend
+### Project Structure Details
 
-```bash
-cd backend
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload
+The monorepo is organized into three main packages:
+
+1. **Frontend Package** (`packages/frontend`):
+   - React application for the user interface
+   - Features-based organization
+   - Components for workflow design, monitoring, and visualization
+
+2. **Backend Package** (`packages/backend`):
+   - Node.js/Express server
+   - MCP routing functionality
+   - System monitoring and persistence
+
+3. **Shared Package** (`packages/shared`):
+   - Common types and utilities used by both frontend and backend
+   - MCP client and server implementations
+   - Transport layer abstractions
+
+### Importing Between Packages
+
+When importing from one package to another, use the `@mcp-router` namespace:
+
+```typescript
+// Importing from shared package in frontend or backend
+import { MCPClient } from '@mcp-router/shared/client/MCPClient';
+
+// Importing from within the same package
+import { Button } from '../../components/ui/Button';
 ```
-
-#### Using Development Script
-
-For quick development setup:
-
-```bash
-./dev.sh
-```
-
-#### Production Deployment
-
-For production deployment:
-
-```bash
-./start.sh
-```
-
-## Accessing the Application
-
-- **Main Dashboard**: http://localhost:8080/
-- **Workflow Designer**: http://localhost:8080/workflow-designer
-- **API Documentation**: http://localhost:8080/docs
-
-## LLM Agent Workflow Designer
-
-The Workflow Designer provides a visual interface for creating, testing, and deploying agent workflows based on Anthropic's agent patterns.
-
-![Workflow Designer Screenshot](screenshots/workflow-designer.png)
-
-Key capabilities:
-- Drag-and-drop interface for connecting agent components
-- Pattern library with pre-built agent architectures
-- MCP server integration for resources, tools, and prompts
-- Visual execution monitoring
-- Testing and simulation framework
-- Mermaid diagram import/export
-
-### Workflow Designer Components
-
-The workflow designer consists of these main components:
-
-1. **WorkflowCanvas**: Main canvas for designing agent workflows
-2. **MermaidPanel**: Interface for editing and importing/exporting mermaid diagrams
-3. **Node Components**: Specialized components for different node types (LLM, Tool, Router, etc.)
-
-For more details, see the [Workflow Designer Components README](src/components/README.md).
-
-## Agent Patterns
-
-The designer implements all core agent patterns from Anthropic's "Building Effective Agents" guide:
-
-1. **Prompt Chaining**: Sequential LLM processing with validation gates
-2. **Routing**: Dynamic classification and specialized handler routing
-3. **Parallelization**: Concurrent task processing with aggregation
-4. **Orchestrator-Workers**: Coordinated multi-agent task distribution
-5. **Evaluator-Optimizer**: Iterative improvement with evaluation feedback
-6. **Autonomous Agent**: Independent planning and execution loop
-
-## Documentation
-
-- [Frontend README](frontend/README.md)
-- [Workflow Designer Components](src/components/README.md)
-- [LLM Agent Workflow Designer](docs/workflow-designer.md)
-- [Agent Pattern Library](docs/agent-patterns.md)
-- [API Documentation](docs/api.md)
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[Add license information here]
+
+## Contributing
+
+[Add contribution guidelines here]
+
+## Current Status
+
+The project is currently undergoing a major restructuring to migrate from the original directory structure to a modern monorepo structure. The following has been completed:
+
+✅ All files have been migrated to the new monorepo structure  
+✅ Original directories (`src/` and `services/`) have been removed  
+✅ Import paths have been partially updated  
+✅ Package configurations have been set up  
+
+### Remaining Tasks
+
+The following tasks are still in progress:
+
+- Finishing import path updates (there are still some incorrect references)
+- Completing TypeScript configuration for all packages
+- Setting up proper build pipeline
+- Testing the application with the new structure
+
+### Known Issues
+
+- Some import paths may still reference the old directory structure
+- You may need to manually update imports when working with specific files
+- The build process may fail until all import paths are fixed
+
+If you encounter issues, please check [docs/refactoring.md](docs/refactoring.md) for details on the migration progress.

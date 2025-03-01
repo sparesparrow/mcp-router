@@ -1,0 +1,161 @@
+/* index.css */
+/* Global styles for the MCP Workflow Designer application */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Button styles */
+button {
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Form element styles */
+input, select, textarea {
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  background: white;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ReactFlow style overrides */
+.react-flow__node {
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background: #64748b;
+  border: 1px solid #475569;
+}
+
+.react-flow__handle-top {
+  top: -4px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -4px;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2px;
+}
+
+.react-flow__controls {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.react-flow__controls button {
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  margin: 2px;
+  color: #475569;
+}
+
+.react-flow__minimap {
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Node type-specific styling */
+.react-flow__node-LLM {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.react-flow__node-TOOL {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.react-flow__node-RESOURCE {
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+}
+
+.react-flow__node-ROUTER {
+  background: #fef9c3;
+  border-color: #fde047;
+}
+
+.react-flow__node-PARALLEL {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+.react-flow__node-ORCHESTRATOR {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.react-flow__node-EVALUATOR {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+}
+
+.react-flow__node-INPUT {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.react-flow__node-OUTPUT {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.react-flow__node-CONDITION {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+} 

@@ -20,9 +20,11 @@
     "allowJs": true,
     "checkJs": false,
     "paths": {
-      "*": ["node_modules/*", "src/types/*"]
+      "@mcp-router/frontend/*": ["packages/frontend/src/*"],
+      "@mcp-router/backend/*": ["packages/backend/src/*"],
+      "@mcp-router/shared/*": ["packages/shared/src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["packages/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 } 

@@ -1,6 +1,6 @@
 {
-    "name": "System Context Monitor",
-    "dockerComposeFile": "../docker-compose.yml",
+    "name": "MCP Router Monorepo",
+    "dockerComposeFile": "../infra/docker/docker-compose.yml",
     "service": "backend",
     "workspaceFolder": "/workspace",
     
@@ -22,7 +22,7 @@
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
 
-    "postCreateCommand": "poetry install && cd frontend && npm ci && cd .. && poetry run alembic upgrade head",
+    "postCreateCommand": "npm ci && cd packages/frontend && npm ci && cd ../backend && npm ci && cd ../.. && pip install -r packages/backend/requirements.txt && python -m alembic upgrade head",
 
     "customizations": {
         "vscode": {

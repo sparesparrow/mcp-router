@@ -1,65 +1,41 @@
 {
   "name": "mcp-router",
   "version": "0.1.0",
-  "description": "Model Context Protocol Router for managing multiple MCP servers",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "babel src --out-dir dist --extensions \".ts,.tsx\" --copy-files",
-    "start": "node dist/index.js",
-    "dev": "ts-node --transpile-only src/index.ts",
-    "watch": "nodemon --exec ts-node --transpile-only src/index.ts",
-    "test": "jest",
-    "lint": "eslint src/**/*.ts"
-  },
-  "keywords": [
-    "mcp",
-    "router",
-    "model",
-    "context",
-    "protocol"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.4.1",
-    "config": "^3.3.9",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mermaid": "^10.6.0",
-    "node-fetch": "^2.6.11",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "reactflow": "^11.8.3",
-    "uuid": "^9.0.0",
-    "ws": "^8.13.0",
-    "zod": "^3.22.2"
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:frontend": "cd packages/frontend && npm start",
+    "start:backend": "cd packages/backend && npm run dev",
+    "build": "npm run build:shared:minimal && npm run build:backend:minimal && npm run build:frontend",
+    "build:shared": "cd packages/shared && npm run build",
+    "build:shared:minimal": "cd packages/shared && npm run build:minimal",
+    "build:backend": "cd packages/backend && npm run build",
+    "build:backend:minimal": "cd packages/backend && npm run build:minimal",
+    "build:frontend": "cd packages/frontend && npm run build",
+    "test": "npm run test:shared && npm run test:backend && npm run test:frontend",
+    "test:shared": "cd packages/shared && npm run test",
+    "test:backend": "cd packages/backend && npm run test",
+    "test:frontend": "cd packages/frontend && npm run test",
+    "clean": "npm run clean:shared && npm run clean:backend && npm run clean:frontend",
+    "clean:shared": "cd packages/shared && npm run clean",
+    "clean:backend": "cd packages/backend && npm run clean",
+    "clean:frontend": "cd packages/frontend && npm run clean",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd packages/backend && npm run dev",
+    "dev:frontend": "cd packages/frontend && npm run dev"
   },
   "devDependencies": {
-    "@babel/cli": "^7.26.4",
-    "@babel/core": "^7.26.9",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0",
-    "@types/config": "^3.3.5",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.2",
-    "@types/node": "^20.17.22",
-    "@types/node-fetch": "^2.6.12",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.2.0",
-    "@types/uuid": "^9.0.8",
-    "@types/ws": "^8.5.14",
-    "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
-    "eslint": "^8.42.0",
-    "jest": "^29.5.0",
-    "nodemon": "^2.0.22",
-    "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.3"
+    "concurrently": "^8.2.2",
+    "typescript": "^4.9.5"
   },
-  "engines": {
-    "node": ">=16.0.0"
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "mermaid": "^11.4.1",
+    "reactflow": "^11.11.4",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   }
 }

@@ -59,29 +59,39 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r services/requirements.txt
+        pip install -r packages/backend/requirements.txt
         pip install pytest-cov pytest-asyncio
 
     - name: Install Node.js dependencies
-      run: npm ci
+      run: |
+        npm ci
+        cd packages/shared && npm ci && cd ../..
+        cd packages/frontend && npm ci && cd ../..
+        cd packages/backend && npm ci && cd ../..
+
+    - name: Build shared package
+      run: |
+        cd packages/shared && npm run build && cd ../..
 
     - name: Run backend tests
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mcp_router_test
         REDIS_URL: redis://localhost:6379/0
       run: |
-        pytest tests/ --cov=services --cov-report=xml
+        pytest tests/ --cov=packages/backend --cov-report=xml
 
     - name: Run frontend tests
-      run: npm test -- --coverage
+      run: |
+        cd packages/frontend && npm test -- --coverage && cd ../..
 
     - name: Lint frontend code
-      run: npm run lint
+      run: |
+        cd packages/frontend && npm run lint && cd ../..
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
       with:
-        files: ./coverage.xml,./coverage/coverage-final.json
+        files: ./coverage.xml,./packages/frontend/coverage/coverage-final.json
 
   build:
     needs: test
@@ -105,6 +115,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        file: infra/docker/Dockerfile
         target: backend-runtime
         push: true
         tags: |
@@ -117,6 +128,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        file: infra/docker/Dockerfile
         target: frontend-runtime
         push: true
         tags: |

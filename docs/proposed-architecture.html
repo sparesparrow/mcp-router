@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>proposed-architecture.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    %% Root level structure - with separate repos
+    Root["mcp-ecosystem/"] --> CoreRepo["mcp-core-lib/"]
+    Root --> RouterRepo["mcp-router/"]
+    Root --> PatternsRepo["mcp-patterns-lib/"]
+    Root --> MermaidRepo["mcp-mermaid-lib/"]
+    Root --> DesignerRepo["workflow-designer-lib/"]
+    
+    %% Alternative 1: Fully Separated Packages (illustrated above)
+
+    %% Alternative 2: Monorepo with Improved Structure
+    RouterRepo --> Packages["packages/"]
+    RouterRepo --> Infra["infra/"]
+    RouterRepo --> Docs["docs/"]
+    
+    %% Packages
+    Packages --> Frontend["frontend/"]
+    Packages --> Backend["backend/"]
+    Packages --> Shared["shared/"]
+    
+    %% Core Library (extracted)
+    CoreRepo --> CoreSrc["src/"]
+    CoreSrc --> CoreClient["client/"]
+    CoreSrc --> CoreServer["server/"]
+    CoreSrc --> CoreTransport["transport/"]
+    CoreSrc --> CoreTypes["types/"]
+    CoreSrc --> CoreUtils["utils/"]
+    
+    %% CoreClient
+    CoreClient --> BaseMCPClient["MCPClient.ts"]
+    CoreClient --> ClientConfig["ClientConfig.ts"]
+    CoreClient --> TransportFactory["TransportFactory.ts"]
+    
+    %% CoreServer
+    CoreServer --> BaseMCPServer["MCPServer.ts"]
+    CoreServer --> ServerConfig["ServerConfig.ts"]
+    CoreServer --> HandlerRegistry["HandlerRegistry.ts"]
+    
+    %% CoreTransport
+    CoreTransport --> BaseTransport["Transport.ts"]
+    CoreTransport --> StdioTransport["StdioTransport.ts"]
+    CoreTransport --> HTTPTransport["HTTPTransport.ts"]
+    CoreTransport --> WSTransport["WebSocketTransport.ts"]
+    
+    %% CoreTypes
+    CoreTypes --> BaseMCPTypes["mcp.ts"]
+    CoreTypes --> MessageTypes["message.ts"]
+    CoreTypes --> ProtocolTypes["protocol.ts"]
+    CoreTypes --> ErrorTypes["errors.ts"]
+    
+    %% Agent Patterns Library (extracted)
+    PatternsRepo --> PatternsSrc["src/"]
+    PatternsSrc --> CorePatterns["core/"]
+    PatternsSrc --> PromptChaining["prompt-chaining/"]
+    PatternsSrc --> Routing["routing/"]
+    PatternsSrc --> Parallelization["parallelization/"]
+    PatternsSrc --> OrchestratorWorkers["orchestrator-workers/"]
+    PatternsSrc --> EvaluatorOptimizer["evaluator-optimizer/"]
+    PatternsSrc --> PatternsTypes["types/"]
+    PatternsSrc --> PatternsUtils["utils/"]
+    
+    %% CorePatterns
+    CorePatterns --> BasePattern["BasePattern.ts"]
+    CorePatterns --> PatternFactory["PatternFactory.ts"]
+    CorePatterns --> PatternRegistry["PatternRegistry.ts"]
+    
+    %% PatternsTypes
+    PatternsTypes --> AgentNodeTypes["agent-node-types.ts"]
+    PatternsTypes --> PatternTypes["pattern-types.ts"]
+    PatternsTypes --> WorkflowTypes["workflow-types.ts"]
+    
+    %% Mermaid Integration Library (extracted)
+    MermaidRepo --> MermaidSrc["src/"]
+    MermaidSrc --> MermaidGen["generator/"]
+    MermaidSrc --> MermaidParse["parser/"]
+    MermaidSrc --> MermaidComponents["components/"]
+    MermaidSrc --> MermaidHooks["hooks/"]
+    MermaidSrc --> MermaidTypes["types/"]
+    MermaidSrc --> MermaidUtils["utils/"]
+    
+    %% MermaidComponents
+    MermaidComponents --> MermaidEditor["MermaidEditor.tsx"]
+    MermaidComponents --> MermaidPanel["MermaidPanel.tsx"]
+    MermaidComponents --> MermaidViewer["MermaidViewer.tsx"]
+    
+    %% MermaidGen
+    MermaidGen --> WorkflowToMermaid["workflow-to-mermaid.ts"]
+    MermaidGen --> DiagramStyles["diagram-styles.ts"]
+    
+    %% MermaidParse
+    MermaidParse --> MermaidToWorkflow["mermaid-to-workflow.ts"]
+    MermaidParse --> DiagramParser["diagram-parser.ts"]
+    
+    %% Workflow Designer Library (extracted)
+    DesignerRepo --> DesignerSrc["src/"]
+    DesignerSrc --> DesignerComponents["components/"]
+    DesignerSrc --> DesignerHooks["hooks/"]
+    DesignerSrc --> DesignerContext["context/"]
+    DesignerSrc --> DesignerTypes["types/"]
+    DesignerSrc --> DesignerUtils["utils/"]
+    
+    %% DesignerComponents
+    DesignerComponents --> Canvas["Canvas/"]
+    DesignerComponents --> NodePalette["NodePalette/"]
+    DesignerComponents --> PropPanel["PropertiesPanel/"]
+    DesignerComponents --> NodeTypes["Nodes/"]
+    DesignerComponents --> Controls["Controls/"]
+    
+    %% DesignerContext
+    DesignerContext --> WorkflowCtx["WorkflowContext.tsx"]
+    DesignerContext --> SelectionCtx["SelectionContext.tsx"]
+    DesignerContext --> HistoryCtx["HistoryContext.tsx"]
+    
+    %% Frontend (Improved)
+    Frontend --> FSrc["src/"]
+    FSrc --> FApp["App.tsx"]
+    FSrc --> FPages["pages/"]
+    FSrc --> FLayout["layout/"]
+    FSrc --> FFeatures["features/"]
+    FSrc --> FHooks["hooks/"]
+    FSrc --> FContext["context/"]
+    FSrc --> FUtils["utils/"]
+    
+    %% Frontend Features - Now using extracted libraries
+    FFeatures --> Dashboard["dashboard/"]
+    FFeatures --> Settings["settings/"]
+    FFeatures --> ServerManager["server-manager/"]
+    FFeatures --> WorkflowManager["workflow-manager/"]
+    
+    %% Backend (Improved)
+    Backend --> BSrc["src/"]
+    BSrc --> BAPI["api/"]
+    BSrc --> BServices["services/"]
+    BSrc --> BCore["core/"]
+    BSrc --> BDB["db/"]
+    BSrc --> BUtils["utils/"]
+    BSrc --> BConfig["config/"]
+    
+    %% Backend API - Improved structure
+    BAPI --> APIRoutes["routes/"]
+    BAPI --> APIMiddleware["middleware/"]
+    BAPI --> APIControllers["controllers/"]
+    BAPI --> APIValidators["validators/"]
+    BAPI --> APISerializers["serializers/"]
+    
+    %% Backend Services - Better organization
+    BServices --> RouterService["router/"]
+    BServices --> Discovery["discovery/"]
+    BServices --> Registry["registry/"]
+    BServices --> Analytics["analytics/"]
+    BServices --> Monitoring["monitoring/"]
+    
+    %% Integration with extracted libraries
+    FFeatures --> CoreLib1["Uses mcp-core-lib"]
+    FFeatures --> PatternsLib1["Uses mcp-patterns-lib"]
+    FFeatures --> MermaidLib1["Uses mcp-mermaid-lib"]
+    FFeatures --> DesignerLib1["Uses workflow-designer-lib"]
+    
+    BServices --> CoreLib2["Uses mcp-core-lib"]
+    BServices --> PatternsLib2["Uses mcp-patterns-lib"]
+    
+    %% Alternative 3: Hybrid Approach With Core + Patterns in Same Repo
+    Root --> HybridRepo["mcp-core-and-patterns/"]
+    
+    HybridRepo --> HybridSrc["src/"]
+    HybridSrc --> HCore["core/"]
+    HybridSrc --> HPatterns["patterns/"]
+    
+    %% Color definitions - Frontend (Blue)
+    classDef frontendDir fill:#2196F3,stroke:#0D47A1,color:white
+    classDef frontendFile fill:#90CAF9,stroke:#0D47A1
+    classDef reactComponent fill:#64B5F6,stroke:#0D47A1
+    
+    %% Color definitions - Backend (Red)
+    classDef backendDir fill:#F44336,stroke:#B71C1C,color:white
+    classDef backendFile fill:#FFCDD2,stroke:#B71C1C
+    classDef apiComponent fill:#E57373,stroke:#B71C1C
+    
+    %% Color definitions - Shared/Core Library (Green)
+    classDef sharedDir fill:#4CAF50,stroke:#1B5E20,color:white
+    classDef sharedFile fill:#A5D6A7,stroke:#1B5E20
+    classDef typeFile fill:#81C784,stroke:#1B5E20
+    
+    %% Color definitions - Pattern Library (Yellow/Amber)
+    classDef patternDir fill:#FFC107,stroke:#FF6F00,color:black
+    classDef patternFile fill:#FFE082,stroke:#FF6F00,color:black
+    
+    %% Color definitions - Mermaid Library (Purple)
+    classDef mermaidDir fill:#9C27B0,stroke:#4A148C,color:white
+    classDef mermaidFile fill:#E1BEE7,stroke:#4A148C
+    
+    %% Color definitions - Designer Library (Cyan)
+    classDef designerDir fill:#00BCD4,stroke:#006064,color:white
+    classDef designerFile fill:#B2EBF2,stroke:#006064
+    
+    %% Color definitions - Infrastructure (Gray)
+    classDef infraDir fill:#9E9E9E,stroke:#424242,color:white
+    classDef configFile fill:#E0E0E0,stroke:#424242
+    
+    %% Apply classes - Frontend
+    class Frontend,FSrc,FPages,FLayout,FFeatures,FHooks,FContext,FUtils frontendDir
+    class FApp frontendFile
+    class Dashboard,Settings,ServerManager,WorkflowManager frontendDir
+    
+    %% Apply classes - Backend
+    class Backend,BSrc,BAPI,BServices,BCore,BDB,BUtils,BConfig backendDir
+    class APIRoutes,APIMiddleware,APIControllers,APIValidators,APISerializers backendDir
+    class RouterService,Discovery,Registry,Analytics,Monitoring backendDir
+    
+    %% Apply classes - Core Library
+    class CoreRepo,CoreSrc,CoreClient,CoreServer,CoreTransport,CoreTypes,CoreUtils sharedDir
+    class BaseMCPClient,ClientConfig,TransportFactory sharedFile
+    class BaseMCPServer,ServerConfig,HandlerRegistry sharedFile
+    class BaseTransport,StdioTransport,HTTPTransport,WSTransport sharedFile
+    class BaseMCPTypes,MessageTypes,ProtocolTypes,ErrorTypes typeFile
+    
+    %% Apply classes - Pattern Library
+    class PatternsRepo,PatternsSrc,CorePatterns,PromptChaining,Routing,Parallelization patternDir
+    class OrchestratorWorkers,EvaluatorOptimizer,PatternsTypes,PatternsUtils patternDir
+    class BasePattern,PatternFactory,PatternRegistry patternFile
+    class AgentNodeTypes,PatternTypes,WorkflowTypes patternFile
+    
+    %% Apply classes - Mermaid Library
+    class MermaidRepo,MermaidSrc,MermaidGen,MermaidParse,MermaidComponents,MermaidHooks mermaidDir
+    class MermaidTypes,MermaidUtils mermaidDir
+    class MermaidEditor,MermaidPanel,MermaidViewer mermaidFile
+    class WorkflowToMermaid,DiagramStyles,MermaidToWorkflow,DiagramParser mermaidFile
+    
+    %% Apply classes - Designer Library
+    class DesignerRepo,DesignerSrc,DesignerComponents,DesignerHooks,DesignerContext designerDir
+    class DesignerTypes,DesignerUtils designerDir
+    class Canvas,NodePalette,PropPanel,NodeTypes,Controls designerFile
+    class WorkflowCtx,SelectionCtx,HistoryCtx designerFile
+    
+    %% Apply classes - Hybrid Approach
+    class HybridRepo,HybridSrc,HCore,HPatterns sharedDir
+    
+    %% Apply classes - Infrastructure
+    class Infra,Docs infraDir
+    
+    %% Highlight extracted libraries and alternatives
+    class CoreRepo,PatternsRepo,MermaidRepo,DesignerRepo frontendDir
+    class HybridRepo frontendDir
+</div></code></pre>
+
+</body>
+</html>

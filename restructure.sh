@@ -5,7 +5,6 @@
 
 # Set variables
 ROOT_DIR=$(pwd)
-BACKUP_DIR="${ROOT_DIR}/backup_$(date +%Y%m%d_%H%M%S)"
 DRY_RUN=false
 
 # Parse command line arguments
@@ -31,10 +30,7 @@ execute() {
     fi
 }
 
-# Create backup
-echo "Creating backup at ${BACKUP_DIR}..."
-execute "mkdir -p \"${BACKUP_DIR}\""
-execute "find \"${ROOT_DIR}\" -maxdepth 1 -not -path \"*backup_*\" -not -path \"${ROOT_DIR}\" -exec cp -r {} \"${BACKUP_DIR}/\" \\;"
+# Skip backup since we have git
 
 echo "Starting restructuring..."
 
@@ -291,5 +287,3 @@ execute "cat > \"${ROOT_DIR}/package.json\" << EOF
 EOF"
 
 echo "Restructuring complete!"
-echo "Original files backed up to ${BACKUP_DIR}"
-echo "You may need to update import paths in your code to reflect the new structure."
