@@ -1,6 +1,20 @@
+/**
+ * LLMChatInterface.tsx
+ * A chat interface component for interacting with LLM agents
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { FaUser, FaRobot, FaPaperPlane, FaMicrophone } from 'react-icons/fa';
 import { Card } from './ui/Card';
+
+// Add TypeScript declarations for SpeechRecognition API
+declare global {
+  interface Window {
+    SpeechRecognition?: any;
+    webkitSpeechRecognition?: any;
+  }
+}
 
 // Define message type
 interface Message {
