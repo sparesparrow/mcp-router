@@ -86,7 +86,7 @@ interface WorkflowCanvasProps {
 /**
  * Main canvas component for the workflow designer
  */
-const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
+const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   initialWorkflow,
   onWorkflowChange,
   readOnly = false,
@@ -468,145 +468,152 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
     };
   }, [nodes, edges, initialWorkflow]);
   
-  // This component needs to be wrapped by ReactFlowProvider to use hooks
+  // This is now wrapped inside the ReactFlowProvider
   return (
-    <ReactFlowProvider>
-      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-        {/* Left Sidebar - Node Palette */}
-        <NodePalette onDragStart={onDragStart} />
-        
-        {/* Main Canvas */}
-        <div
-          ref={reactFlowWrapper}
-          style={{ 
-            flexGrow: 1, 
-            height: '100%', 
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* Toolbar */}
-          <div style={{
-            display: 'flex',
-            padding: '8px 16px',
-            borderBottom: '1px solid #e2e8f0',
-            background: '#f8fafc',
-            alignItems: 'center',
-            gap: '12px',
-          }}>
-            <button 
-              onClick={toggleTool}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '4px',
-                border: '1px solid #94a3b8',
-                background: activeTool === 'select' ? '#3b82f6' : '#f8fafc',
-                color: activeTool === 'select' ? 'white' : '#64748b',
-                cursor: 'pointer',
-              }}
-            >
-              {activeTool === 'select' ? 'Select Mode' : 'Connect Mode'}
-            </button>
-            
-            <button 
-              onClick={toggleMermaidPanel}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '4px',
-                border: '1px solid #94a3b8',
-                background: showMermaidPanel ? '#3b82f6' : '#f8fafc',
-                color: showMermaidPanel ? 'white' : '#64748b',
-                cursor: 'pointer',
-              }}
-            >
-              {showMermaidPanel ? 'Hide Mermaid' : 'Show Mermaid'}
-            </button>
-          </div>
+    <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+      {/* Left Sidebar - Node Palette */}
+      <NodePalette onDragStart={onDragStart} />
+      
+      {/* Main Canvas */}
+      <div
+        ref={reactFlowWrapper}
+        style={{ 
+          flexGrow: 1, 
+          height: '100%', 
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Toolbar */}
+        <div style={{
+          display: 'flex',
+          padding: '8px 16px',
+          borderBottom: '1px solid #e2e8f0',
+          background: '#f8fafc',
+          alignItems: 'center',
+          gap: '12px',
+        }}>
+          <button 
+            onClick={toggleTool}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '4px',
+              border: '1px solid #94a3b8',
+              background: activeTool === 'select' ? '#3b82f6' : '#f8fafc',
+              color: activeTool === 'select' ? 'white' : '#64748b',
+              cursor: 'pointer',
+            }}
+          >
+            {activeTool === 'select' ? 'Select Mode' : 'Connect Mode'}
+          </button>
           
-          {/* Main Content */}
-          <div style={{ 
-            flexGrow: 1, 
-            display: 'flex',
-          }}>
-            {/* Flow Canvas */}
-            <div style={{ 
-              flexGrow: 1, 
-              height: '100%',
-              position: 'relative',
-            }}>
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onNodeClick={onNodeClick}
-                onNodeDoubleClick={onNodeDoubleClick}
-                onPaneClick={onPaneClick}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                nodeTypes={nodeTypes}
-                connectionLineType={ConnectionLineType.SmoothStep}
-                snapToGrid={true}
-                snapGrid={[15, 15]}
-                defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-                fitView
-                attributionPosition="bottom-right"
-                proOptions={{ hideAttribution: true }}
-                connectionMode={activeTool === 'connect' ? 'loose' as ConnectionMode : 'strict' as ConnectionMode}
-                selectNodesOnDrag={activeTool === 'select'}
-                elementsSelectable={!readOnly}
-                nodesDraggable={!readOnly}
-                nodesConnectable={!readOnly}
-                edgesUpdatable={!readOnly}
-                zoomOnDoubleClick={!readOnly}
-              >
-                <Controls showInteractive={false} />
-                <MiniMap style={{ height: 120 }} zoomable pannable />
-                <Background gap={15} size={1} />
-              </ReactFlow>
-            </div>
-            
-            {/* Mermaid Panel (if visible) */}
-            {showMermaidPanel && (
-              <MermaidPanel 
-                workflow={getCurrentWorkflow()} 
-                onImport={(workflow) => {
-                  if (readOnly) return;
-                  
-                  setNodes(
-                    workflow.nodes.map((node) => ({
-                      id: node.id,
-                      type: node.type,
-                      position: node.position,
-                      data: node.data,
-                    }))
-                  );
-                  
-                  setEdges(
-                    workflow.edges.map((edge) => ({
-                      id: edge.id,
-                      source: edge.source,
-                      target: edge.target,
-                      sourceHandle: edge.sourceHandle,
-                      targetHandle: edge.targetHandle,
-                      label: edge.label,
-                    }))
-                  );
-                }}
-                readOnly={readOnly}
-              />
-            )}
-          </div>
+          <button 
+            onClick={toggleMermaidPanel}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '4px',
+              border: '1px solid #94a3b8',
+              background: showMermaidPanel ? '#3b82f6' : '#f8fafc',
+              color: showMermaidPanel ? 'white' : '#64748b',
+              cursor: 'pointer',
+            }}
+          >
+            {showMermaidPanel ? 'Hide Mermaid' : 'Show Mermaid'}
+          </button>
         </div>
         
-        {/* Right Sidebar - Properties Panel */}
-        <PropertiesPanel 
-          selectedNode={selectedNode} 
-          onNodeChange={handleNodeDataChange}
-          readOnly={readOnly}
-        />
+        {/* Main Content */}
+        <div style={{ 
+          flexGrow: 1, 
+          display: 'flex',
+        }}>
+          {/* Flow Canvas */}
+          <div style={{ 
+            flexGrow: 1, 
+            height: '100%',
+            position: 'relative',
+          }}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeClick={onNodeClick}
+              onNodeDoubleClick={onNodeDoubleClick}
+              onPaneClick={onPaneClick}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              connectionLineType={ConnectionLineType.SmoothStep}
+              snapToGrid={true}
+              snapGrid={[15, 15]}
+              defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+              fitView
+              attributionPosition="bottom-right"
+              proOptions={{ hideAttribution: true }}
+              connectionMode={activeTool === 'connect' ? 'loose' as ConnectionMode : 'strict' as ConnectionMode}
+              selectNodesOnDrag={activeTool === 'select'}
+              elementsSelectable={!readOnly}
+              nodesDraggable={!readOnly}
+              nodesConnectable={!readOnly}
+              edgesUpdatable={!readOnly}
+              zoomOnDoubleClick={!readOnly}
+            >
+              <Controls showInteractive={false} />
+              <MiniMap style={{ height: 120 }} zoomable pannable />
+              <Background gap={15} size={1} />
+            </ReactFlow>
+          </div>
+          
+          {/* Mermaid Panel (if visible) */}
+          {showMermaidPanel && (
+            <MermaidPanel 
+              workflow={getCurrentWorkflow()} 
+              onImport={(workflow) => {
+                if (readOnly) return;
+                
+                setNodes(
+                  workflow.nodes.map((node) => ({
+                    id: node.id,
+                    type: node.type,
+                    position: node.position,
+                    data: node.data,
+                  }))
+                );
+                
+                setEdges(
+                  workflow.edges.map((edge) => ({
+                    id: edge.id,
+                    source: edge.source,
+                    target: edge.target,
+                    sourceHandle: edge.sourceHandle,
+                    targetHandle: edge.targetHandle,
+                    label: edge.label,
+                  }))
+                );
+              }}
+              readOnly={readOnly}
+            />
+          )}
+        </div>
       </div>
+      
+      {/* Right Sidebar - Properties Panel */}
+      <PropertiesPanel 
+        selectedNode={selectedNode} 
+        onNodeChange={handleNodeDataChange}
+        readOnly={readOnly}
+      />
+    </div>
+  );
+};
+
+// Wrapper component that provides the ReactFlow context
+const WorkflowCanvas: React.FC<WorkflowCanvasProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <WorkflowCanvasInner {...props} />
     </ReactFlowProvider>
   );
 };
