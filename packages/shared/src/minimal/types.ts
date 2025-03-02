@@ -133,4 +133,28 @@ export interface SimpleAgentRegistry {
   unregisterAgent: (agentId: string) => Promise<void>;
   getAgent: (agentId: string) => Promise<SimpleAgentConfig | null>;
   listAgents: () => Promise<SimpleAgentConfig[]>;
-} 
+}
+
+/**
+ * Browser-compatible HttpServer stub
+ * This prevents errors when HttpServer is imported in browser environments
+ */
+export class BrowserHttpServer {
+  constructor() {
+    console.warn('BrowserHttpServer is a stub and does not provide actual server functionality');
+  }
+  
+  // Add minimal interface methods if needed by the frontend
+  start() {
+    console.warn('BrowserHttpServer.start() is a stub');
+    return Promise.resolve();
+  }
+  
+  stop() {
+    console.warn('BrowserHttpServer.stop() is a stub');
+    return Promise.resolve();
+  }
+}
+
+// Export the class as HttpServer as well to maintain compatibility
+export const HttpServer = BrowserHttpServer; 

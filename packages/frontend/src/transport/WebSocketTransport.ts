@@ -90,13 +90,12 @@ export class WebSocketTransport extends EventEmitter {
 
         this.ws.onerror = (event) => {
           clearTimeout(timeoutId);
-          this.state = ConnectionState.ERROR;
           const error = new Error('WebSocket error');
-          this.emit('error', error);
-          
           if (this.state === ConnectionState.CONNECTING) {
             reject(error);
           }
+          this.emit('error', error);
+          this.state = ConnectionState.ERROR;
         };
 
         this.ws.onmessage = (event) => {

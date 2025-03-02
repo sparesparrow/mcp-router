@@ -1,0 +1,36 @@
+{
+  "name": "integration-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for MCP Router",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "node scripts/fix-paths.js",
+    "test": "jest",
+    "test:e2e": "jest --config jest.e2e.config.js",
+    "test:api": "jest --config jest.api.config.js",
+    "test:cypress": "cypress run",
+    "cypress:open": "cypress open"
+  },
+  "dependencies": {
+    "backend": "file:../packages/backend",
+    "frontend": "file:../packages/frontend",
+    "shared": "file:../packages/shared"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.4",
+    "@types/node": "^20.5.6",
+    "@types/supertest": "^2.0.12",
+    "cypress": "^13.6.0",
+    "cypress-file-upload": "^5.0.8",
+    "cypress-drag-drop": "^1.1.1",
+    "jest": "^29.6.4",
+    "jest-environment-jsdom": "^29.6.4",
+    "msw": "^1.2.5",
+    "puppeteer": "^21.1.1",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  }
+}

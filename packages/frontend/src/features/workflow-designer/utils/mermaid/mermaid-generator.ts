@@ -61,7 +61,7 @@ export function generateMermaidDiagram(workflow: Workflow, options: MermaidOptio
   
   // Add nodes
   diagram += `  %% Nodes\n`;
-  workflow.nodes.forEach((node: AgentNode) => {
+  workflow.nodes?.forEach((node: AgentNode) => {
     const nodeId = node.id.replace(/-/g, '_'); // Mermaid doesn't like hyphens in IDs
     let nodeLabel = node.label || node.id;
     
@@ -88,7 +88,7 @@ export function generateMermaidDiagram(workflow: Workflow, options: MermaidOptio
   
   // Add edges
   diagram += `\n  %% Edges\n`;
-  workflow.edges.forEach((edge: Edge) => {
+  workflow.edges?.forEach((edge: Edge) => {
     const sourceId = edge.source.replace(/-/g, '_');
     const targetId = edge.target.replace(/-/g, '_');
     const label = edge.label ? `|${edge.label}|` : '';
@@ -102,7 +102,7 @@ export function generateMermaidDiagram(workflow: Workflow, options: MermaidOptio
   
   // Apply styles
   diagram += `\n  %% Apply styles\n`;
-  workflow.nodes.forEach((node: AgentNode) => {
+  workflow.nodes?.forEach((node: AgentNode) => {
     const nodeId = node.id.replace(/-/g, '_');
     const nodeType = node.type;
     

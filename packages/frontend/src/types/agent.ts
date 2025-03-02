@@ -3,7 +3,7 @@
  * This is a temporary solution until the shared package is properly integrated
  */
 
-// Agent Node Types
+// Agent Node Types - define locally instead of importing from @mcp-router/shared
 export enum AgentNodeType {
   LLM = 'llm',
   TOOL = 'tool',

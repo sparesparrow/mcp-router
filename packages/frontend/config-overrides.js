@@ -24,13 +24,14 @@ module.exports = function override(config, env) {
     "child_process": false
   };
 
-  // Comment out mock for @mcp-router/shared to use the real package
-  // config.resolve.alias = {
-  //   ...config.resolve.alias,
-  //   '@mcp-router/shared': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts'),
-  //   '@mcp-router/shared/dist/types/mcp': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts'),
-  //   '@mcp-router/shared/src/types/analyzer': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts')
-  // };
+  // Use the minimal browser version of shared package
+  // This ensures server-specific code doesn't get bundled into the frontend
+  config.resolve.alias = {
+    ...config.resolve.alias,
+    '@mcp-router/shared': path.resolve(__dirname, '../shared'),
+    '@mcp-router/shared/dist/types/mcp': path.resolve(__dirname, '../shared/src/minimal/types'),
+    '@mcp-router/shared/src/types/analyzer': path.resolve(__dirname, '../shared/src/minimal/types')
+  };
 
   // Add buffer polyfill
   config.plugins.push(

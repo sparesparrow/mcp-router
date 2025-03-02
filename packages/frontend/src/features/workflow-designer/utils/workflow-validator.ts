@@ -3,6 +3,7 @@
  * Utility for validating workflow structures
  */
 
+import { getParsedType } from 'zod';
 import { AgentNodeType } from '../types/agent-types';
 import { 
   AgentNode, 
@@ -115,7 +116,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
         errors,
         'Node must have a type',
         'error',
-        node.id as string,
+        node as string,
         'type'
       );
       return;
@@ -247,7 +248,7 @@ function validateParallelNode(
   } else {
     // Check that all target nodes exist
     node.data.targetNodeIds.forEach((targetId: string) => {
-      if (!workflow.nodes.some(n => n.id === targetId)) {
+      if (!workflow.nodes?.some(n => n.id === targetId)) {
         addValidationError(
           errors,
           `Parallel node ${node.id} references non-existent node: ${targetId}`,
@@ -342,7 +343,7 @@ function validateConditionNode(
       node.id,
       'trueTargetNodeId'
     );
-  } else if (!workflow.nodes.some(n => n.id === node.data.trueTargetNodeId)) {
+  } else if (!workflow.nodes?.some(n => n.id === node.data.trueTargetNodeId)) {
     addValidationError(
       errors,
       `Condition node ${node.id} references non-existent true target node: ${node.data.trueTargetNodeId}`,
@@ -360,7 +361,7 @@ function validateConditionNode(
       node.id,
       'falseTargetNodeId'
     );
-  } else if (!workflow.nodes.some(n => n.id === node.data.falseTargetNodeId)) {
+  } else if (!workflow.nodes?.some(n => n.id === node.data.falseTargetNodeId)) {
     addValidationError(
       errors,
       `Condition node ${node.id} references non-existent false target node: ${node.data.falseTargetNodeId}`,
@@ -385,8 +386,8 @@ function validateOrphanedNodes(
         return;
       }
       
-      const hasIncomingEdge = workflow.edges.some(edge => edge.target === node.id);
-      const hasOutgoingEdge = workflow.edges.some(edge => edge.source === node.id);
+      const hasIncomingEdge = workflow.edges?.some(edge => edge.target === node.id) || false;
+      const hasOutgoingEdge = workflow.edges?.some(edge => edge.source === node.id) || false;
       
       if (!hasIncomingEdge && !hasOutgoingEdge) {
         addValidationError(
@@ -418,7 +419,7 @@ function validateEntryExitPoints(
   errors: ValidationError[]
 ): void {
   // Check for missing entry point (INPUT node)
-  const hasInputNode = workflow.nodes.some(node => node.type === AgentNodeType.INPUT);
+  const hasInputNode = workflow.nodes?.some(node => node.type === AgentNodeType.INPUT) || false;
   if (!hasInputNode) {
     addValidationError(
       errors,
@@ -428,7 +429,7 @@ function validateEntryExitPoints(
   }
   
   // Check for missing exit point (OUTPUT node)
-  const hasOutputNode = workflow.nodes.some(node => node.type === AgentNodeType.OUTPUT);
+  const hasOutputNode = workflow.nodes?.some(node => node.type === AgentNodeType.OUTPUT) || false;
   if (!hasOutputNode) {
     addValidationError(
       errors,
@@ -445,7 +446,7 @@ function validateEntryExitPoints(
  */
 export function hasValidationErrors(workflow: Workflow): boolean {
   const errors = validateWorkflow(workflow);
-  return errors.some(error => error.severity === 'error');
+  return errors?.some(error => error.severity === 'error') || false;
 }
 
 /**
@@ -455,7 +456,7 @@ export function hasValidationErrors(workflow: Workflow): boolean {
  */
 export function hasValidationWarnings(workflow: Workflow): boolean {
   const errors = validateWorkflow(workflow);
-  return errors.some(error => error.severity === 'warning');
+  return errors?.some(error => error.severity === 'warning') || false;
 }
 
 /**
@@ -466,7 +467,7 @@ export function hasValidationWarnings(workflow: Workflow): boolean {
  */
 export function getNodeValidationErrors(workflow: Workflow, nodeId: string): ValidationError[] {
   const errors = validateWorkflow(workflow);
-  return errors.filter(error => error.nodeId === nodeId);
+  return errors?.filter(error => error.nodeId === nodeId) || [];
 }
 
 /**
@@ -477,5 +478,5 @@ export function getNodeValidationErrors(workflow: Workflow, nodeId: string): Val
  */
 export function getEdgeValidationErrors(workflow: Workflow, edgeId: string): ValidationError[] {
   const errors = validateWorkflow(workflow);
-  return errors.filter(error => error.edgeId === edgeId);
+  return errors?.filter(error => error.edgeId === edgeId) || [];
 } 

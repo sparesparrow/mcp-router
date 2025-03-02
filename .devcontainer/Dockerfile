@@ -1,27 +1,29 @@
-# Use the official Python image with Node.js
-FROM python:3.11-bullseye
+FROM node:18-bullseye
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    curl \
-    libpq-dev \
-    python3-dev \
-    libjpeg-dev \
-    zlib1g-dev \
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure apt and install packages
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+    # Install additional dependencies
+    && apt-get -y install git procps lsb-release wget ca-certificates \
+    # For Cypress dependencies
+    && apt-get -y install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 18.x
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=dialog
 
-# Install Docker CLI for CI/CD operations
-RUN curl -fsSL https://get.docker.com | sh
+# Set up user
+RUN mkdir -p /home/node/workspace
+WORKDIR /workspace
 
-# Install Poetry for Python dependency management
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+# Expose ports
+EXPOSE 3000 3001
 
-# Configure environment for Poetry
-ENV POETRY_VIRTUALENVS_CREATE=false 
+# Set node to path
+ENV PATH /usr/local/share/npm-global/bin:$PATH

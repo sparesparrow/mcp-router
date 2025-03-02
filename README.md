@@ -1,102 +1,90 @@
 # MCP Router
 
-A Model Context Protocol (MCP) Router for orchestrating AI services, audio services, and WebSocket communication.
+A robust workflow designer and router for agent-based systems.
 
-## Project Overview
+## Development Environment
 
-The MCP Router is a backend service that provides a unified API for interacting with various AI and audio services. It follows the SOLID principles and implements a clean architecture to ensure maintainability and extensibility.
+This project uses DevContainer for consistent development environments. You can use Visual Studio Code with the Remote Containers extension for the best experience.
 
-## Features
+### Using DevContainer
 
-- **AI Service Integration**: Connect to AI models like Claude for text generation
-- **Audio Service Integration**: Text-to-speech capabilities via ElevenLabs
-- **WebSocket Support**: Real-time bidirectional communication
-- **Service Registry**: Dependency injection system for service management
-- **Specialized Routers**: Modular API design with dedicated routers for different services
-- **Tools & Workflows**: Support for AI tools and complex reasoning workflows
+1. Install [Docker](https://www.docker.com/products/docker-desktop) and [Visual Studio Code](https://code.visualstudio.com/)
+2. Install the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+3. Clone this repository
+4. Open the repository in Visual Studio Code
+5. When prompted, click "Reopen in Container" or run the "Remote-Containers: Open Folder in Container" command
 
-## Architecture
+### Manual Setup
 
-The project follows a clean architecture with:
+If you prefer not to use DevContainer:
 
-- **Interfaces**: Abstract service definitions
-- **Services**: Concrete implementations of interfaces
-- **Infrastructure**: Cross-cutting concerns like service registry and provider
-- **API Routers**: FastAPI routers for HTTP endpoints
+```bash
+# Install dependencies
+npm install
+
+# Build all packages
+npm run build
+
+# Start development servers
+npm run dev
+```
 
 ## Project Structure
 
 ```
-packages/
-├── backend/
-│   ├── src/
-│   │   ├── api/
-│   │   │   ├── interfaces/         # Service interfaces
-│   │   │   ├── services/           # Service implementations
-│   │   │   ├── infrastructure/     # Cross-cutting concerns
-│   │   │   ├── routers/            # API routers
-│   │   │   │   ├── specialized/    # Specialized routers
-│   │   │   │   ├── mcp_router.py   # Main MCP router
-│   │   │   │   ├── tools_router.py # Tools router
-│   │   │   │   └── workflows_router.py # Workflows router
-│   │   │   └── main.py             # FastAPI application
-│   │   └── config/                 # Configuration
-│   ├── tests/                      # Unit and integration tests
-│   └── requirements.txt            # Python dependencies
-└── frontend/                       # Frontend code (to be implemented)
+mcp-router/
+├── packages/
+│   ├── frontend/     # React-based UI
+│   ├── backend/      # Node.js backend server
+│   └── shared/       # Shared types and utilities
+├── integration-tests/ # Integration and E2E tests
+├── docker-compose.yml
+└── README.md
 ```
 
-## Getting Started
+## Docker Deployment
 
-### Prerequisites
+To run the application using Docker:
 
-- Python 3.9+
-- FastAPI
-- Uvicorn
-- Other dependencies listed in requirements.txt
+```bash
+# Development
+docker-compose -f docker-compose.dev.yml up
 
-### Installation
+# Production
+docker-compose up -d
+```
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   pip install -r packages/backend/requirements.txt
-   ```
-3. Set up environment variables (see `.env.example`)
-4. Run the server:
-   ```
-   cd packages/backend
-   uvicorn api.main:app --reload
-   ```
+## Testing
 
-## API Endpoints
+```bash
+# Run all tests
+npm test
 
-### MCP API
+# Run integration tests
+npm run test:integration
 
-- `GET /api/mcp/info` - Get information about available MCP services
-- `GET /api/mcp/ai/info` - Get information about the AI service
-- `POST /api/mcp/ai/generate` - Generate text with the AI service
-- `GET /api/mcp/audio/info` - Get information about the audio service
-- `POST /api/mcp/audio/synthesize` - Convert text to speech
-- `GET /api/mcp/audio/voices` - Get available voices
-- `WebSocket /api/mcp/ws` - WebSocket endpoint for real-time communication
+# Run Cypress E2E tests
+npm run test:cypress
 
-### Tools API
+# Open Cypress interactively
+cd integration-tests && npm run cypress:open
+```
 
-- `GET /api/tools/info` - Get information about available tools
-- `POST /api/tools/calculator` - Use the calculator tool
-- `POST /api/tools/web_search` - Use the web search tool
+## Continuous Integration
 
-### Workflows API
+This project uses GitHub Actions for CI/CD. The following workflows are available:
 
-- `GET /api/workflows/info` - Get information about available workflows
-- `POST /api/workflows/sequential_thinking` - Use the sequential thinking workflow
-- `POST /api/workflows/chain_of_thought` - Use the chain of thought workflow
+- **Continuous Integration**: Triggered on every push and pull request
+- **Release**: Triggered when a new tag is pushed
 
-## License
+## Browser Compatibility
 
-MIT
+The shared package has been designed to work in both Node.js and browser environments. For browser usage, a minimal version is provided that excludes server-specific dependencies.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

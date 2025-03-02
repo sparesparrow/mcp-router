@@ -4,6 +4,41 @@
 
 The shared package contains common code, types, and utilities used by both the frontend and backend packages of the MCP Router application. This package serves as the foundation for cross-package communication and ensures consistency across the codebase.
 
+## Dual-Environment Architecture
+
+This package is designed to work in both Node.js server environments and browser environments, which have different capabilities and limitations:
+
+### Browser vs Server Environment
+
+- **Browser Environment**: Limited access to Node.js modules. No access to Node.js core modules like `http`, `fs`, etc.
+- **Server Environment**: Full access to Node.js modules and APIs.
+
+### How it Works
+
+The package uses a dual-entry point approach:
+
+1. **Server Entry Point**: `dist/src/index.js` - Contains all functionality, including server-specific code
+2. **Browser Entry Point**: `dist/src/minimal/index.js` - Contains only browser-compatible code
+
+This is configured in `package.json`:
+```json
+{
+  "main": "dist/src/index.js",    // For Node.js environments
+  "browser": "dist/src/minimal/index.js",  // For browser environments
+  "types": "dist/src/index.d.ts"  // TypeScript type definitions
+}
+```
+
+### Browser-Compatible Implementation
+
+The browser-compatible version in `src/minimal/` provides:
+
+- Type definitions identical to the server version
+- Browser-safe stubs for server-specific functionality
+- All shared utilities that work in both environments
+
+For server-specific functionality, the browser version includes stubs that maintain the same interface but have browser-compatible implementations.
+
 ## Contents
 
 - **Types**: Common TypeScript type definitions
@@ -109,3 +144,47 @@ When contributing to the shared package, please ensure that:
 ## License
 
 This package is part of the MCP Router project and is subject to the same license terms. 
+
+## Development Guidelines
+
+When working with this shared package:
+
+### Adding New Functionality
+
+1. **Shared Code**: If the functionality works in both environments, add it to the main package.
+2. **Server-Only Code**: If it uses Node.js specific APIs, keep it in the main package.
+3. **Browser Stubs**: For server-specific classes/functions needed by the browser, add a stub implementation in `src/minimal/`.
+
+### Testing Browser Compatibility
+
+To ensure the package works properly in browser environments:
+
+```bash
+# In the frontend package
+npm run test:browser-compatibility
+```
+
+This script builds the frontend and verifies no server-specific code has been bundled.
+
+## Architecture Considerations
+
+A potential future improvement would be to separate the codebase into three packages:
+
+1. **shared-core**: Contains only environment-agnostic code and types
+2. **shared-server**: Contains server-specific implementations
+3. **shared-browser**: Contains browser-specific implementations
+
+This would eliminate the need for runtime stubs and make the architecture more robust.
+
+## Troubleshooting
+
+If you encounter errors like:
+```
+can't access property "prototype", http.ServerResponse is undefined
+```
+
+This indicates that server-specific code is being bundled into the browser build. Check:
+
+1. Webpack aliases in `config-overrides.js`
+2. That you're importing from the correct entry points
+3. That browser-specific stubs exist for all server functionality used 

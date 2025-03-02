@@ -30,11 +30,11 @@ export function parseMermaidToWorkflow(mermaidCode: string): Workflow {
   const nodeTypes: Record<string, AgentNodeType> = {};
   
   // First pass: extract nodes and their types
-  lines.forEach(line => {
+  lines?.forEach(line => {
     // Check for class definitions
     const classMatch = line.match(classRegex);
     if (classMatch) {
-      const [_, nodeId, className] = classMatch;
+      const [_, nodeId, className] = classMatch || [];
       
       // Map class name to node type
       switch (className.toLowerCase()) {
@@ -73,10 +73,10 @@ export function parseMermaidToWorkflow(mermaidCode: string): Workflow {
   });
   
   // Second pass: extract nodes
-  lines.forEach(line => {
+  lines?.forEach(line => {
     const nodeMatch = line.match(nodeRegex);
     if (nodeMatch) {
-      const [_, id, label] = nodeMatch;
+      const [_, id, label] = nodeMatch || [];
       const nodeType = nodeTypes[id] || AgentNodeType.LLM; // Default to LLM if type not found
       
       // Create a node with a random position
@@ -96,10 +96,10 @@ export function parseMermaidToWorkflow(mermaidCode: string): Workflow {
   });
   
   // Third pass: extract edges
-  lines.forEach(line => {
+  lines?.forEach(line => {
     const edgeMatch = line.match(edgeRegex);
     if (edgeMatch) {
-      const [_, sourceId, label, targetId] = edgeMatch;
+      const [_, sourceId, label, targetId] = edgeMatch || [];
       
       // Create an edge
       const edge: Edge = {

@@ -9,7 +9,8 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test:browser-compatibility": "echo 'Testing browser compatibility...' && npm run build && node scripts/check-browser-compatibility.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

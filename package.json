@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "integration-tests"
   ],
   "scripts": {
     "kill-ports": "npx kill-port 3000 3001",
@@ -20,6 +21,9 @@
     "test:shared": "cd packages/shared && npm run test",
     "test:backend": "cd packages/backend && npm run test",
     "test:frontend": "cd packages/frontend && npm run test",
+    "test:integration": "cd integration-tests && npm test",
+    "test:e2e": "cd integration-tests && npm run test:e2e",
+    "test:api": "cd integration-tests && npm run test:api",
     "clean": "npm run clean:shared && npm run clean:backend && npm run clean:frontend",
     "clean:shared": "cd packages/shared && npm run clean",
     "clean:backend": "cd packages/backend && npm run clean",
@@ -29,10 +33,20 @@
     "dev:frontend": "cd packages/frontend && npm run dev"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "concurrently": "^8.2.2",
+    "css-select": "^5.1.0",
     "eslint-plugin-markdown": "^5.1.0",
     "kill-port": "^2.0.1",
-    "typescript": "^4.9.5"
+    "nth-check": "^2.1.1",
+    "postcss": "^8.5.3",
+    "resolve-url-loader": "^5.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "serialize-javascript": "^6.0.2",
+    "svgo": "^3.3.2",
+    "typescript": "^4.9.5",
+    "workbox-build": "^7.3.0",
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",

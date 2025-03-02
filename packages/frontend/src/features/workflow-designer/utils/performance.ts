@@ -45,7 +45,7 @@ export function useVisibleNodes(
     const visibleBottom = visibleTop + (window.innerHeight / zoom) + (padding * 2);
     
     // Filter nodes to only those in the viewport
-    return nodes.filter(node => {
+    return nodes?.filter(node => {
       const { position } = node;
       return (
         position.x >= visibleLeft &&
@@ -77,7 +77,7 @@ export function useDebounceChanges(
         setNodes((nodes: any) => {
           // Apply all batched changes at once for better performance
           let updatedNodes = [...nodes];
-          for (const change of nodeChangesRef.current) {
+          for (const change of nodeChangesRef.current || []) {
             if (change.type === 'add') {
               updatedNodes.push(change.item);
             } else if (change.type === 'remove') {
@@ -97,7 +97,7 @@ export function useDebounceChanges(
           setEdges((edges: any) => {
             // Apply all batched changes at once
             let updatedEdges = [...edges];
-            for (const change of edgeChangesRef.current) {
+            for (const change of edgeChangesRef.current || []) {
               if (change.type === 'add') {
                 updatedEdges.push(change.item);
               } else if (change.type === 'remove') {
