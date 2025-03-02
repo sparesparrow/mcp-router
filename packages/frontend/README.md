@@ -1,62 +1,14 @@
-# MCP Router - Frontend Package
+# MCP Router Frontend
 
-## Overview
-
-The frontend package contains the React application for the MCP Router. It provides a visual workflow designer for creating, editing, and managing agent workflows. The frontend communicates with the backend services to execute workflows and manage the system.
+The frontend application for the MCP Router project, enabling visual workflow design for Model Context Protocol pipelines.
 
 ## Features
 
-- **Workflow Designer**: Visual editor for creating and editing agent workflows
-- **Node Palette**: Library of available agent nodes
-- **Properties Panel**: Editor for node properties and configuration
-- **Mermaid Integration**: Generate Mermaid diagrams from workflows
-- **ReactFlow Integration**: Powerful graph visualization and editing
-
-## Architecture
-
-The frontend is organized using a feature-based architecture:
-
-```
-frontend/
-├── src/
-│   ├── features/           # Feature modules
-│   │   ├── workflow-designer/  # Workflow designer feature
-│   │   │   ├── components/     # UI components
-│   │   │   ├── hooks/          # React hooks
-│   │   │   ├── contexts/       # React contexts
-│   │   │   ├── utils/          # Utility functions
-│   │   │   └── types/          # TypeScript types
-│   │   ├── mermaid-integration/  # Mermaid diagram feature
-│   │   └── dashboard/          # Dashboard feature
-│   ├── api/                # API clients and services
-│   ├── utils/              # Shared utilities
-│   ├── components/         # Shared UI components
-│   ├── hooks/              # Shared React hooks
-│   ├── contexts/           # Shared React contexts
-│   ├── types/              # Shared TypeScript types
-│   ├── App.tsx             # Main application component
-│   └── index.tsx           # Application entry point
-└── public/                 # Static assets
-```
-
-## Key Components
-
-### Workflow Designer
-
-The workflow designer is the core feature of the frontend. It allows users to create and edit agent workflows using a visual node-based editor. The workflow designer is built using ReactFlow and consists of the following components:
-
-- **Canvas**: The main editing area where nodes and edges are displayed
-- **Node Palette**: A panel of available node types that can be dragged onto the canvas
-- **Properties Panel**: A panel for editing the properties of selected nodes
-- **Toolbar**: A toolbar with actions for the workflow designer
-
-### Mermaid Integration
-
-The Mermaid integration feature allows users to generate Mermaid diagrams from their workflows. This provides an alternative visualization of the workflow that can be shared or embedded in documentation.
-
-### Dashboard
-
-The dashboard feature provides an overview of the system, including active workflows, system status, and performance metrics.
+- Visual workflow designer for creating and managing MCP workflows
+- Support for various node types (LLM, Tool, Resource, Router, etc.)
+- Export workflows as JSON or Mermaid diagrams
+- Validation of workflow configurations
+- Real-time connection to MCP servers
 
 ## Getting Started
 
@@ -67,63 +19,55 @@ The dashboard feature provides an overview of the system, including active workf
 
 ### Installation
 
+1. Install dependencies:
 ```bash
-cd packages/frontend
 npm install
 ```
 
-### Development
-
+2. Start the development server:
 ```bash
-# Start the development server
 npm start
+```
 
-# Build for production
+### Building for Production
+
+To create a production build:
+```bash
 npm run build
-
-# Run tests
-npm test
 ```
 
-## Integration with Other Packages
+The build artifacts will be stored in the `build/` directory.
 
-The frontend package integrates with other packages in the monorepo:
+### Environment Variables
 
-- **Shared Package**: Uses types, utilities, and client implementations from the shared package
-- **Backend Package**: Communicates with the backend services via API endpoints
+The following environment variables can be set:
 
-## Feature Flags
+- `PUBLIC_URL` - The base URL for the application assets (defaults to `.`)
+- `REACT_APP_API_URL` - The URL for the backend API (defaults to `http://localhost:3001`)
 
-The frontend uses feature flags to control the availability of features. These flags are defined in the shared package and can be used to enable or disable features at runtime.
+## Architecture
 
-```typescript
-import { isFeatureEnabled } from '@mcp-router/shared';
+The frontend is built with:
 
-// Check if a feature is enabled
-if (isFeatureEnabled('REACT_FLOW_INTEGRATION')) {
-  // Use ReactFlow integration
-}
-```
+- React for UI components
+- TypeScript for type safety
+- ReactFlow for workflow visualization
+- MCP client for protocol communication
 
-## ReactFlow Integration
+## Workflow Components
 
-The workflow designer is built using ReactFlow, a library for building node-based editors. The integration includes:
+The application supports several node types:
 
-- Custom node types for different agent types
-- Custom edge types for connections between nodes
-- Drag-and-drop functionality for adding nodes
-- Interactive editing of node properties
-- Validation of workflows
-
-## Contributing
-
-When contributing to the frontend package, please ensure that:
-
-1. Components are properly documented
-2. Tests are added for new functionality
-3. Feature flags are used for incomplete features
-4. The code follows the project's coding standards
+- **LLM Node**: Represents an LLM agent that performs reasoning
+- **Tool Node**: Represents an MCP tool that can be executed
+- **Resource Node**: Represents an MCP resource that can be accessed
+- **Router Node**: Implements the routing pattern
+- **Parallel Node**: Implements the parallelization pattern
+- **Orchestrator Node**: Implements the orchestrator-workers pattern
+- **Evaluator Node**: Implements the evaluator-optimizer pattern
+- **Input/Output Nodes**: Define entry and exit points for workflows
+- **Condition Node**: For branching logic
 
 ## License
 
-This package is part of the MCP Router project and is subject to the same license terms. 
+This project is licensed under the MIT License - see the LICENSE file for details. 

@@ -35,44 +35,6 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   const [exportFormat, setExportFormat] = useState<'json' | 'mermaid'>('json');
   const [exportedData, setExportedData] = useState<string>('');
   
-  // Initialize workflow if not provided
-  useEffect(() => {
-    if (!workflow) {
-      // Try to load from localStorage
-      const savedWorkflow = localStorage.getItem(STORAGE_KEY);
-      if (savedWorkflow) {
-        try {
-          const parsedWorkflow = JSON.parse(savedWorkflow) as Workflow;
-          setWorkflow(parsedWorkflow);
-          setWorkflowName(parsedWorkflow.name);
-          addToHistory(parsedWorkflow);
-        } catch (error) {
-          console.error('Failed to parse saved workflow:', error);
-          createNewWorkflow();
-        }
-      } else {
-        createNewWorkflow();
-      }
-    } else {
-      addToHistory(workflow);
-    }
-  }, []);
-  
-  // Create a new empty workflow
-  const createNewWorkflow = useCallback(() => {
-    const newWorkflow: Workflow = {
-      id: `workflow-${Date.now()}`,
-      name: 'New Workflow',
-      nodes: [],
-      edges: [],
-    };
-    
-    setWorkflow(newWorkflow);
-    setWorkflowName(newWorkflow.name);
-    addToHistory(newWorkflow);
-    setSaveStatus('unsaved');
-  }, []);
-  
   // Add a workflow to the history
   const addToHistory = useCallback((workflow: Workflow) => {
     setWorkflowHistory(prev => {
@@ -98,6 +60,45 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
       return newHistory;
     });
   }, [historyIndex]);
+  
+  // Create a new empty workflow
+  const createNewWorkflow = useCallback(() => {
+    const newWorkflow: Workflow = {
+      id: `workflow-${Date.now()}`,
+      name: 'New Workflow',
+      nodes: [],
+      edges: [],
+    };
+    
+    setWorkflow(newWorkflow);
+    setWorkflowName(newWorkflow.name);
+    addToHistory(newWorkflow);
+    setSaveStatus('unsaved');
+  }, [addToHistory]);
+  
+  // Initialize workflow if not provided
+  useEffect(() => {
+    if (!workflow) {
+      // Try to load from localStorage
+      const savedWorkflow = localStorage.getItem(STORAGE_KEY);
+      if (savedWorkflow) {
+        try {
+          const parsedWorkflow = JSON.parse(savedWorkflow) as Workflow;
+          setWorkflow(parsedWorkflow);
+          setWorkflowName(parsedWorkflow.name);
+          addToHistory(parsedWorkflow);
+        } catch (error) {
+          console.error('Failed to parse saved workflow:', error);
+          createNewWorkflow();
+        }
+      } else {
+        createNewWorkflow();
+      }
+    } else {
+      addToHistory(workflow);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflow]); // Add workflow dependency but use eslint-disable to prevent infinite loop
   
   // Handle workflow changes
   const handleWorkflowChange = useCallback((updatedWorkflow: Workflow) => {

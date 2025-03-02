@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import { JsonSchema, NodeStyle, EdgeStyle, WorkflowMetadata, WorkflowVariable } from './schema-types';
 
 /**
  * Agent Node Types
@@ -33,7 +34,8 @@ export interface NodeBase {
     x: number;
     y: number;
   };
-  data?: Record<string, any>;
+  style?: NodeStyle;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -58,7 +60,7 @@ export interface ToolNode extends NodeBase {
   data: {
     serverName: string;
     toolName: string;
-    inputSchema?: Record<string, any>;  // JSON Schema
+    inputSchema?: JsonSchema;
     argumentMapping?: Record<string, string>;  // Maps workflow variables to tool inputs
   };
 }
@@ -133,7 +135,7 @@ export interface EvaluatorNode extends NodeBase {
 export interface InputNode extends NodeBase {
   type: AgentNodeType.INPUT;
   data: {
-    inputSchema?: Record<string, any>;  // JSON Schema
+    inputSchema?: JsonSchema;
   };
 }
 
@@ -182,8 +184,8 @@ export interface Edge {
   targetHandle?: string | null;  // Target handle ID
   label?: string;
   animated?: boolean;
-  style?: Record<string, any>;
-  data?: Record<string, any>;
+  style?: EdgeStyle;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -195,8 +197,8 @@ export interface Workflow {
   description?: string;
   nodes: AgentNode[];
   edges: Edge[];
-  variables?: Record<string, any>;
-  metadata?: Record<string, any>;
+  variables?: Record<string, WorkflowVariable>;
+  metadata?: WorkflowMetadata;
 }
 
 /**

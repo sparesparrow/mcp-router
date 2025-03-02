@@ -27,28 +27,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const connect = useCallback(async () => {
-    try {
-      apiClientInstance.connectWebSocket();
-      setIsConnected(true);
-
-      // Initialize the connection
-      await executeWorkflow('initialize', {
-        capabilities: {
-          streaming: true,
-          tools: true,
-          events: true
-        }
-      });
-
-      setIsInitialized(true);
-    } catch (error) {
-      console.error('Failed to connect:', error);
-      disconnect();
-      throw error;
-    }
-  }, []);
-
+  // Define disconnect first so we can use it in connect
   const disconnect = useCallback(() => {
     apiClientInstance.disconnectWebSocket();
     setIsConnected(false);
@@ -70,6 +49,28 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
       throw error;
     }
   }, [isConnected]);
+
+  const connect = useCallback(async () => {
+    try {
+      apiClientInstance.connectWebSocket();
+      setIsConnected(true);
+
+      // Initialize the connection
+      await executeWorkflow('initialize', {
+        capabilities: {
+          streaming: true,
+          tools: true,
+          events: true
+        }
+      });
+
+      setIsInitialized(true);
+    } catch (error) {
+      console.error('Failed to connect:', error);
+      disconnect();
+      throw error;
+    }
+  }, [disconnect, executeWorkflow]);
 
   return (
     <MCPContext.Provider
