@@ -40,9 +40,34 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
     }
 
     try {
-      await apiClientInstance.executeWorkflow({
+      // Use socket.io to execute the workflow
+      const socket = apiClientInstance.getSocket();
+      socket?.emit('execute_workflow', {
         workflow_id: method,
         context: params
+      });
+      
+      // Return a promise that resolves when we get a response
+      return new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Workflow execution timed out'));
+        }, 10000); // 10 second timeout
+        
+        const resultHandler = (result: any) => {
+          clearTimeout(timeout);
+          if (result.error) {
+            reject(new Error(result.error));
+          } else {
+            resolve();
+          }
+          
+          // Remove the listener after receiving the result
+          const socket = apiClientInstance.getSocket();
+          socket?.off('workflow_result', resultHandler);
+        };
+        
+        const socket = apiClientInstance.getSocket();
+        socket?.on('workflow_result', resultHandler);
       });
     } catch (error) {
       console.error('Failed to execute workflow:', error);
@@ -53,24 +78,77 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
   const connect = useCallback(async () => {
     try {
       apiClientInstance.connectWebSocket();
-      setIsConnected(true);
-
-      // Initialize the connection
-      await executeWorkflow('initialize', {
-        capabilities: {
-          streaming: true,
-          tools: true,
-          events: true
+      
+      // Return a promise that resolves when the socket is connected
+      await new Promise<void>((resolve, reject) => {
+        const socket = apiClientInstance.getSocket();
+        
+        if (!socket) {
+          reject(new Error('Failed to create socket'));
+          return;
         }
+        
+        if (socket.connected) {
+          setIsConnected(true);
+          resolve();
+          return;
+        }
+        
+        const timeout = setTimeout(() => {
+          socket.off('connect');
+          reject(new Error('Connection timed out'));
+        }, 5000);
+        
+        socket.once('connect', () => {
+          clearTimeout(timeout);
+          setIsConnected(true);
+          resolve();
+        });
+        
+        socket.once('connect_error', (error: Error) => {
+          clearTimeout(timeout);
+          reject(error);
+        });
       });
 
-      setIsInitialized(true);
+      // Initialize the connection
+      await new Promise<void>((resolve, reject) => {
+        const socket = apiClientInstance.getSocket();
+        
+        if (!socket) {
+          reject(new Error('Socket not available'));
+          return;
+        }
+        
+        const timeout = setTimeout(() => {
+          socket.off('initialized');
+          reject(new Error('Initialization timed out'));
+        }, 5000);
+        
+        socket.once('initialized', (data: {status: string}) => {
+          clearTimeout(timeout);
+          if (data.status === 'ok') {
+            setIsInitialized(true);
+            resolve();
+          } else {
+            reject(new Error('Initialization failed'));
+          }
+        });
+        
+        socket.emit('initialize', {
+          capabilities: {
+            streaming: true,
+            tools: true,
+            events: true
+          }
+        });
+      });
     } catch (error) {
       console.error('Failed to connect:', error);
       disconnect();
       throw error;
     }
-  }, [disconnect, executeWorkflow]);
+  }, [disconnect]);
 
   return (
     <MCPContext.Provider

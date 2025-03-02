@@ -14,6 +14,7 @@ mermaid.initialize({
   startOnLoad: true,
   theme: 'default',
   securityLevel: 'loose',
+  logLevel: 'error',
 });
 
 interface MermaidPanelProps {
@@ -37,8 +38,29 @@ const MermaidPanel: React.FC<MermaidPanelProps> = ({
   // Generate Mermaid code from workflow
   useEffect(() => {
     if (!editMode) {
-      const code = generateMermaidDiagram(workflow);
-      setMermaidCode(code);
+      try {
+        const code = generateMermaidDiagram(workflow);
+        // Ensure we have a valid diagram structure even if empty
+        if (!code.trim() || !code.includes('graph')) {
+          // Provide default structure if the generated code is empty or invalid
+          setMermaidCode(`graph TB
+    start["Start"]
+    end["End"]
+    start --> end
+    
+    class start input
+    class end output`);
+        } else {
+          setMermaidCode(code);
+        }
+      } catch (error) {
+        console.error('Error generating Mermaid diagram:', error);
+        // Set a fallback diagram
+        setMermaidCode(`graph TB
+    error["Error Generating Diagram"]
+    
+    class error input`);
+      }
     }
   }, [workflow, editMode]);
   
@@ -47,15 +69,27 @@ const MermaidPanel: React.FC<MermaidPanelProps> = ({
     if (diagramRef.current && !editMode) {
       try {
         diagramRef.current.innerHTML = '';
+        
+        // Validate that we have a valid Mermaid diagram
+        if (!mermaidCode.trim()) {
+          diagramRef.current.innerHTML = '<div style="color: red;">Empty diagram code</div>';
+          return;
+        }
+        
         mermaid.render('mermaid-diagram', mermaidCode).then((result) => {
           if (diagramRef.current) {
             diagramRef.current.innerHTML = result.svg;
+          }
+        }).catch((error) => {
+          console.error('Mermaid rendering error:', error);
+          if (diagramRef.current) {
+            diagramRef.current.innerHTML = `<div style="color: red;">Error rendering diagram: ${error.message}</div>`;
           }
         });
       } catch (error) {
         console.error('Failed to render Mermaid diagram:', error);
         if (diagramRef.current) {
-          diagramRef.current.innerHTML = '<div style="color: red;">Error rendering diagram</div>';
+          diagramRef.current.innerHTML = `<div style="color: red;">Error rendering diagram: ${error instanceof Error ? error.message : 'Unknown error'}</div>`;
         }
       }
     }

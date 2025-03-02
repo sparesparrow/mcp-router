@@ -64,6 +64,8 @@ class APIClient {
       return;
     }
 
+    console.log('Connecting to WebSocket server at:', API_BASE_URL);
+    
     this.socket = io(API_BASE_URL, {
       path: '/ws',
       transports: ['websocket'],
@@ -71,15 +73,37 @@ class APIClient {
       reconnectionDelay: 1000,
     });
 
-    this.socket.on('connect', () => {
+    this.socket?.on('connect', () => {
       console.log('Connected to WebSocket server');
+      
+      // Emit initialize event for testing
+      this.socket?.emit('initialize', {
+        capabilities: {
+          streaming: true,
+          tools: true,
+          events: true
+        }
+      });
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket?.on('initialized', (data) => {
+      console.log('Initialization response:', data);
+    });
+
+    this.socket?.on('workflow_result', (data) => {
+      console.log('Workflow result received:', data);
+    });
+
+    this.socket?.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
     });
 
-    this.socket.on('context_update', (data: Partial<SystemContext>) => {
+    this.socket?.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket server:', reason);
+    });
+
+    this.socket?.on('context_update', (data: Partial<SystemContext>) => {
+      console.log('Context update received:', data);
       this.contextUpdateHandlers.forEach((handler) => {
         try {
           handler(data);
@@ -95,6 +119,10 @@ class APIClient {
       this.socket.close();
       this.socket = null;
     }
+  }
+
+  public getSocket(): Socket | null {
+    return this.socket;
   }
 
   public onContextUpdate(handler: (context: Partial<SystemContext>) => void): () => void {
