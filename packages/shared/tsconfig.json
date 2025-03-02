@@ -1,12 +1,15 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "composite": true,
+    "target": "es2020",
+    "module": "commonjs",
     "declaration": true,
-    "declarationMap": true
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "src/routes.ts", "src/server.ts", "src/solidAnalyzerIntegration.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 } 

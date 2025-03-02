@@ -42,14 +42,34 @@ export interface Response {
 }
 
 /**
- * Transport interface for communication
+ * Server information structure
  */
-export interface Transport {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  send(message: Message): Promise<void>;
-  onMessage(handler: (msg: Message) => Promise<Response>): void;
-  close?(): Promise<void>;
+export interface ServerInfo {
+  id: string;
+  name: string;
+  version: string;
+  capabilities: string[];
+  isConnected: boolean;
+}
+
+/**
+ * Client information structure
+ */
+export interface ClientInfo {
+  id: string;
+  name: string;
+  version: string;
+  capabilities: string[];
+}
+
+/**
+ * Tool information structure
+ */
+export interface ToolInfo {
+  id: string;
+  name: string;
+  description: string;
+  [key: string]: any;
 }
 
 /**

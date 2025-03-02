@@ -1,56 +1,47 @@
 {
   "name": "@mcp-router/frontend",
-  "version": "0.1.0",
-  "private": true,
-  "homepage": "./",
+  "version": "1.0.0",
+  "description": "Frontend application for MCP Router",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mcp-router/shared": "0.1.0",
-    "@mui/icons-material": "^6.4.4",
-    "@mui/material": "^6.4.4",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.80",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19",
-    "@types/styled-components": "^5.1.34",
-    "axios": "^1.6.7",
-    "lucide-react": "^0.477.0",
-    "mermaid": "^11.4.1",
-    "nth-check": "^2.1.1",
-    "postcss": "^8.5.2",
-    "qrcode.react": "^4.2.0",
+    "@mcp-router/shared": "file:../shared",
+    "events": "^3.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^5.5.0",
-    "react-scripts": "^5.0.1",
-    "serialize-javascript": "^6.0.2",
-    "socket.io-client": "^4.8.1",
-    "styled-components": "^6.1.15",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4",
-    "zustand": "^5.0.3"
+    "react-router-dom": "^6.20.0"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
-    "@types/mermaid": "^9.1.0",
-    "@types/qrcode.react": "^1.0.5",
-    "@types/socket.io-client": "^3.0.0"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "assert": "^2.1.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
+    "react-scripts": "5.0.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "typescript": "^5.3.2",
+    "url": "^0.11.3",
+    "util": "^0.12.5"
   },
   "browserslist": {
     "production": [

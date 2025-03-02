@@ -1,166 +1,132 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { apiClientInstance, SystemContext } from '../api/client';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { MCPBackendService } from '../api/MCPBackendService';
+import { MCPConfig, ConnectionState } from '@mcp-router/shared';
 
-interface MCPContextType {
-  isConnected: boolean;
-  isInitialized: boolean;
-  connect: () => Promise<void>;
-  disconnect: () => void;
-  executeWorkflow: (method: string, params: Record<string, unknown>) => Promise<void>;
-}
-
-const MCPContext = createContext<MCPContextType | null>(null);
-
-export const useMCP = () => {
-  const context = useContext(MCPContext);
-  if (!context) {
-    throw new Error('useMCP must be used within an MCPProvider');
-  }
-  return context;
+// Default configuration
+const DEFAULT_CONFIG: MCPConfig = {
+  baseUrl: 'http://localhost:8000',
+  websocketUrl: 'ws://localhost:8000/api/mcp/ws',
+  reconnectInterval: 2000,
+  maxReconnectAttempts: 10
 };
 
-interface MCPProviderProps {
-  children: React.ReactNode;
+// Context interface
+interface MCPContextType {
+  service: MCPBackendService | null;
+  connectionState: ConnectionState;
+  connect: () => Promise<void>;
+  disconnect: () => void;
+  isConnected: boolean;
+  isConnecting: boolean;
+  isError: boolean;
 }
 
-export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+// Create context with default values
+const MCPContext = createContext<MCPContextType>({
+  service: null,
+  connectionState: ConnectionState.DISCONNECTED,
+  connect: async () => {},
+  disconnect: () => {},
+  isConnected: false,
+  isConnecting: false,
+  isError: false
+});
 
-  // Define disconnect first so we can use it in connect
-  const disconnect = useCallback(() => {
-    apiClientInstance.disconnectWebSocket();
-    setIsConnected(false);
-    setIsInitialized(false);
-  }, []);
+// Provider props
+interface MCPProviderProps {
+  children: ReactNode;
+  config?: MCPConfig;
+}
 
-  const executeWorkflow = useCallback(async (method: string, params: Record<string, unknown>) => {
-    if (!isConnected) {
-      throw new Error('Not connected to MCP server');
+// Provider component
+export const MCPProvider: React.FC<MCPProviderProps> = ({ 
+  children, 
+  config = DEFAULT_CONFIG 
+}) => {
+  const [service, setService] = useState<MCPBackendService | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>(
+    ConnectionState.DISCONNECTED
+  );
+
+  // Create service instance on mount
+  useEffect(() => {
+    const mcpService = new MCPBackendService(config);
+    
+    // Set up event listeners
+    mcpService.on('connected', () => {
+      setConnectionState(ConnectionState.CONNECTED);
+    });
+    
+    mcpService.on('disconnected', () => {
+      setConnectionState(ConnectionState.DISCONNECTED);
+    });
+    
+    mcpService.on('connecting', () => {
+      setConnectionState(ConnectionState.CONNECTING);
+    });
+    
+    mcpService.on('reconnecting', () => {
+      setConnectionState(ConnectionState.RECONNECTING);
+    });
+    
+    mcpService.on('error', () => {
+      setConnectionState(ConnectionState.ERROR);
+    });
+    
+    setService(mcpService);
+    
+    // Clean up on unmount
+    return () => {
+      if (mcpService) {
+        mcpService.disconnect();
+        mcpService.removeAllListeners();
+      }
+    };
+  }, [config]);
+
+  // Connect method
+  const connect = async () => {
+    if (service && connectionState !== ConnectionState.CONNECTED) {
+      try {
+        await service.connect();
+      } catch (error) {
+        console.error('Failed to connect to MCP service:', error);
+      }
     }
+  };
 
-    try {
-      // Use socket.io to execute the workflow
-      const socket = apiClientInstance.getSocket();
-      socket?.emit('execute_workflow', {
-        workflow_id: method,
-        context: params
-      });
-      
-      // Return a promise that resolves when we get a response
-      return new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('Workflow execution timed out'));
-        }, 10000); // 10 second timeout
-        
-        const resultHandler = (result: any) => {
-          clearTimeout(timeout);
-          if (result.error) {
-            reject(new Error(result.error));
-          } else {
-            resolve();
-          }
-          
-          // Remove the listener after receiving the result
-          const socket = apiClientInstance.getSocket();
-          socket?.off('workflow_result', resultHandler);
-        };
-        
-        const socket = apiClientInstance.getSocket();
-        socket?.on('workflow_result', resultHandler);
-      });
-    } catch (error) {
-      console.error('Failed to execute workflow:', error);
-      throw error;
+  // Disconnect method
+  const disconnect = () => {
+    if (service) {
+      service.disconnect();
     }
-  }, [isConnected]);
+  };
 
-  const connect = useCallback(async () => {
-    try {
-      apiClientInstance.connectWebSocket();
-      
-      // Return a promise that resolves when the socket is connected
-      await new Promise<void>((resolve, reject) => {
-        const socket = apiClientInstance.getSocket();
-        
-        if (!socket) {
-          reject(new Error('Failed to create socket'));
-          return;
-        }
-        
-        if (socket.connected) {
-          setIsConnected(true);
-          resolve();
-          return;
-        }
-        
-        const timeout = setTimeout(() => {
-          socket.off('connect');
-          reject(new Error('Connection timed out'));
-        }, 5000);
-        
-        socket.once('connect', () => {
-          clearTimeout(timeout);
-          setIsConnected(true);
-          resolve();
-        });
-        
-        socket.once('connect_error', (error: Error) => {
-          clearTimeout(timeout);
-          reject(error);
-        });
-      });
-
-      // Initialize the connection
-      await new Promise<void>((resolve, reject) => {
-        const socket = apiClientInstance.getSocket();
-        
-        if (!socket) {
-          reject(new Error('Socket not available'));
-          return;
-        }
-        
-        const timeout = setTimeout(() => {
-          socket.off('initialized');
-          reject(new Error('Initialization timed out'));
-        }, 5000);
-        
-        socket.once('initialized', (data: {status: string}) => {
-          clearTimeout(timeout);
-          if (data.status === 'ok') {
-            setIsInitialized(true);
-            resolve();
-          } else {
-            reject(new Error('Initialization failed'));
-          }
-        });
-        
-        socket.emit('initialize', {
-          capabilities: {
-            streaming: true,
-            tools: true,
-            events: true
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Failed to connect:', error);
-      disconnect();
-      throw error;
-    }
-  }, [disconnect]);
+  // Derived state
+  const isConnected = connectionState === ConnectionState.CONNECTED;
+  const isConnecting = 
+    connectionState === ConnectionState.CONNECTING || 
+    connectionState === ConnectionState.RECONNECTING;
+  const isError = connectionState === ConnectionState.ERROR;
 
   return (
     <MCPContext.Provider
       value={{
-        isConnected,
-        isInitialized,
+        service,
+        connectionState,
         connect,
         disconnect,
-        executeWorkflow
+        isConnected,
+        isConnecting,
+        isError
       }}
     >
       {children}
     </MCPContext.Provider>
   );
-}; 
+};
+
+// Custom hook for using the context
+export const useMCP = () => useContext(MCPContext);
+
+export default MCPContext; 

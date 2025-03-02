@@ -1,17 +1,18 @@
 /**
  * App.tsx
- * Main application entry point
+ * Main application entry point with refactored SOLID principles
  */
 
 import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import WorkflowDesigner from './features/workflow-designer';
-import { MCPProvider } from './contexts/MCPContext';
+import { ServiceProvider } from './services/ServiceProvider';
 import ConnectionStatus from './components/ConnectionStatus';
+import NotificationList from './components/NotificationList';
 import './App.css';
 
-// Main App content that uses the MCP connection
+// Main App content
 const AppContent: React.FC = () => {
   return (
     <div className="mcp-workflow-designer-app" style={{
@@ -93,19 +94,22 @@ const AppContent: React.FC = () => {
       }}>
         <WorkflowDesigner />
       </main>
+      
+      {/* Global notification list */}
+      <NotificationList />
     </div>
   );
 };
 
-// Root component with MCP Provider and ReactFlowProvider
+// Root component with all providers
 const App: React.FC = () => {
   return (
     <ReactFlowProvider>
-      <MCPProvider>
+      <ServiceProvider>
         <AppContent />
-      </MCPProvider>
+      </ServiceProvider>
     </ReactFlowProvider>
   );
 };
 
-export default App; 
+export default App;
