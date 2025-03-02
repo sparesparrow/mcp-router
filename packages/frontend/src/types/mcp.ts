@@ -1,3 +1,8 @@
+/**
+ * Mock implementation of shared types for the frontend
+ * This is a temporary solution until the shared package is properly integrated
+ */
+
 export interface MCPMessage {
   id: string;
   method: string;
@@ -31,9 +36,35 @@ export interface ToolResult {
   result: any;
 }
 
+// Connection state enum
+export enum ConnectionState {
+  DISCONNECTED = 'disconnected',
+  CONNECTING = 'connecting',
+  CONNECTED = 'connected',
+  RECONNECTING = 'reconnecting',
+  ERROR = 'error'
+}
+
+/**
+ * Agent Node Types
+ */
+export enum AgentNodeType {
+  LLM = 'llm',
+  TOOL = 'tool',
+  RESOURCE = 'resource',
+  ROUTER = 'router',
+  PARALLEL = 'parallel',
+  ORCHESTRATOR = 'orchestrator',
+  EVALUATOR = 'evaluator',
+  INPUT = 'input',
+  OUTPUT = 'output',
+  CONDITION = 'condition',
+}
+
+// MCP configuration interface
 export interface MCPConfig {
-  serverUrl: string;
-  apiKey: string;
+  baseUrl: string;
+  websocketUrl: string;
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
 }

@@ -1,9 +1,9 @@
 {
   "name": "@mcp-router/shared",
   "version": "1.0.0",
-  "description": "Shared types and utilities for MCP Router",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "Shared library for MCP Router",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "build:minimal": "tsc -p tsconfig.minimal.json",

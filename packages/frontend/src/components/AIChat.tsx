@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MCPBackendService } from '../api/MCPBackendService';
-import { ConnectionState } from '@mcp-router/shared';
+import { ConnectionState } from '../types/mcp';
+import { useMCP } from '../contexts/MCPContext';
 
 interface AIChatProps {
   service: MCPBackendService;

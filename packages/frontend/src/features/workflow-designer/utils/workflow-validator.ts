@@ -3,8 +3,22 @@
  * Utility for validating workflow structures
  */
 
-import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
-import { Workflow, AgentNode, LLMNode, ToolNode, ResourceNode, RouterNode, ParallelNode, OrchestratorNode, EvaluatorNode, InputNode, OutputNode, ConditionNode } from '../types/agent-types';
+import { AgentNodeType } from '../types/agent-types';
+import { 
+  AgentNode, 
+  LLMNode, 
+  ToolNode, 
+  ResourceNode, 
+  RouterNode, 
+  ParallelNode, 
+  OrchestratorNode, 
+  EvaluatorNode, 
+  InputNode, 
+  OutputNode, 
+  ConditionNode,
+  Edge,
+  Workflow
+} from '../types/agent-types';
 
 export interface ValidationError {
   nodeId?: string;
@@ -81,102 +95,57 @@ function addValidationError(
  * @returns Array of validation errors
  */
 export function validateWorkflow(workflow: Workflow): ValidationError[] {
-  const validationErrors: ValidationError[] = [];
-  
-  // Check if workflow has basic structure
-  if (!workflow.id) {
-    addValidationError(
-      validationErrors,
-      'Workflow is missing an ID',
-      'error'
-    );
-  }
-  
-  if (!workflow.name) {
-    addValidationError(
-      validationErrors,
-      'Workflow is missing a name',
-      'warning'
-    );
-  }
-  
+  const errors: ValidationError[] = [];
+
+  // Check if workflow has nodes
   if (!workflow.nodes || workflow.nodes.length === 0) {
     addValidationError(
-      validationErrors,
-      'Workflow has no nodes',
+      errors,
+      'Workflow must have at least one node',
       'error'
     );
-    
-    // Early return since most other validations depend on nodes
-    return validationErrors;
+    return errors;
   }
-  
-  // Validate each node
-  for (const node of workflow.nodes) {
-    // Skip validation for nodes without an ID
-    if (!node?.id) {
-      addValidationError(
-        validationErrors,
-        'Node is missing an ID',
-        'error'
-      );
-      continue;
-    }
-    
-    const nodeId = node.id;
-    
+
+  // Validate each node based on its type
+  workflow.nodes.forEach((node) => {
+    // Check if node has a type
     if (!node.type) {
       addValidationError(
-        validationErrors,
-        `Node ${nodeId} is missing a type`,
+        errors,
+        'Node must have a type',
         'error',
-        nodeId
+        node.id as string,
+        'type'
       );
+      return;
     }
-    
-    if (!node.label) {
-      addValidationError(
-        validationErrors,
-        `Node ${nodeId} is missing a label`,
-        'warning',
-        nodeId
-      );
-    }
-    
-    // Validate node fields based on type
+
+    // Validate node based on its type
     if (isLLMNode(node)) {
-      validateLLMNode(node, validationErrors);
-    } 
-    else if (isToolNode(node)) {
-      validateToolNode(node, validationErrors);
+      validateLLMNode(node, errors);
+    } else if (isToolNode(node)) {
+      validateToolNode(node, errors);
+    } else if (isResourceNode(node)) {
+      validateResourceNode(node, errors);
+    } else if (isRouterNode(node)) {
+      validateRouterNode(node, errors);
+    } else if (isParallelNode(node)) {
+      validateParallelNode(node, errors, workflow);
+    } else if (isOrchestratorNode(node)) {
+      validateOrchestratorNode(node, errors);
+    } else if (isEvaluatorNode(node)) {
+      validateEvaluatorNode(node, errors);
+    } else if (isConditionNode(node)) {
+      validateConditionNode(node, errors, workflow);
     }
-    else if (isResourceNode(node)) {
-      validateResourceNode(node, validationErrors);
-    }
-    else if (isRouterNode(node)) {
-      validateRouterNode(node, validationErrors);
-    }
-    else if (isParallelNode(node)) {
-      validateParallelNode(node, validationErrors, workflow);
-    }
-    else if (isOrchestratorNode(node)) {
-      validateOrchestratorNode(node, validationErrors);
-    }
-    else if (isEvaluatorNode(node)) {
-      validateEvaluatorNode(node, validationErrors);
-    }
-    else if (isConditionNode(node)) {
-      validateConditionNode(node, validationErrors, workflow);
-    }
-  }
-  
-  // Check for orphaned nodes (no incoming or outgoing edges)
-  validateOrphanedNodes(workflow, validationErrors);
-  
-  // Check for missing entry/exit points
-  validateEntryExitPoints(workflow, validationErrors);
-  
-  return validationErrors;
+  });
+
+  // Validate workflow structure
+  validateOrphanedNodes(workflow, errors);
+  validateEntryExitPoints(workflow, errors);
+
+  return errors;
 }
 
 /**

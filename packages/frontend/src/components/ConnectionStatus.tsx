@@ -4,7 +4,12 @@
  */
 import React from 'react';
 import { useMCP } from '../contexts/MCPContext';
-import { ConnectionState } from '@mcp-router/shared';
+import { ConnectionState } from '../types/mcp';
+import { 
+  Box, 
+  Typography, 
+  CircularProgress 
+} from '@mui/material';
 
 const ConnectionStatus: React.FC = () => {
   const { connectionState } = useMCP();

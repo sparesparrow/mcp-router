@@ -16,8 +16,8 @@ const arePropsEqual = (prevProps: LLMNodeProps, nextProps: LLMNodeProps) => {
     prevProps.id === nextProps.id &&
     prevProps.selected === nextProps.selected &&
     prevProps.data.label === nextProps.data.label &&
-    prevProps.data.model === nextProps.data.model &&
-    prevProps.data.temperature === nextProps.data.temperature
+    prevProps.data.data?.model === nextProps.data.data?.model &&
+    prevProps.data.data?.temperature === nextProps.data.data?.temperature
   );
 };
 
@@ -41,8 +41,8 @@ const LLMNodeComponent: React.FC<LLMNodeProps> = ({ data, selected }) => {
       <div className="llm-node-content">
         <div className="llm-node-header">LLM: {data.label}</div>
         <div className="llm-node-details">
-          <div className="llm-node-model">Model: {data.model || 'Not specified'}</div>
-          <div className="llm-node-temp">Temp: {data.temperature || 0.7}</div>
+          <div className="llm-node-model">Model: {data.data?.model || 'Not specified'}</div>
+          <div className="llm-node-temp">Temp: {data.data?.temperature || 0.7}</div>
         </div>
       </div>
       <Handle

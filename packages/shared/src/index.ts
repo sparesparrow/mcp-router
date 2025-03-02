@@ -16,6 +16,7 @@ export * from './interfaces/IRouter';
 // Export types
 export * from './types/mcp';
 export * from './types/errors';
+export * from './types/index';
 
 // Export core components
 export * from './server/MCPServerCore';

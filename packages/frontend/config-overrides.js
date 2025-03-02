@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const path = require('path');
 
 module.exports = function override(config, env) {
   // Add fallbacks for node.js core modules
@@ -15,16 +16,26 @@ module.exports = function override(config, env) {
     "crypto": require.resolve("crypto-browserify"),
     "path": require.resolve("path-browserify"),
     "os": require.resolve("os-browserify/browser"),
+    "process": require.resolve("process/browser.js"),
+    "querystring": require.resolve("querystring-es3"),
     "fs": false,
     "net": false,
     "tls": false,
     "child_process": false
   };
 
+  // Comment out mock for @mcp-router/shared to use the real package
+  // config.resolve.alias = {
+  //   ...config.resolve.alias,
+  //   '@mcp-router/shared': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts'),
+  //   '@mcp-router/shared/dist/types/mcp': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts'),
+  //   '@mcp-router/shared/src/types/analyzer': path.resolve(__dirname, 'src/mocks/mcp-router-shared.ts')
+  // };
+
   // Add buffer polyfill
   config.plugins.push(
     new webpack.ProvidePlugin({
-      process: 'process/browser',
+      process: 'process/browser.js',
       Buffer: ['buffer', 'Buffer'],
     }),
   );

@@ -5,7 +5,28 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { SimpleAgentConfig, AgentNodeType } from '@mcp-router/shared';
+// Mock the shared package imports
+enum AgentNodeType {
+  LLM = 'llm',
+  TOOL = 'tool',
+  RESOURCE = 'resource',
+  ROUTER = 'router',
+  PARALLEL = 'parallel',
+  ORCHESTRATOR = 'orchestrator',
+  EVALUATOR = 'evaluator',
+  INPUT = 'input',
+  OUTPUT = 'output',
+  CONDITION = 'condition',
+}
+
+interface SimpleAgentConfig {
+  id: string;
+  name: string;
+  description: string;
+  type: AgentNodeType;
+  capabilities: string[];
+}
+
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 

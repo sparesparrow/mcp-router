@@ -83,7 +83,7 @@ export class MCPWebSocketClient extends EventEmitter {
   /**
    * Send an AI request with streaming and get a stream of responses
    */
-  async streamAIRequest(request: Omit<AIRequestMessage, 'type' | 'id' | 'stream'>): Promise<AsyncGenerator<string>> {
+  async streamAIRequest(request: Omit<AIRequestMessage, 'type' | 'id' | 'stream'>): Promise<any> {
     const message: AIRequestMessage = {
       type: 'ai_request',
       id: this.generateId(),
@@ -152,9 +152,23 @@ export class MCPWebSocketClient extends EventEmitter {
     }
 
     // Return an async generator
-    return {
-      [Symbol.asyncIterator]() {
-        return this;
+    const generator = {
+      async *[Symbol.asyncIterator]() {
+        while (true) {
+          if (error) {
+            throw error;
+          }
+          if (done && messageQueue.length === 0) {
+            return;
+          }
+          if (messageQueue.length > 0) {
+            yield messageQueue.shift()!;
+          } else {
+            await new Promise<void>((resolve) => {
+              resolveNext = () => resolve();
+            });
+          }
+        }
       },
       next: async () => {
         if (error) {
@@ -171,20 +185,20 @@ export class MCPWebSocketClient extends EventEmitter {
         });
       },
       return: async () => {
-        // Clean up when the iterator is closed
+        // Clean up when generator is closed
         this.removeListener('ai_response', handler);
         this.removeListener('ai_error', errorHandler);
-        done = true;
         return { value: undefined, done: true };
       },
-      throw: async (err) => {
-        // Handle errors
+      throw: async (err: any) => {
+        // Clean up when generator has error
         this.removeListener('ai_response', handler);
         this.removeListener('ai_error', errorHandler);
-        done = true;
-        throw err;
+        return { value: undefined, done: true };
       }
     };
+    
+    return generator;
   }
 
   /**
@@ -203,7 +217,7 @@ export class MCPWebSocketClient extends EventEmitter {
   /**
    * Send an audio request with streaming and get a stream of audio chunks
    */
-  async streamAudioRequest(request: Omit<AudioRequestMessage, 'type' | 'id' | 'stream'>): Promise<AsyncGenerator<string>> {
+  async streamAudioRequest(request: Omit<AudioRequestMessage, 'type' | 'id' | 'stream'>): Promise<any> {
     const message: AudioRequestMessage = {
       type: 'audio_request',
       id: this.generateId(),
@@ -271,9 +285,23 @@ export class MCPWebSocketClient extends EventEmitter {
     }
 
     // Return an async generator
-    return {
-      [Symbol.asyncIterator]() {
-        return this;
+    const generator = {
+      async *[Symbol.asyncIterator]() {
+        while (true) {
+          if (error) {
+            throw error;
+          }
+          if (done && messageQueue.length === 0) {
+            return;
+          }
+          if (messageQueue.length > 0) {
+            yield messageQueue.shift()!;
+          } else {
+            await new Promise<void>((resolve) => {
+              resolveNext = () => resolve();
+            });
+          }
+        }
       },
       next: async () => {
         if (error) {
@@ -290,20 +318,20 @@ export class MCPWebSocketClient extends EventEmitter {
         });
       },
       return: async () => {
-        // Clean up when the iterator is closed
+        // Clean up when generator is closed
         this.removeListener('audio_response', handler);
         this.removeListener('audio_error', errorHandler);
-        done = true;
         return { value: undefined, done: true };
       },
-      throw: async (err) => {
-        // Handle errors
+      throw: async (err: any) => {
+        // Clean up when generator has error
         this.removeListener('audio_response', handler);
         this.removeListener('audio_error', errorHandler);
-        done = true;
-        throw err;
+        return { value: undefined, done: true };
       }
     };
+    
+    return generator;
   }
 
   /**

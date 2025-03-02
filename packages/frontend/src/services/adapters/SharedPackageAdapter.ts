@@ -7,12 +7,6 @@
  */
 
 import {
-  IMessageHandler,
-  ITransport,
-  IMessageSender,
-  IMessageReceiver,
-  IMessageTransport,
-  IConnectionManager,
   MCPServerCore,
   MCPClientCore,
   InMemoryTransport,
@@ -21,17 +15,36 @@ import {
   ServerFactory
 } from '@mcp-router/shared'; // Using the package name
 
-/**
- * Re-export the interfaces and implementations needed by the frontend
- */
-export {
-  IMessageHandler,
-  ITransport,
-  IMessageSender,
-  IMessageReceiver,
-  IMessageTransport,
-  IConnectionManager
-};
+// Define interfaces locally to avoid dependency on shared package
+export interface IMessageHandler {
+  handleMessage(message: any): Promise<any>;
+}
+
+export interface ITransport {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  isConnected(): boolean;
+}
+
+export interface IMessageSender {
+  send(message: any): Promise<void>;
+}
+
+export interface IMessageReceiver {
+  onMessage(handler: IMessageHandler): void;
+}
+
+export interface IMessageTransport extends ITransport, IMessageSender, IMessageReceiver {
+  // Combined interface
+}
+
+export interface IConnectionManager {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  isConnected(): boolean;
+  onConnect(callback: () => void): void;
+  onDisconnect(callback: () => void): void;
+}
 
 /**
  * Core classes from the shared package

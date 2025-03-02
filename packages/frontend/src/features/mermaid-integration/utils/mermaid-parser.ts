@@ -3,8 +3,7 @@
  * Utility functions for parsing Mermaid diagrams into workflow data
  */
 
-import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
-import { Workflow, AgentNode, Edge, LLMNode, ToolNode, ResourceNode, RouterNode, ParallelNode, OrchestratorNode, EvaluatorNode, InputNode, OutputNode, ConditionNode } from '../../workflow-designer/types/agent-types';
+import { Workflow, AgentNode, Edge, LLMNode, ToolNode, ResourceNode, RouterNode, ParallelNode, OrchestratorNode, EvaluatorNode, InputNode, OutputNode, ConditionNode, AgentNodeType } from '../../workflow-designer/types/agent-types';
 
 /**
  * Parse a Mermaid flowchart diagram into a workflow

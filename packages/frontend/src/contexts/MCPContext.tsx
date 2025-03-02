@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { MCPBackendService } from '../api/MCPBackendService';
-import { MCPConfig, ConnectionState } from '@mcp-router/shared';
+import { MCPConfig, ConnectionState } from '../types/mcp';
 
 // Default configuration
 const DEFAULT_CONFIG: MCPConfig = {
@@ -19,6 +19,7 @@ interface MCPContextType {
   isConnected: boolean;
   isConnecting: boolean;
   isError: boolean;
+  isInitialized: boolean;
 }
 
 // Create context with default values
@@ -29,7 +30,8 @@ const MCPContext = createContext<MCPContextType>({
   disconnect: () => {},
   isConnected: false,
   isConnecting: false,
-  isError: false
+  isError: false,
+  isInitialized: false
 });
 
 // Provider props
@@ -47,6 +49,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
   const [connectionState, setConnectionState] = useState<ConnectionState>(
     ConnectionState.DISCONNECTED
   );
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   // Create service instance on mount
   useEffect(() => {
@@ -55,10 +58,13 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
     // Set up event listeners
     mcpService.on('connected', () => {
       setConnectionState(ConnectionState.CONNECTED);
+      // Set initialized to true after connected
+      setIsInitialized(true);
     });
     
     mcpService.on('disconnected', () => {
       setConnectionState(ConnectionState.DISCONNECTED);
+      setIsInitialized(false);
     });
     
     mcpService.on('connecting', () => {
@@ -118,7 +124,8 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
         disconnect,
         isConnected,
         isConnecting,
-        isError
+        isError,
+        isInitialized
       }}
     >
       {children}
