@@ -468,71 +468,72 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
     };
   }, [nodes, edges, initialWorkflow]);
   
+  // This component needs to be wrapped by ReactFlowProvider to use hooks
   return (
-    <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-      {/* Left Sidebar - Node Palette */}
-      <NodePalette onDragStart={onDragStart} />
-      
-      {/* Main Canvas */}
-      <div
-        ref={reactFlowWrapper}
-        style={{ 
-          flexGrow: 1, 
-          height: '100%', 
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Toolbar */}
-        <div style={{
-          display: 'flex',
-          padding: '8px 16px',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#f8fafc',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          <button 
-            onClick={toggleTool}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: '1px solid #94a3b8',
-              background: activeTool === 'select' ? '#3b82f6' : '#f8fafc',
-              color: activeTool === 'select' ? 'white' : '#64748b',
-              cursor: 'pointer',
-            }}
-          >
-            {activeTool === 'select' ? 'Select Mode' : 'Connect Mode'}
-          </button>
-          
-          <button 
-            onClick={toggleMermaidPanel}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: '1px solid #94a3b8',
-              background: showMermaidPanel ? '#3b82f6' : '#f8fafc',
-              color: showMermaidPanel ? 'white' : '#64748b',
-              cursor: 'pointer',
-            }}
-          >
-            {showMermaidPanel ? 'Hide Mermaid' : 'Show Mermaid'}
-          </button>
-        </div>
+    <ReactFlowProvider>
+      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        {/* Left Sidebar - Node Palette */}
+        <NodePalette onDragStart={onDragStart} />
         
-        {/* Main Content */}
-        <div style={{ 
-          flexGrow: 1, 
-          display: 'flex',
-        }}>
-          {/* Flow Canvas */}
+        {/* Main Canvas */}
+        <div
+          ref={reactFlowWrapper}
+          style={{ 
+            flexGrow: 1, 
+            height: '100%', 
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Toolbar */}
+          <div style={{
+            display: 'flex',
+            padding: '8px 16px',
+            borderBottom: '1px solid #e2e8f0',
+            background: '#f8fafc',
+            alignItems: 'center',
+            gap: '12px',
+          }}>
+            <button 
+              onClick={toggleTool}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '4px',
+                border: '1px solid #94a3b8',
+                background: activeTool === 'select' ? '#3b82f6' : '#f8fafc',
+                color: activeTool === 'select' ? 'white' : '#64748b',
+                cursor: 'pointer',
+              }}
+            >
+              {activeTool === 'select' ? 'Select Mode' : 'Connect Mode'}
+            </button>
+            
+            <button 
+              onClick={toggleMermaidPanel}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '4px',
+                border: '1px solid #94a3b8',
+                background: showMermaidPanel ? '#3b82f6' : '#f8fafc',
+                color: showMermaidPanel ? 'white' : '#64748b',
+                cursor: 'pointer',
+              }}
+            >
+              {showMermaidPanel ? 'Hide Mermaid' : 'Show Mermaid'}
+            </button>
+          </div>
+          
+          {/* Main Content */}
           <div style={{ 
             flexGrow: 1, 
-            height: '100%',
-            position: 'relative',
+            display: 'flex',
           }}>
-            <ReactFlowProvider>
+            {/* Flow Canvas */}
+            <div style={{ 
+              flexGrow: 1, 
+              height: '100%',
+              position: 'relative',
+            }}>
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -564,49 +565,49 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
                 <MiniMap style={{ height: 120 }} zoomable pannable />
                 <Background gap={15} size={1} />
               </ReactFlow>
-            </ReactFlowProvider>
+            </div>
+            
+            {/* Mermaid Panel (if visible) */}
+            {showMermaidPanel && (
+              <MermaidPanel 
+                workflow={getCurrentWorkflow()} 
+                onImport={(workflow) => {
+                  if (readOnly) return;
+                  
+                  setNodes(
+                    workflow.nodes.map((node) => ({
+                      id: node.id,
+                      type: node.type,
+                      position: node.position,
+                      data: node.data,
+                    }))
+                  );
+                  
+                  setEdges(
+                    workflow.edges.map((edge) => ({
+                      id: edge.id,
+                      source: edge.source,
+                      target: edge.target,
+                      sourceHandle: edge.sourceHandle,
+                      targetHandle: edge.targetHandle,
+                      label: edge.label,
+                    }))
+                  );
+                }}
+                readOnly={readOnly}
+              />
+            )}
           </div>
-          
-          {/* Mermaid Panel (if visible) */}
-          {showMermaidPanel && (
-            <MermaidPanel 
-              workflow={getCurrentWorkflow()} 
-              onImport={(workflow) => {
-                if (readOnly) return;
-                
-                setNodes(
-                  workflow.nodes.map((node) => ({
-                    id: node.id,
-                    type: node.type,
-                    position: node.position,
-                    data: node.data,
-                  }))
-                );
-                
-                setEdges(
-                  workflow.edges.map((edge) => ({
-                    id: edge.id,
-                    source: edge.source,
-                    target: edge.target,
-                    sourceHandle: edge.sourceHandle,
-                    targetHandle: edge.targetHandle,
-                    label: edge.label,
-                  }))
-                );
-              }}
-              readOnly={readOnly}
-            />
-          )}
         </div>
+        
+        {/* Right Sidebar - Properties Panel */}
+        <PropertiesPanel 
+          selectedNode={selectedNode} 
+          onNodeChange={handleNodeDataChange}
+          readOnly={readOnly}
+        />
       </div>
-      
-      {/* Right Sidebar - Properties Panel */}
-      <PropertiesPanel 
-        selectedNode={selectedNode} 
-        onNodeChange={handleNodeDataChange}
-        readOnly={readOnly}
-      />
-    </div>
+    </ReactFlowProvider>
   );
 };
 
