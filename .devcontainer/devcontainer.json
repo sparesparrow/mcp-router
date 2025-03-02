@@ -2,27 +2,40 @@
     "name": "MCP Router Monorepo",
     "dockerComposeFile": "../infra/docker/docker-compose.yml",
     "service": "backend",
-    "workspaceFolder": "/workspace",
+    "workspaceFolder": "/app",
     
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {
             "version": "latest",
             "moby": true
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11"
         }
     },
 
     "forwardPorts": [
         80,   // Frontend
         8000, // Backend
+        3000, // Frontend development server
         5432, // PostgreSQL
         6379  // Redis
     ],
 
     "mounts": [
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=${localWorkspaceFolder}/node_modules,target=/app/node_modules,type=volume",
+        "source=${localWorkspaceFolder}/packages/shared/node_modules,target=/app/packages/shared/node_modules,type=volume",
+        "source=${localWorkspaceFolder}/packages/frontend/node_modules,target=/app/packages/frontend/node_modules,type=volume",
+        "source=${localWorkspaceFolder}/packages/backend/node_modules,target=/app/packages/backend/node_modules,type=volume"
     ],
 
-    "postCreateCommand": "npm ci && cd packages/frontend && npm ci && cd ../backend && npm ci && cd ../.. && pip install -r packages/backend/requirements.txt && python -m alembic upgrade head",
+    "postCreateCommand": "npm ci && cd packages/shared && npm ci && cd ../frontend && npm ci && cd ../backend && npm ci && cd ../.. && pip install -r packages/backend/requirements.txt && python -m alembic upgrade head && node scripts/fix-imports.js",
+
+    "postStartCommand": "npm run build:shared",
 
     "customizations": {
         "vscode": {
@@ -33,7 +46,11 @@
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "eamodio.gitlens",
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "ms-vscode.vscode-typescript-next",
+                "streetsidesoftware.code-spell-checker",
+                "yoavbls.pretty-ts-errors",
+                "orta.vscode-jest"
             ],
             "settings": {
                 "python.pythonPath": "/usr/local/bin/python",
@@ -41,7 +58,22 @@
                 "python.linting.pylintEnabled": true,
                 "python.formatting.provider": "black",
                 "editor.formatOnSave": true,
-                "editor.defaultFormatter": "esbenp.prettier-vscode"
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "typescript.tsdk": "node_modules/typescript/lib",
+                "javascript.preferences.importModuleSpecifier": "non-relative",
+                "typescript.preferences.importModuleSpecifier": "non-relative",
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": true
+                    }
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.python"
+                }
             }
         }
     }

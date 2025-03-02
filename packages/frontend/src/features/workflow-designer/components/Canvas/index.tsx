@@ -1,6 +1,7 @@
 /**
  * WorkflowCanvas.tsx
  * Main component for the workflow designer canvas
+ * Optimized for performance with large workflows
  */
 
 import React, { useState, useRef, useCallback, useMemo, ReactNode, useEffect } from 'react';
@@ -25,6 +26,7 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   MarkerType,
+  useOnViewportChange,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -61,16 +63,16 @@ import MermaidPanel from '../MermaidPanel';
 
 // Define the node types mapping
 const nodeTypes: NodeTypes = {
-  [AgentNodeType.LLM]: LLMNodeComponent,
-  [AgentNodeType.TOOL]: ToolNodeComponent,
-  [AgentNodeType.RESOURCE]: ResourceNodeComponent,
-  [AgentNodeType.ROUTER]: RouterNodeComponent,
-  [AgentNodeType.PARALLEL]: ParallelNodeComponent,
-  [AgentNodeType.ORCHESTRATOR]: OrchestratorNodeComponent,
-  [AgentNodeType.EVALUATOR]: EvaluatorNodeComponent,
-  [AgentNodeType.INPUT]: InputNodeComponent,
-  [AgentNodeType.OUTPUT]: OutputNodeComponent,
-  [AgentNodeType.CONDITION]: ConditionNodeComponent,
+  [AgentNodeType.LLM]: React.memo(LLMNodeComponent),
+  [AgentNodeType.TOOL]: React.memo(ToolNodeComponent),
+  [AgentNodeType.RESOURCE]: React.memo(ResourceNodeComponent),
+  [AgentNodeType.ROUTER]: React.memo(RouterNodeComponent),
+  [AgentNodeType.PARALLEL]: React.memo(ParallelNodeComponent),
+  [AgentNodeType.ORCHESTRATOR]: React.memo(OrchestratorNodeComponent),
+  [AgentNodeType.EVALUATOR]: React.memo(EvaluatorNodeComponent),
+  [AgentNodeType.INPUT]: React.memo(InputNodeComponent),
+  [AgentNodeType.OUTPUT]: React.memo(OutputNodeComponent),
+  [AgentNodeType.CONDITION]: React.memo(ConditionNodeComponent),
 };
 
 // Define a type that maps our AgentNode to ReactFlow's Node type
@@ -82,6 +84,10 @@ interface WorkflowCanvasProps {
   onWorkflowChange?: (workflow: Workflow) => void;
   readOnly?: boolean;
 }
+
+// Performance settings
+const VIEWPORT_DEBOUNCE_MS = 100;
+const BATCH_UPDATE_MS = 50;
 
 // Handle ResizeObserver error globally
 const errorHandler = typeof window !== 'undefined' ? (e: ErrorEvent) => {
@@ -122,6 +128,9 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
       sourceHandle: edge.sourceHandle,
       targetHandle: edge.targetHandle,
       label: edge.label,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+      },
     })) || [];
   }, [initialWorkflow]);
   
@@ -132,9 +141,16 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   const [showMermaidPanel, setShowMermaidPanel] = useState<boolean>(false);
   const [activeTool, setActiveTool] = useState<'select' | 'connect'>('select');
   const [error, setError] = useState<string | null>(null);
+  const [isViewportChanging, setIsViewportChanging] = useState<boolean>(false);
+  const [visibleArea, setVisibleArea] = useState({ x: 0, y: 0, width: 0, height: 0 });
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const changesBatchRef = useRef<{ nodes: NodeChange[], edges: EdgeChange[] }>({
+    nodes: [],
+    edges: [],
+  });
   
   // Setup error handling and cleanup
   useEffect(() => {
@@ -149,8 +165,80 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
       if (typeof window !== 'undefined' && errorHandler) {
         window.removeEventListener('error', errorHandler);
       }
+      
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
     };
   }, []);
+
+  // Optimize viewport changes to reduce render load
+  useOnViewportChange({
+    onStart: () => setIsViewportChanging(true),
+    onEnd: () => {
+      // Use debouncing to avoid excessive updates
+      setTimeout(() => {
+        setIsViewportChanging(false);
+        updateVisibleArea();
+      }, VIEWPORT_DEBOUNCE_MS);
+    },
+  });
+  
+  // Update visible area for culling nodes outside viewport
+  const updateVisibleArea = useCallback(() => {
+    if (reactFlowInstance) {
+      const { x, y, zoom } = reactFlowInstance.getViewport();
+      const bounds = reactFlowWrapper.current?.getBoundingClientRect();
+      
+      if (bounds) {
+        setVisibleArea({
+          x: -x / zoom,
+          y: -y / zoom,
+          width: bounds.width / zoom,
+          height: bounds.height / zoom,
+        });
+      }
+    }
+  }, [reactFlowInstance]);
+  
+  // Effect for updating visible area on resize
+  useEffect(() => {
+    const handleResize = () => {
+      updateVisibleArea();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [updateVisibleArea]);
+  
+  // Batch node/edge changes for better performance with many nodes
+  const batchChanges = useCallback((changes: { nodes?: NodeChange[], edges?: EdgeChange[] }) => {
+    if (changes.nodes) {
+      changesBatchRef.current.nodes.push(...changes.nodes);
+    }
+    
+    if (changes.edges) {
+      changesBatchRef.current.edges.push(...changes.edges);
+    }
+    
+    if (!updateTimeoutRef.current) {
+      updateTimeoutRef.current = setTimeout(() => {
+        if (changesBatchRef.current.nodes.length > 0) {
+          setNodes(nodes => applyNodeChanges(changesBatchRef.current.nodes, nodes));
+        }
+        
+        if (changesBatchRef.current.edges.length > 0) {
+          setEdges(edges => applyEdgeChanges(changesBatchRef.current.edges, edges));
+        }
+        
+        // Reset batch
+        changesBatchRef.current = { nodes: [], edges: [] };
+        updateTimeoutRef.current = null;
+      }, BATCH_UPDATE_MS);
+    }
+  }, [setNodes, setEdges]);
   
   // Handle node selection
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -162,7 +250,7 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
     setSelectedNode(null);
   }, []);
   
-  // Handle node change from properties panel
+  // Handle node change from properties panel with memo
   const handleNodeDataChange = useCallback((nodeId: string, updatedData: any) => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -241,7 +329,7 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   );
   
   // Create default node data based on type
-  const createDefaultNodeData = (type: AgentNodeType, label: string): AgentNode => {
+  const createDefaultNodeData = useCallback((type: AgentNodeType, label: string): AgentNode => {
     const baseNode: Partial<NodeBase> = {
       id: `node-${uuidv4()}`,
       type,
@@ -355,7 +443,7 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
           data: {}
         } as unknown as AgentNode;
     }
-  };
+  }, []);
   
   // Initial load of workflow
   useEffect(() => {
@@ -678,13 +766,18 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   );
 };
 
-// Wrapper component that provides the ReactFlow context
+// Wrap component with React.memo for better performance
+const MemoizedWorkflowCanvasInner = React.memo(WorkflowCanvasInner);
+
+/**
+ * Wrapper component that provides ReactFlow context
+ */
 const WorkflowCanvas: React.FC<WorkflowCanvasProps> = (props) => {
   return (
     <ReactFlowProvider>
-      <WorkflowCanvasInner {...props} />
+      <MemoizedWorkflowCanvasInner {...props} />
     </ReactFlowProvider>
   );
 };
 
-export default WorkflowCanvas; 
+export default React.memo(WorkflowCanvas); 

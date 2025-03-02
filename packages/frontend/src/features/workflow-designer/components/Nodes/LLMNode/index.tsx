@@ -3,125 +3,56 @@
  * Component for rendering LLM nodes in the workflow canvas
  */
 
-import * as React from 'react';
+import React, { useCallback, memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-const { memo } = React;
+import { LLMNode as LLMNodeType } from '../../../types/agent-types';
 
-export const LLMNodeComponent = memo(({ data, isConnectable, selected }: NodeProps) => {
-  const { 
-    label,
-    model = 'claude-3-5-sonnet',
-    temperature = 0.7,
-    maxTokens,
-    systemPrompt = '',
-  } = data;
+type LLMNodeProps = NodeProps<LLMNodeType>;
+
+// Helper function to check if props are equal for memoization
+const arePropsEqual = (prevProps: LLMNodeProps, nextProps: LLMNodeProps) => {
+  // Only re-render if these specific props change
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.data.label === nextProps.data.label &&
+    prevProps.data.model === nextProps.data.model &&
+    prevProps.data.temperature === nextProps.data.temperature
+  );
+};
+
+const LLMNodeComponent: React.FC<LLMNodeProps> = ({ data, selected }) => {
+  // Use useCallback for event handlers
+  const onLLMNodeClick = useCallback((e: React.MouseEvent) => {
+    // Prevent propagation to avoid triggering parent click handlers
+    e.stopPropagation();
+  }, []);
 
   return (
-    <div className={`llm-node ${selected ? 'selected' : ''}`} style={{
-      padding: '10px',
-      borderRadius: '8px',
-      background: '#93c5fd',
-      border: '1px solid #1e40af',
-      color: '#1e3a8a',
-      width: '220px',
-    }}>
+    <div 
+      className={`llm-node ${selected ? 'selected' : ''}`}
+      onClick={onLLMNodeClick}
+    >
       <Handle
         type="target"
         position={Position.Top}
-        isConnectable={isConnectable}
-        style={{ background: '#1e40af' }}
+        style={{ background: '#555' }}
       />
-      
-      <div className="llm-node-header" style={{
-        borderBottom: '1px solid #1e40af',
-        paddingBottom: '8px',
-        marginBottom: '8px',
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <div style={{
-          backgroundColor: '#1e40af',
-          color: 'white',
-          width: '24px',
-          height: '24px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '12px',
-          fontWeight: 'bold',
-        }}>
-          LLM
+      <div className="llm-node-content">
+        <div className="llm-node-header">LLM: {data.label}</div>
+        <div className="llm-node-details">
+          <div className="llm-node-model">Model: {data.model || 'Not specified'}</div>
+          <div className="llm-node-temp">Temp: {data.temperature || 0.7}</div>
         </div>
-        <div>{label}</div>
       </div>
-      
-      <div className="llm-node-content" style={{
-        fontSize: '12px',
-      }}>
-        <div className="llm-node-property" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: '4px',
-        }}>
-          <strong>Model:</strong>
-          <span>{model}</span>
-        </div>
-        
-        <div className="llm-node-property" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: '4px',
-        }}>
-          <strong>Temperature:</strong>
-          <span>{temperature}</span>
-        </div>
-        
-        {maxTokens && (
-          <div className="llm-node-property" style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '4px',
-          }}>
-            <strong>Max Tokens:</strong>
-            <span>{maxTokens}</span>
-          </div>
-        )}
-        
-        {systemPrompt && (
-          <div className="llm-node-property system-prompt" style={{
-            marginTop: '8px',
-          }}>
-            <div><strong>System Prompt:</strong></div>
-            <div style={{
-              padding: '4px',
-              background: 'rgba(255, 255, 255, 0.5)',
-              borderRadius: '4px',
-              fontSize: '10px',
-              maxHeight: '60px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              marginTop: '4px',
-            }}>
-              {systemPrompt.length > 100 
-                ? `${systemPrompt.substring(0, 100)}...` 
-                : systemPrompt
-              }
-            </div>
-          </div>
-        )}
-      </div>
-      
       <Handle
         type="source"
         position={Position.Bottom}
-        isConnectable={isConnectable}
-        style={{ background: '#1e40af' }}
+        style={{ background: '#555' }}
       />
     </div>
   );
-});
+};
 
-export default LLMNodeComponent; 
+// Export with memo for performance
+export default memo(LLMNodeComponent, arePropsEqual); 

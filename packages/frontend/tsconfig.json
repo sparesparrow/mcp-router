@@ -15,9 +15,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"],
+      "@mcp-router/shared/*": ["../shared/src/*"],
+      "@mcp-router/frontend/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],

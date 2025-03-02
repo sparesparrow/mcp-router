@@ -8,8 +8,11 @@ services:
       context: ../..
       dockerfile: infra/docker/Dockerfile
       target: frontend-runtime
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "80:80"
+      - "3000:3000" # Development server
     depends_on:
       backend:
         condition: service_healthy
@@ -26,12 +29,19 @@ services:
       - ../../packages/frontend/src:/app/packages/frontend/src:ro
       - ../../packages/shared/src:/app/packages/shared/src:ro
       - ../../packages/frontend/public:/app/packages/frontend/public:ro
+      - frontend_node_modules:/app/packages/frontend/node_modules
+      - shared_node_modules:/app/packages/shared/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - REACT_APP_API_URL=http://localhost:8000
 
   backend:
     build:
       context: ../..
       dockerfile: infra/docker/Dockerfile
       target: backend-runtime
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "8000:8000"
     environment:
@@ -40,7 +50,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/mcp_router
       - PORT=8000
-      - DEBUG=true
+      - DEBUG=${DEBUG:-true}
+      - NODE_ENV=${NODE_ENV:-development}
     depends_on:
       db:
         condition: service_healthy
@@ -58,6 +69,10 @@ services:
     volumes:
       - ../../packages/backend/src:/app/packages/backend/src:ro
       - ../../packages/shared/src:/app/packages/shared/src:ro
+      - ../../tests:/app/tests:ro
+      - backend_node_modules:/app/packages/backend/node_modules
+      - shared_node_modules:/app/packages/shared/node_modules
+      - ../../:/app:ro
     command: >
       sh -c "python -m alembic upgrade head &&
              python -m uvicorn packages.backend.src.api.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -72,6 +87,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ../../infra/docker/backend/init-scripts:/docker-entrypoint-initdb.d
     networks:
       - mcp-network
     healthcheck:
@@ -97,6 +113,26 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  # Development service for Playwright E2E tests
+  e2e:
+    build:
+      context: ../..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ../../:/app
+      - frontend_node_modules:/app/packages/frontend/node_modules
+      - backend_node_modules:/app/packages/backend/node_modules
+      - shared_node_modules:/app/packages/shared/node_modules
+      - root_node_modules:/app/node_modules
+    networks:
+      - mcp-network
+    depends_on:
+      - frontend
+      - backend
+    command: "tail -f /dev/null" # Keep container running
+    environment:
+      - PLAYWRIGHT_BASE_URL=http://frontend
+
 networks:
   mcp-network:
     driver: bridge
@@ -107,4 +143,8 @@ networks:
 
 volumes:
   postgres_data:
-  redis_data: 
+  redis_data:
+  frontend_node_modules:
+  backend_node_modules:
+  shared_node_modules:
+  root_node_modules: 

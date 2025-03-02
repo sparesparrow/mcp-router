@@ -3,12 +3,57 @@ name: CI/CD Pipeline for MCP Router
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'screenshots/**'
   pull_request:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'screenshots/**'
 
 jobs:
-  test:
+  lint:
+    name: Lint Code
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          
+      - name: Install root dependencies
+        run: npm ci
+        
+      - name: Install package dependencies
+        run: |
+          npm run fix-imports
+          cd packages/shared && npm ci && cd ../..
+          cd packages/frontend && npm ci && cd ../..
+          cd packages/backend && npm ci && cd ../..
+          
+      - name: Check circular dependencies
+        run: node scripts/check-circular-deps.js
+        
+      - name: Lint shared package
+        run: cd packages/shared && npm run lint && cd ../..
+        
+      - name: Lint frontend package
+        run: cd packages/frontend && npm run lint && cd ../..
+        
+      - name: Lint backend package
+        run: cd packages/backend && npm run lint && cd ../..
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
     
     services:
       postgres:
@@ -43,13 +88,14 @@ jobs:
       with:
         python-version: '3.11'
         cache: 'pip'
+        cache-dependency-path: '**/requirements.txt'
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: package-lock.json
+        cache-dependency-path: '**/package-lock.json'
 
     - name: Install system dependencies
       run: |
@@ -73,6 +119,10 @@ jobs:
       run: |
         cd packages/shared && npm run build && cd ../..
 
+    - name: Run shared tests
+      run: |
+        cd packages/shared && npm test && cd ../..
+
     - name: Run backend tests
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mcp_router_test
@@ -84,16 +134,13 @@ jobs:
       run: |
         cd packages/frontend && npm test -- --coverage && cd ../..
 
-    - name: Lint frontend code
-      run: |
-        cd packages/frontend && npm run lint && cd ../..
-
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml,./packages/frontend/coverage/coverage-final.json
 
   build:
+    name: Build Images
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
@@ -111,6 +158,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set environment suffix
+      id: set-suffix
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "ENV_SUFFIX=prod" >> $GITHUB_OUTPUT
+        else
+          echo "ENV_SUFFIX=dev" >> $GITHUB_OUTPUT
+        fi
+
     - name: Build and push backend
       uses: docker/build-push-action@v4
       with:
@@ -120,9 +176,12 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
-          ghcr.io/${{ github.repository }}/backend:latest
+          ghcr.io/${{ github.repository }}/backend:${{ steps.set-suffix.outputs.ENV_SUFFIX }}
+          ${{ github.ref == 'refs/heads/main' && 'ghcr.io/${{ github.repository }}/backend:latest' || '' }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        build-args: |
+          NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
     - name: Build and push frontend
       uses: docker/build-push-action@v4
@@ -133,21 +192,54 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
-          ghcr.io/${{ github.repository }}/frontend:latest
+          ghcr.io/${{ github.repository }}/frontend:${{ steps.set-suffix.outputs.ENV_SUFFIX }}
+          ${{ github.ref == 'refs/heads/main' && 'ghcr.io/${{ github.repository }}/frontend:latest' || '' }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        build-args: |
+          NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
-  deploy:
+  deploy-dev:
+    name: Deploy to Development
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      
+    - name: Deploy to development environment
+      run: |
+        echo "Deploying MCP Router to development environment"
+        # Update k8s manifests with the new image tag
+        sed -i 's|image: ghcr.io/${{ github.repository }}/backend:.*|image: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}|' infra/k8s/dev/backend-deployment.yaml
+        sed -i 's|image: ghcr.io/${{ github.repository }}/frontend:.*|image: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}|' infra/k8s/dev/frontend-deployment.yaml
+        
+        # Apply k8s manifests
+        # kubectl apply -f infra/k8s/dev/
+
+  deploy-prod:
+    name: Deploy to Production
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    environment: production
     
     steps:
-    - name: Deploy to production
+    - uses: actions/checkout@v3
+    
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      
+    - name: Deploy to production environment
       run: |
         echo "Deploying MCP Router to production environment"
-        # Add actual deployment steps here, such as:
-        # - SSH into server
-        # - Pull latest Docker images
-        # - Update docker-compose.yml
-        # - Restart services 
+        # Update k8s manifests with the new image tag
+        sed -i 's|image: ghcr.io/${{ github.repository }}/backend:.*|image: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}|' infra/k8s/prod/backend-deployment.yaml
+        sed -i 's|image: ghcr.io/${{ github.repository }}/frontend:.*|image: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}|' infra/k8s/prod/frontend-deployment.yaml
+        
+        # Apply k8s manifests
+        # kubectl apply -f infra/k8s/prod/ 
