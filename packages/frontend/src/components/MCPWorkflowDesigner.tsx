@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card } from './ui/Card';
 import mermaid from 'mermaid';
+import { ReactFlowProvider } from 'reactflow';
+import 'reactflow/dist/style.css';
 
 // Initialize mermaid
 mermaid.initialize({
@@ -196,6 +198,7 @@ const Input = styled.input`
   }
 `;
 
+// Wrap the component with ReactFlowProvider to prevent ResizeObserver errors
 const MCPWorkflowDesigner: React.FC = () => {
   // State
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -524,4 +527,11 @@ const MCPWorkflowDesigner: React.FC = () => {
   );
 };
 
-export default MCPWorkflowDesigner; 
+// Export with ReactFlowProvider wrapper
+export default function MCPWorkflowDesignerWithProvider() {
+  return (
+    <ReactFlowProvider>
+      <MCPWorkflowDesigner />
+    </ReactFlowProvider>
+  );
+} 

@@ -7,6 +7,7 @@ import {
   Typography,
   CircularProgress,
   useTheme,
+  Alert,
 } from '@mui/material';
 import { SystemHealth } from '../../types/monitoring';
 import { fetchSystemHealth } from '../../api/monitoring';
@@ -32,9 +33,9 @@ const SystemContextDashboard: React.FC = () => {
     };
 
     loadSystemHealth();
-    const interval = setInterval(loadSystemHealth, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
+    // Monitoring refresh has been disabled for performance reasons
+    // const interval = setInterval(loadSystemHealth, 30000); // Refresh every 30 seconds
+    // return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -72,6 +73,11 @@ const SystemContextDashboard: React.FC = () => {
             <Typography variant="body1" paragraph>
               Real-time monitoring and analysis of system components
             </Typography>
+            
+            {/* Display monitoring disabled message */}
+            <Alert severity="info" sx={{ mt: 2 }}>
+              System monitoring has been disabled for performance reasons. Re-enable it in feature flags when needed.
+            </Alert>
           </Paper>
         </Grid>
 

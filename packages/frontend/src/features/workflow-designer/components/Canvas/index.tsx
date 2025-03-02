@@ -83,6 +83,19 @@ interface WorkflowCanvasProps {
   readOnly?: boolean;
 }
 
+// Handle ResizeObserver error globally
+const errorHandler = typeof window !== 'undefined' ? (e: ErrorEvent) => {
+  if (e.message.includes('ResizeObserver loop limit exceeded') || 
+      e.message.includes('ResizeObserver loop completed with undelivered notifications')) {
+    // Prevent the error from showing in console
+    e.stopImmediatePropagation();
+  }
+} : null;
+
+if (typeof window !== 'undefined' && errorHandler) {
+  window.addEventListener('error', errorHandler);
+}
+
 /**
  * Main canvas component for the workflow designer
  */
@@ -118,9 +131,26 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
   const [selectedNode, setSelectedNode] = useState<Node<AgentNode> | null>(null);
   const [showMermaidPanel, setShowMermaidPanel] = useState<boolean>(false);
   const [activeTool, setActiveTool] = useState<'select' | 'connect'>('select');
+  const [error, setError] = useState<string | null>(null);
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
+  
+  // Setup error handling and cleanup
+  useEffect(() => {
+    // Local error handler for component-specific errors
+    const handleComponentError = (error: Error) => {
+      console.error('Workflow Canvas Error:', error);
+      setError(error.message);
+    };
+
+    // Cleanup function to remove global error handler when component unmounts
+    return () => {
+      if (typeof window !== 'undefined' && errorHandler) {
+        window.removeEventListener('error', errorHandler);
+      }
+    };
+  }, []);
   
   // Handle node selection
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -522,6 +552,33 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
           </button>
         </div>
         
+        {/* Error display */}
+        {error && (
+          <div style={{
+            padding: '12px 16px',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            borderBottom: '1px solid #fecaca',
+          }}>
+            <p style={{ margin: 0, fontWeight: 'bold' }}>Error occurred:</p>
+            <p style={{ margin: 0 }}>{error}</p>
+            <button 
+              onClick={() => setError(null)}
+              style={{
+                marginTop: '8px',
+                padding: '4px 8px',
+                border: 'none',
+                backgroundColor: '#b91c1c',
+                color: 'white',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+        
         {/* Main Content */}
         <div style={{ 
           flexGrow: 1, 
@@ -559,6 +616,13 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
               nodesConnectable={!readOnly}
               edgesUpdatable={!readOnly}
               zoomOnDoubleClick={!readOnly}
+              // Handle potential errors during render
+              onError={(error) => {
+                console.error('ReactFlow error:', error);
+                setError(`ReactFlow error: ${typeof error === 'object' && error !== null && 'message' in error 
+                  ? (error as { message: string }).message 
+                  : String(error)}`);
+              }}
             >
               <Controls showInteractive={false} />
               <MiniMap style={{ height: 120 }} zoomable pannable />
@@ -573,25 +637,30 @@ const WorkflowCanvasInner: React.FC<WorkflowCanvasProps> = ({
               onImport={(workflow) => {
                 if (readOnly) return;
                 
-                setNodes(
-                  workflow.nodes.map((node) => ({
-                    id: node.id,
-                    type: node.type,
-                    position: node.position,
-                    data: node.data,
-                  }))
-                );
-                
-                setEdges(
-                  workflow.edges.map((edge) => ({
-                    id: edge.id,
-                    source: edge.source,
-                    target: edge.target,
-                    sourceHandle: edge.sourceHandle,
-                    targetHandle: edge.targetHandle,
-                    label: edge.label,
-                  }))
-                );
+                try {
+                  setNodes(
+                    workflow.nodes.map((node) => ({
+                      id: node.id,
+                      type: node.type,
+                      position: node.position,
+                      data: node.data,
+                    }))
+                  );
+                  
+                  setEdges(
+                    workflow.edges.map((edge) => ({
+                      id: edge.id,
+                      source: edge.source,
+                      target: edge.target,
+                      sourceHandle: edge.sourceHandle,
+                      targetHandle: edge.targetHandle,
+                      label: edge.label,
+                    }))
+                  );
+                } catch (error) {
+                  const errorMessage = error instanceof Error ? error.message : 'Unknown import error';
+                  setError(`Failed to import workflow: ${errorMessage}`);
+                }
               }}
               readOnly={readOnly}
             />

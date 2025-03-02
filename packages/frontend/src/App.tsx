@@ -4,6 +4,8 @@
  */
 
 import React from 'react';
+import { ReactFlowProvider } from 'reactflow';
+import 'reactflow/dist/style.css';
 import WorkflowDesigner from './features/workflow-designer';
 import { MCPProvider } from './contexts/MCPContext';
 import ConnectionStatus from './components/ConnectionStatus';
@@ -85,6 +87,9 @@ const AppContent: React.FC = () => {
       <main style={{
         flexGrow: 1,
         overflow: 'hidden',
+        position: 'relative',
+        width: '100%',
+        height: 'calc(100vh - 56px)', // Subtract header height
       }}>
         <WorkflowDesigner />
       </main>
@@ -92,12 +97,14 @@ const AppContent: React.FC = () => {
   );
 };
 
-// Root component with MCP Provider
+// Root component with MCP Provider and ReactFlowProvider
 const App: React.FC = () => {
   return (
-    <MCPProvider>
-      <AppContent />
-    </MCPProvider>
+    <ReactFlowProvider>
+      <MCPProvider>
+        <AppContent />
+      </MCPProvider>
+    </ReactFlowProvider>
   );
 };
 

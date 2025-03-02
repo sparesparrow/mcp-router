@@ -1,5 +1,5 @@
 export interface SystemHealth {
-  status: 'healthy' | 'degraded' | 'critical';
+  status: 'healthy' | 'degraded' | 'critical' | 'disabled';
   uptime: string;
   cpuUsage: number;
   memoryUsage: number;
