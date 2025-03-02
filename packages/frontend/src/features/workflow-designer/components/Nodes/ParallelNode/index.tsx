@@ -92,7 +92,7 @@ export const ParallelNodeComponent = memo(({ data, isConnectable, selected }: No
               overflow: 'auto',
               marginTop: '4px',
             }}>
-              {targetNodeIds.slice(0, 3).map((id, index) => (
+              {targetNodeIds.slice(0, 3).map((id: string, index: number) => (
                 <div key={index} style={{
                   padding: '2px 0',
                   borderBottom: index < Math.min(targetNodeIds.length, 3) - 1 ? '1px dashed rgba(0,0,0,0.1)' : 'none',

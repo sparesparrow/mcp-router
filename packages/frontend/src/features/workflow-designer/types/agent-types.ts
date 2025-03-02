@@ -178,6 +178,8 @@ export interface Edge {
   id: string;
   source: string;  // Source node ID
   target: string;  // Target node ID
+  sourceHandle?: string | null;  // Source handle ID
+  targetHandle?: string | null;  // Target handle ID
   label?: string;
   animated?: boolean;
   style?: Record<string, any>;

@@ -92,7 +92,7 @@ export const EvaluatorNodeComponent = memo(({ data, isConnectable, selected }: N
               overflow: 'auto',
               marginTop: '4px',
             }}>
-              {evaluationCriteria.slice(0, 3).map((criterion, index) => (
+              {evaluationCriteria.slice(0, 3).map((criterion: string, index: number) => (
                 <div key={index} style={{
                   padding: '2px 0',
                   borderBottom: index < Math.min(evaluationCriteria.length, 3) - 1 ? '1px dashed rgba(0,0,0,0.1)' : 'none',

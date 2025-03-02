@@ -5,6 +5,10 @@
 
 import * as React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { RouterNode } from '../../../types/agent-types';
+
+type RouteType = RouterNode['data']['routes'][0];
+
 const { memo } = React;
 
 export const RouterNodeComponent = memo(({ data, isConnectable, selected }: NodeProps) => {
@@ -84,7 +88,7 @@ export const RouterNodeComponent = memo(({ data, isConnectable, selected }: Node
               overflow: 'auto',
               marginTop: '4px',
             }}>
-              {routes.slice(0, 3).map((route, index) => (
+              {routes.slice(0, 3).map((route: RouteType, index) => (
                 <div key={index} style={{
                   display: 'flex',
                   justifyContent: 'space-between',

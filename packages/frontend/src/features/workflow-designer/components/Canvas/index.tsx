@@ -3,7 +3,7 @@
  * Main component for the workflow designer canvas
  */
 
-import React, { useState, useRef, useCallback, useMemo, ReactNode } from 'react';
+import React, { useState, useRef, useCallback, useMemo, ReactNode, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -95,7 +95,7 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   const initialNodes = useMemo(() => {
     return initialWorkflow?.nodes.map((node) => ({
       id: node.id,
-      type: node.data.type,
+      type: node.type,
       position: node.position,
       data: node.data,
     })) || [];
@@ -133,13 +133,15 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   }, []);
   
   // Handle node change from properties panel
-  const handleNodeDataChange = useCallback((nodeId: string, data: AgentNode) => {
+  const handleNodeDataChange = useCallback((nodeId: string, updatedData: any) => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
           return {
             ...node,
-            data,
+            data: {
+              ...updatedData
+            },
           };
         }
         return node;
@@ -325,6 +327,51 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
     }
   };
   
+  // Initial load of workflow
+  useEffect(() => {
+    if (!initialWorkflow) return;
+    
+    // Clear existing nodes and edges
+    setNodes([]);
+    setEdges([]);
+    
+    // Convert workflow nodes to ReactFlow nodes
+    const rfNodes = initialWorkflow.nodes.map((node) => {
+      // Create a properly typed nodeData object
+      const nodeData = node.data || {};
+      
+      // Add the type to the data for easy access
+      (nodeData as any).type = node.type;
+      
+      // Ensure node data has a label field
+      if (!('label' in nodeData)) {
+        (nodeData as any).label = node.label || node.type;
+      }
+      
+      return {
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: nodeData,
+      };
+    });
+    
+    // Convert workflow edges to ReactFlow edges
+    const rfEdges = initialWorkflow.edges.map((edge) => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
+      label: edge.label || '',
+      animated: edge.animated,
+      style: edge.style,
+    }));
+    
+    setNodes(rfNodes);
+    setEdges(rfEdges);
+  }, [initialWorkflow, setNodes, setEdges]);
+  
   // Notify parent of changes
   const notifyChanges = useCallback(() => {
     if (!onWorkflowChange) return;
@@ -332,18 +379,31 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
     const currentWorkflow: Workflow = {
       id: initialWorkflow?.id || `workflow-${Date.now()}`,
       name: initialWorkflow?.name || 'Workflow',
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        position: node.position,
-        data: node.data,
-      })),
+      nodes: nodes.map((node) => {
+        // Make a copy of the node data to avoid modifying the original
+        const nodeData = {...node.data} as any;
+        
+        // Ensure the node has a type property
+        const type = node.type as AgentNodeType;
+        
+        // Ensure the node has a label
+        const label = nodeData.label || type;
+        
+        return {
+          id: node.id,
+          type: type,
+          label: label,
+          position: node.position,
+          data: nodeData,
+        };
+      }) as AgentNode[],
       edges: edges.map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.sourceHandle,
         targetHandle: edge.targetHandle,
-        label: edge.label,
+        label: (edge.label as string) || '',
       })),
     };
     
@@ -351,12 +411,12 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   }, [nodes, edges, onWorkflowChange, initialWorkflow]);
   
   // Update parent component when nodes or edges change
-  React.useEffect(() => {
+  useEffect(() => {
     notifyChanges();
   }, [nodes, edges, notifyChanges]);
   
   // Handle drag start for new nodes
-  const onDragStart = (event: React.DragEvent, nodeType: AgentNodeType, nodeName: string) => {
+  const onDragStart = (event: React.DragEvent, nodeType: string, nodeName: string) => {
     if (readOnly) return;
     
     event.dataTransfer.setData('application/reactflow/type', nodeType);
@@ -374,25 +434,39 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
     setActiveTool(activeTool === 'select' ? 'connect' : 'select');
   };
   
-  const getCurrentWorkflow = (): Workflow => {
+  // Get current workflow state
+  const getCurrentWorkflow = useCallback((): Workflow => {
     return {
       id: initialWorkflow?.id || `workflow-${Date.now()}`,
       name: initialWorkflow?.name || 'Workflow',
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        position: node.position,
-        data: node.data,
-      })),
+      nodes: nodes.map((node) => {
+        // Make a copy of the node data to avoid modifying the original
+        const nodeData = {...node.data} as any;
+        
+        // Ensure the node has a type property
+        const type = node.type as AgentNodeType;
+        
+        // Ensure the node has a label
+        const label = nodeData.label || type;
+        
+        return {
+          id: node.id,
+          type: type,
+          label: label,
+          position: node.position,
+          data: nodeData,
+        };
+      }) as AgentNode[],
       edges: edges.map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
         sourceHandle: edge.sourceHandle,
         targetHandle: edge.targetHandle,
-        label: edge.label,
+        label: (edge.label as string) || '',
       })),
     };
-  };
+  }, [nodes, edges, initialWorkflow]);
   
   return (
     <div style={{ display: 'flex', width: '100%', height: '100%' }}>
@@ -503,7 +577,7 @@ const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
                 setNodes(
                   workflow.nodes.map((node) => ({
                     id: node.id,
-                    type: node.data.type,
+                    type: node.type,
                     position: node.position,
                     data: node.data,
                   }))
