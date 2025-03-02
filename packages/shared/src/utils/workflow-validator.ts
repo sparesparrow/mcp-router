@@ -238,23 +238,23 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.targetNodeId) {
+        if (!node.data?.targetNodeId) {
           validationErrors.push({
             nodeId: node.id,
             field: 'targetNodeId',
             message: `Evaluator node ${node.id} is missing a target node`,
             severity: 'error',
           });
-        } else if (!workflow.nodes.some(n => n.id === node.data.targetNodeId)) {
+        } else if (!workflow.nodes.some(n => n.id === node.data?.targetNodeId)) {
           validationErrors.push({
             nodeId: node.id,
             field: 'targetNodeId',
-            message: `Evaluator node ${node.id} references non-existent node: ${node.data.targetNodeId}`,
+            message: `Evaluator node ${node.id} references non-existent node: ${node.data?.targetNodeId}`,
             severity: 'error',
           });
         }
         
-        if (!node.data.evaluationCriteria) {
+        if (!node.data?.evaluationCriteria) {
           validationErrors.push({
             nodeId: node.id,
             field: 'evaluationCriteria',
@@ -265,7 +265,7 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
         break;
         
       case AgentNodeType.CONDITION:
-        if (!node.data.condition) {
+        if (!node.data?.condition) {
           validationErrors.push({
             nodeId: node.id,
             field: 'condition',
@@ -274,34 +274,34 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
           });
         }
         
-        if (!node.data.trueTargetNodeId) {
+        if (!node.data?.trueTargetNodeId) {
           validationErrors.push({
             nodeId: node.id,
             field: 'trueTargetNodeId',
             message: `Condition node ${node.id} is missing a true target node`,
             severity: 'error',
           });
-        } else if (!workflow.nodes.some(n => n.id === node.data.trueTargetNodeId)) {
+        } else if (!workflow.nodes.some(n => n.id === node.data?.trueTargetNodeId)) {
           validationErrors.push({
             nodeId: node.id,
             field: 'trueTargetNodeId',
-            message: `Condition node ${node.id} references non-existent true target node: ${node.data.trueTargetNodeId}`,
+            message: `Condition node ${node.id} references non-existent true target node: ${node.data?.trueTargetNodeId}`,
             severity: 'error',
           });
         }
         
-        if (!node.data.falseTargetNodeId) {
+        if (!node.data?.falseTargetNodeId) {
           validationErrors.push({
             nodeId: node.id,
             field: 'falseTargetNodeId',
             message: `Condition node ${node.id} is missing a false target node`,
             severity: 'error',
           });
-        } else if (!workflow.nodes.some(n => n.id === node.data.falseTargetNodeId)) {
+        } else if (!workflow.nodes.some(n => n.id === node.data?.falseTargetNodeId)) {
           validationErrors.push({
             nodeId: node.id,
             field: 'falseTargetNodeId',
-            message: `Condition node ${node.id} references non-existent false target node: ${node.data.falseTargetNodeId}`,
+            message: `Condition node ${node.id} references non-existent false target node: ${node.data?.falseTargetNodeId}`,
             severity: 'error',
           });
         }

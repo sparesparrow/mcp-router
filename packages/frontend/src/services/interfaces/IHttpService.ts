@@ -1,37 +1,81 @@
 /**
  * HTTP Service Interface
- * Defines the contract for HTTP communication services.
+ * 
+ * Provides methods for making HTTP requests to APIs.
+ * This service abstracts the underlying HTTP client implementation,
+ * allowing for easy substitution and testing.
  */
 
+/**
+ * Configuration options for HTTP requests
+ */
+export interface HttpRequestOptions {
+  /** Custom headers to include with the request */
+  headers?: Record<string, string>;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Whether to include credentials for cross-origin requests */
+  withCredentials?: boolean;
+}
+
+/**
+ * HTTP Service Interface
+ * Provides methods for making HTTP requests.
+ */
 export interface IHttpService {
   /**
-   * Performs a GET request
-   * @param url The endpoint URL
-   * @param params Optional query parameters
-   * @returns A promise resolving to the response data
+   * Performs a GET request to the specified URL
+   * 
+   * @template T - The expected response data type
+   * @param url - The URL to request (can be relative to the base URL)
+   * @param options - Optional request configuration
+   * @returns A promise that resolves to the response data
+   * @throws AppError if the request fails
+   * 
+   * @example
+   * ```typescript
+   * const data = await httpService.get<UserData>('/api/users/1');
+   * ```
    */
-  get<T = any>(url: string, params?: Record<string, unknown>): Promise<T>;
+  get<T>(url: string, options?: HttpRequestOptions): Promise<T>;
 
   /**
-   * Performs a POST request
-   * @param url The endpoint URL
-   * @param data The request body
-   * @returns A promise resolving to the response data
+   * Performs a POST request to the specified URL with the provided data
+   * 
+   * @template T - The expected response data type
+   * @param url - The URL to request (can be relative to the base URL)
+   * @param data - The data to send in the request body
+   * @param options - Optional request configuration
+   * @returns A promise that resolves to the response data
+   * @throws AppError if the request fails
+   * 
+   * @example
+   * ```typescript
+   * const result = await httpService.post<ApiResponse>('/api/users', { name: 'John' });
+   * ```
    */
-  post<T = any>(url: string, data?: any): Promise<T>;
+  post<T>(url: string, data: any, options?: HttpRequestOptions): Promise<T>;
 
   /**
-   * Performs a PUT request
-   * @param url The endpoint URL
-   * @param data The request body
-   * @returns A promise resolving to the response data
+   * Performs a PUT request to the specified URL with the provided data
+   * 
+   * @template T - The expected response data type
+   * @param url - The URL to request (can be relative to the base URL)
+   * @param data - The data to send in the request body
+   * @param options - Optional request configuration
+   * @returns A promise that resolves to the response data
+   * @throws AppError if the request fails
    */
-  put<T = any>(url: string, data: any): Promise<T>;
+  put<T>(url: string, data: any, options?: HttpRequestOptions): Promise<T>;
 
   /**
-   * Performs a DELETE request
-   * @param url The endpoint URL
-   * @returns A promise resolving to the response data
+   * Performs a DELETE request to the specified URL
+   * 
+   * @template T - The expected response data type
+   * @param url - The URL to request (can be relative to the base URL)
+   * @param options - Optional request configuration
+   * @returns A promise that resolves to the response data
+   * @throws AppError if the request fails
    */
-  delete<T = any>(url: string): Promise<T>;
+  delete<T>(url: string, options?: HttpRequestOptions): Promise<T>;
 }

@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
-import { MCPRouter } from '../core/router';
-import { Logger } from '../utils/logger';
+import { MCPRouter } from './router/MCPRouter';
+import { Logger } from './utils/Logger';
 import path from 'path';
 
 const logger = new Logger('Routes');

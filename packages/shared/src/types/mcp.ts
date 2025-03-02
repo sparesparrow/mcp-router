@@ -6,6 +6,17 @@
 import { MCPError } from './errors';
 
 /**
+ * Transport interface for message communication
+ */
+export interface Transport {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  send(message: Message): Promise<void>;
+  onMessage(handler: (msg: Message) => Promise<Response>): void;
+  close(): Promise<void>;
+}
+
+/**
  * Agent Node Types
  */
 export enum AgentNodeType {

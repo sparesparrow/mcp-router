@@ -1,12 +1,10 @@
-import { Transport, Message, Response, MCPError } from './types/mcp';
+import { Message, Response, MCPError } from './types/mcp';
+import { IMessageTransport } from './interfaces/IMessageTransport';
+import { IMessageHandler } from './interfaces/IMessageHandler';
 
-export class LocalTransport implements Transport {
+export class LocalTransport implements IMessageTransport {
   // The messageHandler simulates the recipient (in this case, our MCPServer)
-  private messageHandler: (msg: Message) => Promise<Response> = async (m: Message) => ({
-    id: m.id,
-    success: false,
-    error: new MCPError("no_handler", "No message handler set")
-  });
+  private messageHandler: IMessageHandler | null = null;
 
   async connect(): Promise<void> {
     // Simulate async connection setup
@@ -18,24 +16,24 @@ export class LocalTransport implements Transport {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  async send(message: Message): Promise<void> {
+  async sendMessage(message: Message): Promise<void> {
     // Simulate network latency
     await new Promise(resolve => setTimeout(resolve, 50));
-    await this.messageHandler(message);
+    
+    if (!this.messageHandler) {
+      throw new Error("No message handler registered");
+    }
+    
+    await this.messageHandler.handleMessage(message);
   }
 
-  onMessage(handler: (msg: Message) => Promise<Response>): void {
-    // This example does not use an incoming message stream
+  onMessage(handler: IMessageHandler): void {
+    this.messageHandler = handler;
     // In a real implementation, you might wire up websocket or other event callbacks here
   }
 
   async close(): Promise<void> {
     // Simulate async cleanup
     await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  // Allows integration to set the destination message handler
-  setMessageHandler(handler: (msg: Message) => Promise<Response>): void {
-    this.messageHandler = handler;
   }
 } 

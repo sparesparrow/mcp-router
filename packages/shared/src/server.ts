@@ -2,10 +2,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
 import WebSocket from 'ws';
-import { MCPRouter } from '../core/router';
-import { Logger } from '../utils/logger';
+import { MCPRouter } from './router/MCPRouter';
+import { Logger } from './utils/Logger';
 import { createRoutes } from './routes';
-import config from 'config';
 
 const logger = new Logger('WebServer');
 
@@ -135,8 +134,8 @@ export class WebServer {
   }
   
   async start() {
-    const port = config.get<number>('router.port') || 8080;
-    const host = config.get<string>('router.host') || '0.0.0.0';
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+    const host = process.env.HOST || '0.0.0.0';
     
     return new Promise<void>((resolve) => {
       this.server.listen(port, host, () => {

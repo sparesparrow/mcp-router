@@ -10,7 +10,8 @@
 import { LocalTransport } from './LocalTransport';
 import { MCPServer } from './MCPServer';
 import { MCPClient } from './client/MCPClient';
-import { ClientConfig } from './types/mcp';
+import { ClientConfig, Message, Response } from './types/mcp';
+import { IMessageHandler } from './interfaces/IMessageHandler';
 
 async function main() {
   try {
@@ -20,10 +21,15 @@ async function main() {
     // Create our MCP server
     const server = new MCPServer();
 
+    // Create a message handler that delegates to the server
+    const serverHandler: IMessageHandler = {
+      handleMessage: async (message: Message): Promise<Response> => {
+        return await server.handleMessage(message);
+      }
+    };
+
     // Wire the transport to delegate incoming messages to the server
-    transport.setMessageHandler(async (message) => {
-      return await server.handleMessage(message);
-    });
+    transport.onMessage(serverHandler);
 
     // Configure the MCP client
     const clientConfig: ClientConfig = {

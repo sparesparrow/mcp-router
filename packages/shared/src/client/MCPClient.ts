@@ -1,11 +1,13 @@
-import { Transport, Message, Response, ClientConfig, MCPError } from '../types/mcp';
+import { Message, Response, ClientConfig, MCPError } from '../types/mcp';
+import { IMessageTransport } from '../interfaces/IMessageTransport';
+import { IMessageHandler } from '../interfaces/IMessageHandler';
 
-export class MCPClient {
+export class MCPClient implements IMessageHandler {
   private isConnected: boolean = false;
   private messageHandlers: Map<string, (response: Response) => void> = new Map();
-  private pendingRequests: Map<string, { resolve: (value: Response) => void, reject: (reason: any) => void }> = new Map();
+  private pendingRequests: Map<string, { resolve: (value: Response) => void, reject: (reason: Error) => void }> = new Map();
 
-  constructor(private transport: Transport, private config: ClientConfig) {}
+  constructor(private transport: IMessageTransport, private config: ClientConfig) {}
 
   async connect(): Promise<void> {
     if (this.isConnected) {
@@ -14,6 +16,9 @@ export class MCPClient {
 
     try {
       await this.transport.connect();
+      // Register this client as the message handler
+      this.transport.onMessage(this);
+      
       const handshakeResponse = await this.sendHandshake();
       
       if (handshakeResponse.error) {
@@ -21,7 +26,6 @@ export class MCPClient {
       }
 
       this.isConnected = true;
-      this.setupMessageHandling();
       console.log("Connected to MCP server:", handshakeResponse.result);
     } catch (error) {
       console.error("Connection failed:", error);
@@ -35,7 +39,7 @@ export class MCPClient {
     }
 
     try {
-      await this.transport.close();
+      await this.transport.disconnect();
       this.isConnected = false;
       this.messageHandlers.clear();
       this.pendingRequests.clear();
@@ -43,6 +47,32 @@ export class MCPClient {
       console.error("Disconnection failed:", error);
       throw error;
     }
+  }
+
+  /**
+   * Implementation of IMessageHandler
+   */
+  async handleMessage(message: Message): Promise<Response> {
+    const response = message as unknown as Response;
+    const pendingRequest = this.pendingRequests.get(response.id);
+    
+    if (pendingRequest) {
+      pendingRequest.resolve(response);
+      this.pendingRequests.delete(response.id);
+    }
+    
+    const handler = this.messageHandlers.get(response.id);
+    if (handler) {
+      handler(response);
+      this.messageHandlers.delete(response.id);
+    }
+    
+    // Return a response
+    return {
+      id: message.id,
+      success: true,
+      result: { status: 'message_received' }
+    };
   }
 
   async listTools(): Promise<any> {
@@ -81,34 +111,10 @@ export class MCPClient {
   private async sendAndWaitForResponse(message: Message): Promise<Response> {
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(message.id, { resolve, reject });
-      this.transport.send(message).catch(err => {
+      this.transport.sendMessage(message).catch((err: Error) => {
         this.pendingRequests.delete(message.id);
         reject(err);
       });
-    });
-  }
-
-  private setupMessageHandling(): void {
-    this.transport.onMessage(async (message: Message): Promise<Response> => {
-      const response = message as unknown as Response;
-      const pendingRequest = this.pendingRequests.get(response.id);
-      if (pendingRequest) {
-        pendingRequest.resolve(response);
-        this.pendingRequests.delete(response.id);
-      }
-      
-      const handler = this.messageHandlers.get(response.id);
-      if (handler) {
-        handler(response);
-        this.messageHandlers.delete(response.id);
-      }
-      
-      // Return a response since the interface requires it
-      return {
-        id: message.id,
-        success: true,
-        result: { status: 'message_received' }
-      };
     });
   }
 
