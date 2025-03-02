@@ -94,6 +94,8 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     // Render type-specific fields
     switch (nodeType) {
       case AgentNodeType.LLM:
+        // Add type narrowing for LLM node data
+        const llmNodeData = selectedNode.data as unknown as { model?: string, temperature?: number, maxTokens?: number, systemPrompt?: string, promptTemplate?: string };
         return (
           <>
             {commonFields}
@@ -104,7 +106,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
               </label>
               <input
                 type="text"
-                value={selectedNode.data.model || ''}
+                value={llmNodeData.model || ''}
                 onChange={(e) => handleChange('model', e.target.value)}
                 style={{
                   width: '100%',
@@ -125,7 +127,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 min="0"
                 max="1"
                 step="0.1"
-                value={selectedNode.data.temperature || 0.7}
+                value={llmNodeData.temperature || 0.7}
                 onChange={(e) => handleChange('temperature', parseFloat(e.target.value))}
                 style={{
                   width: '100%',
@@ -142,7 +144,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 System Prompt
               </label>
               <textarea
-                value={selectedNode.data.systemPrompt || ''}
+                value={llmNodeData.systemPrompt || ''}
                 onChange={(e) => handleChange('systemPrompt', e.target.value)}
                 style={{
                   width: '100%',

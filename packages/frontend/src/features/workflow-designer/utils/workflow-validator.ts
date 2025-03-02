@@ -4,7 +4,7 @@
  */
 
 import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
-import { Workflow, AgentNode } from '../types/agent-types';
+import { Workflow, AgentNode, LLMNode, ToolNode, ResourceNode, RouterNode, ParallelNode, OrchestratorNode, EvaluatorNode, InputNode, OutputNode, ConditionNode } from '../types/agent-types';
 
 export interface ValidationError {
   nodeId?: string;
@@ -12,6 +12,49 @@ export interface ValidationError {
   field?: string;
   message: string;
   severity: 'error' | 'warning';
+}
+
+/**
+ * Type guards for node types
+ */
+function isLLMNode(node: AgentNode): node is LLMNode {
+  return node.type === AgentNodeType.LLM;
+}
+
+function isToolNode(node: AgentNode): node is ToolNode {
+  return node.type === AgentNodeType.TOOL;
+}
+
+function isResourceNode(node: AgentNode): node is ResourceNode {
+  return node.type === AgentNodeType.RESOURCE;
+}
+
+function isRouterNode(node: AgentNode): node is RouterNode {
+  return node.type === AgentNodeType.ROUTER;
+}
+
+function isParallelNode(node: AgentNode): node is ParallelNode {
+  return node.type === AgentNodeType.PARALLEL;
+}
+
+function isOrchestratorNode(node: AgentNode): node is OrchestratorNode {
+  return node.type === AgentNodeType.ORCHESTRATOR;
+}
+
+function isEvaluatorNode(node: AgentNode): node is EvaluatorNode {
+  return node.type === AgentNodeType.EVALUATOR;
+}
+
+function isInputNode(node: AgentNode): node is InputNode {
+  return node.type === AgentNodeType.INPUT;
+}
+
+function isOutputNode(node: AgentNode): node is OutputNode {
+  return node.type === AgentNodeType.OUTPUT;
+}
+
+function isConditionNode(node: AgentNode): node is ConditionNode {
+  return node.type === AgentNodeType.CONDITION;
 }
 
 /**
@@ -47,211 +90,197 @@ export function validateWorkflow(workflow: Workflow): ValidationError[] {
     return validationErrors;
   }
   
-  // Validate that nodes have proper structure
-  workflow.nodes.forEach((node: AgentNode) => {
-    if (!node.id) {
+  // Validate each node
+  for (const node of workflow.nodes) {
+    // Skip validation for nodes without an ID
+    if (!node?.id) {
       validationErrors.push({
         message: 'Node is missing an ID',
         severity: 'error',
       });
-      return; // Skip further validation for this node
+      continue;
     }
+    
+    const nodeId = node.id;
     
     if (!node.type) {
       validationErrors.push({
-        nodeId: node.id,
-        message: `Node ${node.id} is missing a type`,
+        nodeId,
+        message: `Node ${nodeId} is missing a type`,
         severity: 'error',
       });
     }
     
     if (!node.label) {
       validationErrors.push({
-        nodeId: node.id,
-        message: `Node ${node.id} is missing a label`,
+        nodeId,
+        message: `Node ${nodeId} is missing a label`,
         severity: 'warning',
       });
     }
     
     // Validate node fields based on type
-    switch (node.type) {
-      case AgentNodeType.LLM:
-        if (!node.data?.model) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'model',
-            message: `LLM node ${node.id} is missing a model`,
-            severity: 'warning',
-          });
-        }
-        break;
-        
-      case AgentNodeType.TOOL:
-        if (!node.data?.serverName) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'serverName',
-            message: `Tool node ${node.id} is missing a server name`,
-            severity: 'warning',
-          });
-        }
-        
-        if (!node.data?.toolName) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'toolName',
-            message: `Tool node ${node.id} is missing a tool name`,
-            severity: 'warning',
-          });
-        }
-        break;
-        
-      case AgentNodeType.RESOURCE:
-        if (!node.data?.uri) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'uri',
-            message: `Resource node ${node.id} is missing a URI`,
-            severity: 'warning',
-          });
-        }
-        break;
-        
-      case AgentNodeType.ROUTER:
-        if (!node.data?.routingField) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'routingField',
-            message: `Router node ${node.id} is missing a routing field`,
-            severity: 'warning',
-          });
-        }
-        
-        if (!node.data?.routes || node.data.routes.length === 0) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'routes',
-            message: `Router node ${node.id} has no routes defined`,
-            severity: 'warning',
-          });
-        }
-        break;
-        
-      case AgentNodeType.PARALLEL:
-        if (!node.data?.targetNodeIds || node.data.targetNodeIds.length === 0) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'targetNodeIds',
-            message: `Parallel node ${node.id} has no target nodes`,
-            severity: 'warning',
-          });
-        } else {
-          // Check that all target nodes exist
-          node.data.targetNodeIds.forEach(targetId => {
-            if (!workflow.nodes.some(n => n.id === targetId)) {
-              validationErrors.push({
-                nodeId: node.id,
-                field: 'targetNodeIds',
-                message: `Parallel node ${node.id} references non-existent node: ${targetId}`,
-                severity: 'error',
-              });
-            }
-          });
-        }
-        break;
-        
-      case AgentNodeType.ORCHESTRATOR:
-        if (typeof node.data?.maxWorkers !== 'number' || node.data.maxWorkers < 1) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'maxWorkers',
-            message: `Orchestrator node ${node.id} has an invalid number of max workers`,
-            severity: 'warning',
-          });
-        }
-        
-        if (!node.data?.workerTemplate) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'workerTemplate',
-            message: `Orchestrator node ${node.id} is missing a worker template`,
-            severity: 'error',
-          });
-        }
-        break;
-        
-      case AgentNodeType.EVALUATOR:
-        if (typeof node.data?.maxIterations !== 'number' || node.data.maxIterations < 1) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'maxIterations',
-            message: `Evaluator node ${node.id} has an invalid number of max iterations`,
-            severity: 'warning',
-          });
-        }
-        
-        if (!node.data?.evaluationCriteria || node.data.evaluationCriteria.length === 0) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'evaluationCriteria',
-            message: `Evaluator node ${node.id} has no evaluation criteria defined`,
-            severity: 'warning',
-          });
-        }
-        break;
-        
-      case AgentNodeType.INPUT:
-        // No specific validations for INPUT nodes
-        break;
-        
-      case AgentNodeType.OUTPUT:
-        // No specific validations for OUTPUT nodes
-        break;
-        
-      case AgentNodeType.CONDITION:
-        if (!node.data?.condition) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'condition',
-            message: `Condition node ${node.id} is missing a condition`,
-            severity: 'error',
-          });
-        }
-        
-        if (!node.data?.trueTargetNodeId) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'trueTargetNodeId',
-            message: `Condition node ${node.id} is missing a true target node`,
-            severity: 'error',
-          });
-        } else if (!workflow.nodes.some(n => n.id === node.data.trueTargetNodeId)) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'trueTargetNodeId',
-            message: `Condition node ${node.id} references non-existent true target node: ${node.data.trueTargetNodeId}`,
-            severity: 'error',
-          });
-        }
-        
-        if (!node.data?.falseTargetNodeId) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'falseTargetNodeId',
-            message: `Condition node ${node.id} is missing a false target node`,
-            severity: 'error',
-          });
-        } else if (!workflow.nodes.some(n => n.id === node.data.falseTargetNodeId)) {
-          validationErrors.push({
-            nodeId: node.id,
-            field: 'falseTargetNodeId',
-            message: `Condition node ${node.id} references non-existent false target node: ${node.data.falseTargetNodeId}`,
-            severity: 'error',
-          });
-        }
-        break;
+    if (isLLMNode(node)) {
+      if (!node.data?.model) {
+        validationErrors.push({
+          nodeId,
+          field: 'model',
+          message: `LLM node ${nodeId} is missing a model`,
+          severity: 'warning',
+        });
+      }
+    } 
+    else if (isToolNode(node)) {
+      if (!node.data?.serverName) {
+        validationErrors.push({
+          nodeId,
+          field: 'serverName',
+          message: `Tool node ${nodeId} is missing a server name`,
+          severity: 'warning',
+        });
+      }
+      
+      if (!node.data?.toolName) {
+        validationErrors.push({
+          nodeId,
+          field: 'toolName',
+          message: `Tool node ${nodeId} is missing a tool name`,
+          severity: 'warning',
+        });
+      }
     }
-  });
+    else if (isResourceNode(node)) {
+      if (!node.data?.uri) {
+        validationErrors.push({
+          nodeId,
+          field: 'uri',
+          message: `Resource node ${nodeId} is missing a URI`,
+          severity: 'warning',
+        });
+      }
+    }
+    else if (isRouterNode(node)) {
+      if (!node.data?.routingField) {
+        validationErrors.push({
+          nodeId,
+          field: 'routingField',
+          message: `Router node ${nodeId} is missing a routing field`,
+          severity: 'warning',
+        });
+      }
+      
+      if (!node.data?.routes || node.data.routes.length === 0) {
+        validationErrors.push({
+          nodeId,
+          field: 'routes',
+          message: `Router node ${nodeId} has no routes defined`,
+          severity: 'warning',
+        });
+      }
+    }
+    else if (isParallelNode(node)) {
+      if (!node.data?.targetNodeIds || node.data.targetNodeIds.length === 0) {
+        validationErrors.push({
+          nodeId,
+          field: 'targetNodeIds',
+          message: `Parallel node ${nodeId} has no target nodes`,
+          severity: 'warning',
+        });
+      } else {
+        // Check that all target nodes exist
+        node.data.targetNodeIds.forEach((targetId: string) => {
+          if (!workflow.nodes.some(n => n.id === targetId)) {
+            validationErrors.push({
+              nodeId,
+              field: 'targetNodeIds',
+              message: `Parallel node ${nodeId} references non-existent node: ${targetId}`,
+              severity: 'error',
+            });
+          }
+        });
+      }
+    }
+    else if (isOrchestratorNode(node)) {
+      if (typeof node.data?.maxWorkers !== 'number' || node.data.maxWorkers < 1) {
+        validationErrors.push({
+          nodeId,
+          field: 'maxWorkers',
+          message: `Orchestrator node ${nodeId} has an invalid number of max workers`,
+          severity: 'warning',
+        });
+      }
+      
+      if (!node.data?.workerTemplate) {
+        validationErrors.push({
+          nodeId,
+          field: 'workerTemplate',
+          message: `Orchestrator node ${nodeId} is missing a worker template`,
+          severity: 'error',
+        });
+      }
+    }
+    else if (isEvaluatorNode(node)) {
+      if (typeof node.data?.maxIterations !== 'number' || node.data.maxIterations < 1) {
+        validationErrors.push({
+          nodeId,
+          field: 'maxIterations',
+          message: `Evaluator node ${nodeId} has an invalid number of max iterations`,
+          severity: 'warning',
+        });
+      }
+      
+      if (!node.data?.evaluationCriteria || node.data.evaluationCriteria.length === 0) {
+        validationErrors.push({
+          nodeId,
+          field: 'evaluationCriteria',
+          message: `Evaluator node ${nodeId} has no evaluation criteria defined`,
+          severity: 'warning',
+        });
+      }
+    }
+    else if (isConditionNode(node)) {
+      if (!node.data?.condition) {
+        validationErrors.push({
+          nodeId,
+          field: 'condition',
+          message: `Condition node ${nodeId} is missing a condition`,
+          severity: 'error',
+        });
+      }
+      
+      if (!node.data?.trueTargetNodeId) {
+        validationErrors.push({
+          nodeId,
+          field: 'trueTargetNodeId',
+          message: `Condition node ${nodeId} is missing a true target node`,
+          severity: 'error',
+        });
+      } else if (!workflow.nodes.some(n => n.id === node.data.trueTargetNodeId)) {
+        validationErrors.push({
+          nodeId,
+          field: 'trueTargetNodeId',
+          message: `Condition node ${nodeId} references non-existent true target node: ${node.data.trueTargetNodeId}`,
+          severity: 'error',
+        });
+      }
+      
+      if (!node.data?.falseTargetNodeId) {
+        validationErrors.push({
+          nodeId,
+          field: 'falseTargetNodeId',
+          message: `Condition node ${nodeId} is missing a false target node`,
+          severity: 'error',
+        });
+      } else if (!workflow.nodes.some(n => n.id === node.data.falseTargetNodeId)) {
+        validationErrors.push({
+          nodeId,
+          field: 'falseTargetNodeId',
+          message: `Condition node ${nodeId} references non-existent false target node: ${node.data.falseTargetNodeId}`,
+          severity: 'error',
+        });
+      }
+    }
+  }
   
   // Check for orphaned nodes (no incoming or outgoing edges)
   if (workflow.edges && workflow.edges.length > 0) {
