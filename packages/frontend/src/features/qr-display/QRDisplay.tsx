@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Paper, CircularProgress, Alert, IconButton, Tooltip } from '@mui/material';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 
 interface QRDisplayData {
@@ -125,7 +125,6 @@ const QRDisplay: React.FC<QRDisplayProps> = ({
                 size={200}
                 level="H"
                 includeMargin={true}
-                renderAs="svg"
                 aria-label="Context QR code"
               />
             </Box>

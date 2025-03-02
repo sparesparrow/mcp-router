@@ -3,7 +3,8 @@
  * Utility functions for generating Mermaid diagrams from workflow data
  */
 
-import { Workflow, AgentNode, AgentNodeType } from '../../types/agent-types';
+import { AgentNodeType } from '@mcp-router/shared/dist/types/mcp';
+import { Workflow, AgentNode } from '../../../workflow-designer/types/agent-types';
 
 /**
  * Generate a Mermaid flowchart diagram from a workflow
