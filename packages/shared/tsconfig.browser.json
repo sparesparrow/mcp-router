@@ -9,5 +9,5 @@
     "esModuleInterop": true,
     "isolatedModules": true
   },
-  "include": ["src/minimal/**/*", "src/types/agent-types.ts", "src/types/mcp.ts", "src/utils/IdGenerator.ts"]
+  "include": ["src/minimal/**/*", "src/types/agent-types.ts", "src/types/mcp.ts", "src/types/errors.ts", "src/utils/IdGenerator.ts"]
 }
