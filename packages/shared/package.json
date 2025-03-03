@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "Shared library for MCP Router",
   "main": "dist/src/index.js",
-  "browser": "src/minimal/index.ts",
+  "browser": "dist/browser/minimal/index.js",
+  "module": "dist/browser/minimal/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "build:minimal": "tsc -p tsconfig.minimal.json",
+    "build:browser": "tsc -p tsconfig.browser.json",
     "clean": "rimraf dist",
     "lint": "eslint . --ext .ts",
     "prebuild": "npm run clean",
-    "prepare": "npm run build && npm run build:minimal"
+    "prepare": "npm run build && npm run build:minimal && npm run build:browser"
   },
   "keywords": [
     "mcp",

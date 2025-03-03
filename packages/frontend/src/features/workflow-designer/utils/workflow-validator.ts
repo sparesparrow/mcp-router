@@ -3,8 +3,7 @@
  * Utility for validating workflow structures
  */
 
-import { getParsedType } from 'zod';
-import { AgentNodeType } from '../types/agent-types';
+import { AgentNodeType } from '@mcp-router/shared';
 import { 
   AgentNode, 
   LLMNode, 

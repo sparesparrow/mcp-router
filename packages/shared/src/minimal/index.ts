@@ -8,13 +8,15 @@
 // Export our local types that contain browser-safe stubs
 export * from './types';
 
+// Explicitly re-export AgentNodeType from types
+import { AgentNodeType } from './types';
+export { AgentNodeType };
+
 // We'll selectively re-export from other modules to avoid conflicts
 // with types already defined in './types.ts'
 
 // Export utilities that don't depend on Node.js (using browser-compatible versions)
 export * from './utils/IdGenerator';
-export * from './utils/Logger';
-export * from './utils/LoggerFactory';
 
-// Log that the browser-compatible shared package has been loaded
+// Simple log for debugging when loaded
 console.log('Browser-compatible shared package loaded'); 

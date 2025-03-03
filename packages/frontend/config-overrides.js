@@ -24,13 +24,14 @@ module.exports = function override(config, env) {
     "child_process": false
   };
 
-  // Use the minimal browser version of shared package
+  // Use the browser version of shared package
   // This ensures server-specific code doesn't get bundled into the frontend
   config.resolve.alias = {
     ...config.resolve.alias,
-    '@mcp-router/shared': path.resolve(__dirname, '../shared'),
-    '@mcp-router/shared/dist/types/mcp': path.resolve(__dirname, '../shared/src/minimal/types'),
-    '@mcp-router/shared/src/types/analyzer': path.resolve(__dirname, '../shared/src/minimal/types')
+    '@mcp-router/shared': path.resolve(__dirname, '../shared/dist/browser/minimal'),
+    '@mcp-router/shared/dist/types/mcp': path.resolve(__dirname, '../shared/dist/browser/types'),
+    '@mcp-router/shared/types': path.resolve(__dirname, '../shared/dist/browser/types'),
+    '@mcp-router/shared/src/types/analyzer': path.resolve(__dirname, '../shared/dist/browser/types')
   };
 
   // Add buffer polyfill
