@@ -20,6 +20,8 @@ Tests that verify frontend components correctly use types from the shared packag
 
 ## Running Tests
 
+### Local Testing
+
 ```bash
 # Install dependencies
 npm install
@@ -34,13 +36,27 @@ npm run test:e2e
 npm run test:api
 ```
 
+### Containerized Testing (Recommended)
+
+The MCP-Router project now supports containerized integration testing using Docker, providing a consistent and isolated test environment:
+
+```bash
+# Run all tests in containers
+npm run test:container
+```
+
+For more details about containerized testing, see [CONTAINERIZED-TESTING.md](./CONTAINERIZED-TESTING.md).
+
 ## Test Configuration
 
 - `jest.config.js`: Main Jest configuration
 - `jest.e2e.config.js`: Configuration for E2E tests
 - `jest.api.config.js`: Configuration for API tests
+- `docker-compose.test.yml`: Configuration for containerized testing
 
 ## Requirements
+
+### For Local Testing
 
 Before running the integration tests, make sure:
 
@@ -49,10 +65,18 @@ Before running the integration tests, make sure:
 3. Port 3000 is available for the frontend
 4. Port 3001 is available for the backend
 
+### For Containerized Testing
+
+1. Docker installed on your system
+2. Docker Compose installed on your system
+3. Ports 3000 and 3001 available
+
 ## Troubleshooting
 
 If tests fail with module resolution errors, make sure:
 
 1. All packages have been built (`npm run build` in the root)
 2. The browser-compatible version of the shared package is built (`npm run build:shared:minimal` in the root)
-3. TypeScript path mappings in `tsconfig.json` are correctly set up 
+3. TypeScript path mappings in `tsconfig.json` are correctly set up
+
+For containerized testing issues, refer to the troubleshooting section in [CONTAINERIZED-TESTING.md](./CONTAINERIZED-TESTING.md). 

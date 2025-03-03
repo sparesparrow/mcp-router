@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Backend service for testing
+  backend-test:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: builder  # Use the builder stage to have all dependencies
+    environment:
+      - NODE_ENV=test
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    command: npm run start:test --workspace=@mcp-router/backend
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3001/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend service for testing
+  frontend-test:
+    build:
+      context: ..
+      dockerfile: packages/frontend/Dockerfile
+      target: development  # Assuming there's a development stage in the frontend Dockerfile
+    environment:
+      - NODE_ENV=test
+      - REACT_APP_API_URL=http://backend-test:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3000"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # Integration test runner
+  test-runner:
+    build:
+      context: ..
+      dockerfile: integration-tests/Dockerfile.test
+    volumes:
+      - ../test_coverage:/app/test_coverage
+      - ../test_logs:/app/test_logs
+      - ../screenshots:/app/screenshots
+    environment:
+      - API_URL=http://backend-test:3001
+      - FRONTEND_URL=http://frontend-test:3000
+    depends_on:
+      backend-test:
+        condition: service_healthy
+      frontend-test:
+        condition: service_healthy
+    networks:
+      - test-network
+    command: npm run test:all
+
+networks:
+  test-network:
+    driver: bridge 

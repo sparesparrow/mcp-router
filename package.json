@@ -24,13 +24,18 @@
     "test:integration": "cd integration-tests && npm test",
     "test:e2e": "cd integration-tests && npm run test:e2e",
     "test:api": "cd integration-tests && npm run test:api",
+    "test:performance:api": "k6 run tests/performance/api-performance.js",
+    "test:performance:lighthouse": "lhci autorun",
+    "test:performance:e2e": "cd integration-tests && npm run test:cypress -- --spec 'cypress/e2e/performance.cy.ts'",
+    "test:performance": "npm run test:performance:api && npm run test:performance:lighthouse && npm run test:performance:e2e",
     "clean": "npm run clean:shared && npm run clean:backend && npm run clean:frontend",
     "clean:shared": "cd packages/shared && npm run clean",
     "clean:backend": "cd packages/backend && npm run clean",
     "clean:frontend": "cd packages/frontend && npm run clean",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd packages/backend && npm run dev",
-    "dev:frontend": "cd packages/frontend && npm run dev"
+    "dev:frontend": "cd packages/frontend && npm run dev",
+    "performance:report": "node scripts/generate-performance-report.js"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

@@ -9,7 +9,13 @@
     "test:e2e": "jest --config jest.e2e.config.js",
     "test:api": "jest --config jest.api.config.js",
     "test:cypress": "cypress run",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "test:all": "npm run test:api && npm run test:e2e && npm run test:cypress",
+    "test:container": "bash scripts/run-containerized-tests.sh",
+    "docker:build": "docker-compose -f docker-compose.test.yml build",
+    "docker:up": "docker-compose -f docker-compose.test.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.test.yml down -v",
+    "docker:logs": "docker-compose -f docker-compose.test.yml logs"
   },
   "dependencies": {
     "backend": "file:../packages/backend",

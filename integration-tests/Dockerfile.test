@@ -1,0 +1,40 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package.json files
+COPY package.json ./
+COPY integration-tests/package.json ./integration-tests/
+COPY packages/frontend/package.json ./packages/frontend/
+COPY packages/backend/package.json ./packages/backend/
+COPY packages/shared/package.json ./packages/shared/
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build shared and backend packages first
+RUN npm run build:shared:minimal
+RUN npm run build:backend:minimal
+
+# Set working directory to integration tests
+WORKDIR /app/integration-tests
+
+# Install test runner dependencies
+RUN npm install
+
+# Install Cypress dependencies
+RUN apk add --no-cache \
+    xvfb \
+    chromium \
+    firefox \
+    cypress
+
+# Set necessary environment variables
+ENV CYPRESS_CACHE_FOLDER=/app/integration-tests/.cypress-cache
+ENV CYPRESS_INSTALL_BINARY=0
+
+# Default command (can be overwritten)
+CMD ["npm", "run", "test:all"] 
