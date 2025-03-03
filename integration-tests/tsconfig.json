@@ -2,7 +2,12 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
+    "lib": [
+      "dom",
+      "es6",
+      "es2017",
+      "esnext.asynciterable"
+    ],
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist",
@@ -23,12 +28,27 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "shared": ["../packages/shared"],
-      "frontend/*": ["../packages/frontend/*"],
-      "backend/*": ["../packages/backend/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "shared": [
+        "../packages/shared"
+      ],
+      "shared/*": [
+        "../packages/shared/*"
+      ],
+      "frontend/*": [
+        "../packages/frontend/*"
+      ],
+      "backend/*": [
+        "../packages/backend/*"
+      ]
     }
   },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules"]
-} 
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

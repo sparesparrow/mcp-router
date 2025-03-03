@@ -2,14 +2,28 @@
  * Tests the integration between backend API and shared package
  */
 import request from 'supertest';
-import { HttpServer, RouterApi } from 'shared';
+import { RouterApi, IRouter } from 'shared';
 import express from 'express';
 
 // Mock implementation that will be used in tests
 class MockRouterApi extends RouterApi {
+  constructor() {
+    // Create a mock router to pass to the parent constructor
+    const mockRouter: IRouter = {
+      connectToServer: jest.fn(),
+      disconnectFromServer: jest.fn(),
+      isServerConnected: jest.fn(),
+      forwardRequest: jest.fn(),
+      getServerCapabilities: jest.fn(),
+      getAllServers: jest.fn(),
+      getServer: jest.fn()
+    };
+    super(mockRouter);
+  }
+
   createRoutes() {
     const router = express.Router();
-    router.get('/test', (req, res) => {
+    router.get('/test', (_req, res) => {
       res.json({ status: 'ok' });
     });
     return router;
@@ -17,13 +31,11 @@ class MockRouterApi extends RouterApi {
 }
 
 describe('RouterApi integration', () => {
-  let httpServer: HttpServer;
   let app: express.Application;
   
   beforeAll(() => {
-    // Create a test instance of HttpServer with RouterApi
+    // Create a test instance of RouterApi
     const routerApi = new MockRouterApi();
-    httpServer = new HttpServer(routerApi, { port: 3099, host: 'localhost' });
     app = express();
     app.use('/api', routerApi.createRoutes());
   });
