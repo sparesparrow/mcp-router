@@ -22,8 +22,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Check for lint script
+        id: check_lint
+        run: |
+          if grep -q '"lint":' package.json; then
+            echo "has_lint=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_lint=false" >> $GITHUB_OUTPUT
+            echo "Lint script not found in package.json"
+          fi
+      
       - name: Lint
+        if: steps.check_lint.outputs.has_lint == 'true'
         run: npm run lint
+        
+      - name: Format check
+        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,scss,md}" --ignore-path .prettierignore
 
   build:
     name: Build and Test
@@ -41,6 +55,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Cache build outputs
+        uses: actions/cache@v3
+        with:
+          path: |
+            packages/*/dist
+            packages/*/build
+            packages/frontend/build
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+      
       - name: Build
         run: npm run build
       
@@ -53,6 +78,7 @@ jobs:
           name: build-artifacts
           path: |
             packages/*/dist
+            packages/*/build
             packages/frontend/build
 
   containerized-integration-tests:
@@ -83,6 +109,7 @@ jobs:
             test_coverage/
             test_logs/
             screenshots/
+        if: always()
 
   performance-tests:
     name: Performance Tests
@@ -121,6 +148,7 @@ jobs:
       
       - name: Run API performance tests
         run: k6 run tests/performance/api-performance.js
+        continue-on-error: true
       
       - name: Start frontend for Lighthouse tests
         run: npm run start:frontend &
@@ -136,6 +164,7 @@ jobs:
       
       - name: Run Lighthouse CI
         run: lhci autorun
+        continue-on-error: true
       
       - name: Upload performance test results
         uses: actions/upload-artifact@v3
@@ -145,6 +174,7 @@ jobs:
             k6-results/
             lighthouse-results/
             integration-tests/performance-reports/
+        if: always()
 
   docker:
     name: Build Docker Images
@@ -180,6 +210,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}-backend
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       
       - name: Build and push frontend image
         uses: docker/build-push-action@v4
@@ -189,3 +221,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}-frontend
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

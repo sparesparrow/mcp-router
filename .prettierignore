@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+coverage/
+packages/*/dist/
+packages/*/build/
+packages/frontend/build/
+**/*.d.ts
+.git
+.github/workflows/ 
