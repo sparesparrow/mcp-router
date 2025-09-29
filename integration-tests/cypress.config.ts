@@ -14,6 +14,6 @@ export default defineConfig({
     experimentalStudio: true
   },
   env: {
-    apiUrl: 'http://localhost:3001/api'
+    apiUrl: 'http://localhost:8000/api'
   }
 });

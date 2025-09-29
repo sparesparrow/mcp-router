@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const DEFAULT_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const DEFAULT_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 interface WebSocketConfig {
   url?: string;

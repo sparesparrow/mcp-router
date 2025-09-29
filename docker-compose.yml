@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "8000:8000"
     environment:
-      - NODE_ENV=production
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
     restart: unless-stopped
     volumes:
       - backend-data:/app/data

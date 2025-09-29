@@ -1,40 +1,26 @@
-FROM node:18-alpine AS builder
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy package.json files
-COPY package.json ./
-COPY packages/frontend/package.json ./packages/frontend/
-COPY packages/backend/package.json ./packages/backend/
-COPY packages/shared/package.json ./packages/shared/
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN npm install
+# Install Python dependencies
+COPY packages/backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source files
-COPY . .
+# Copy backend source code
+COPY packages/backend/ ./packages/backend/
 
-# Build packages
-RUN npm run build
+# Python configuration
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
-# Production stage
-FROM node:18-alpine AS production
+# Expose FastAPI port
+EXPOSE 8000
 
-WORKDIR /app
-
-# Copy built files from builder stage
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/packages/backend/package.json ./packages/backend/
-COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-
-# Install production dependencies only
-ENV NODE_ENV=production
-RUN npm install --production
-
-# Expose backend port
-EXPOSE 3001
-
-# Start backend server
-CMD ["npm", "run", "start", "--workspace=@mcp-router/backend"]
+# Start FastAPI with Uvicorn
+CMD ["python", "-m", "uvicorn", "packages.backend.src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

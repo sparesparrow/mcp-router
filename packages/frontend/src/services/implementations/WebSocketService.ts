@@ -15,7 +15,7 @@ export class WebSocketService implements IWebSocketService {
   private url: string;
   private options: any;
 
-  constructor(url: string = process.env.REACT_APP_API_URL || 'http://localhost:3001', options: any = {}) {
+  constructor(url: string = process.env.REACT_APP_API_URL || 'http://localhost:8000', options: any = {}) {
     this.url = url;
     this.options = {
       path: '/ws',

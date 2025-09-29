@@ -79,7 +79,7 @@ export const options = {
 // Test execution
 export default function() {
   // Your test logic here
-  let response = http.get('http://localhost:3001/api/your-endpoint');
+  let response = http.get('http://localhost:8000/api/your-endpoint');
   
   check(response, {
     'status is 200': (r) => r.status === 200,
