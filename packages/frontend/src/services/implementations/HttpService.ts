@@ -8,7 +8,7 @@ import { IHttpService } from '../interfaces/IHttpService';
 export class HttpService implements IHttpService {
   private readonly api: AxiosInstance;
 
-  constructor(baseURL: string = process.env.REACT_APP_API_URL || 'http://localhost:3001') {
+  constructor(baseURL: string = process.env.REACT_APP_API_URL || 'http://localhost:8000') {
     this.api = axios.create({
       baseURL,
       headers: {

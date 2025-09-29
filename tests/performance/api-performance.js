@@ -21,7 +21,7 @@ export const options = {
 };
 
 // Base URL - update this based on your environment
-const BASE_URL = __ENV.API_URL || 'http://localhost:3001';
+const BASE_URL = __ENV.API_URL || 'http://localhost:8000';
 
 // Sample workflow data
 const sampleWorkflow = {

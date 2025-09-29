@@ -32,7 +32,7 @@ import ConditionNodeComponent from '../features/workflow-designer/components/Nod
 import { AgentNodeType } from '../features/workflow-designer/types/agent-types';
 
 // Environment variables for configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Initialize MCP core services from shared package
 const mcpServer = createMCPServer();
