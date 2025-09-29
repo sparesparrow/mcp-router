@@ -6,8 +6,6 @@ import psutil
 import json
 from contextlib import asynccontextmanager
 from pydantic import BaseModel, Field
-import sys
-sys.path.append("/home/sparrow/projects/hard-coder/Projects/system-context")
 
 from ..core.container import ServiceContainer, get_container
 from ..interfaces.service_interfaces import (
