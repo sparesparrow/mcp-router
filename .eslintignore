@@ -1,8 +1,33 @@
+# Dependencies
 node_modules/
+bower_components/
+
+# Build outputs
 dist/
 build/
+*.min.js
+
+# Generated files
+*.d.ts
+
+# Test coverage
 coverage/
-packages/*/dist/
-packages/*/build/
-packages/frontend/build/
-**/*.d.ts 
+
+# Configuration files
+*.config.js
+*.config.ts
+
+# Docker
+Dockerfile
+
+# CI/CD
+.github/
+
+# Documentation
+docs/
+
+# Python files
+*.py
+
+# Misc
+.DS_Store

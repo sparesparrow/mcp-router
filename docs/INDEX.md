@@ -227,6 +227,10 @@ mcp-router/
 ### Recent Changes
 - [AWS MCP Implementation](../CHANGELOG_AWS_MCP.md)
 - [Docker Implementation](../DOCKER_IMPLEMENTATION_SUMMARY.md)
+- [CI/CD Workflow Fixes](../CI_WORKFLOW_FIXES.md)
+
+### Quick Summary
+- [Workflow Fixes Summary](../WORKFLOW_FIXES_SUMMARY.md) - Quick overview of CI/CD fixes
 
 ### Version History
 - See [Git History](../.git) for detailed changes

@@ -176,7 +176,14 @@ cd integration-tests && npm run cypress:open
 This project uses GitHub Actions for CI/CD. The following workflows are available:
 
 - **Continuous Integration**: Triggered on every push and pull request
+  - Linting and formatting checks
+  - Node.js and Python unit tests
+  - Docker builds
+  - Integration tests (optional)
+  - Performance tests (optional)
 - **Release**: Triggered when a new tag is pushed
+
+See [CI Workflow Fixes](./CI_WORKFLOW_FIXES.md) for detailed information about the CI/CD setup.
 
 ## Browser Compatibility
 
