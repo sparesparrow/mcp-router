@@ -2,6 +2,16 @@
 
 This guide explains how to integrate the MCP Workflow Designer with the Podman Desktop Extension and other MCP servers.
 
+## Available MCP Tools
+
+The MCP server includes the following tool categories:
+
+- **System Tools**: Performance monitoring, diagnostics, network analysis
+- **Workflow Tools**: Workflow analysis and optimization
+- **AI Tools**: Code generation, analysis, and Mermaid diagram generation
+- **Audio Tools**: Audio stream analysis
+- **AWS Tools**: AWS credential management, environment configuration, and account information ([AWS Tools Documentation](./mcp-aws-tools.md))
+
 ## Architecture
 
 ```mermaid

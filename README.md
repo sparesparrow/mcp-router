@@ -35,12 +35,40 @@ npm run dev
 mcp-router/
 ├── packages/
 │   ├── frontend/     # React-based UI
-│   ├── backend/      # Node.js backend server
+│   ├── backend/      # Node.js backend server with Python MCP server
 │   └── shared/       # Shared types and utilities
 ├── integration-tests/ # Integration and E2E tests
+├── docs/             # Documentation
+│   ├── mcp-aws-tools.md  # AWS Tools documentation
+│   └── ...
 ├── docker-compose.yml
 └── README.md
 ```
+
+## Features
+
+### MCP Server Capabilities
+
+The backend includes a Model Context Protocol (MCP) server with the following capabilities:
+
+- **System Monitoring**: Performance metrics, diagnostics, network analysis
+- **Workflow Management**: Analysis and optimization of workflows
+- **AI Integration**: Code generation, analysis, and diagram generation
+- **AWS Tools**: Environment variable and credential management
+  - Retrieve AWS credentials from multiple sources
+  - Set AWS environment variables programmatically
+  - List and manage AWS profiles
+  - Validate credentials and get account information
+  - See [AWS Tools Documentation](./docs/mcp-aws-tools.md) for details
+
+### Key Features
+
+- Visual workflow designer for creating agent-based systems
+- Real-time workflow execution and monitoring
+- Integration with multiple MCP servers
+- Secure credential management for AWS and other services
+- WebSocket support for real-time updates
+- Docker containerization for easy deployment
 
 ## Docker Deployment
 
