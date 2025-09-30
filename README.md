@@ -72,7 +72,24 @@ The backend includes a Model Context Protocol (MCP) server with the following ca
 
 ## Docker Deployment
 
-To run the application using Docker:
+### Quick Start with Make
+
+The easiest way to get started:
+
+```bash
+# Build and start all services
+make quick-start
+
+# Or step by step:
+make build      # Build images
+make up         # Start services
+make health     # Check health
+make logs       # View logs
+```
+
+### Docker Compose
+
+To run the application using Docker Compose:
 
 ```bash
 # Development
@@ -80,6 +97,62 @@ docker-compose -f docker-compose.dev.yml up
 
 # Production
 docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### AWS Credentials in Docker
+
+Configure AWS credentials using one of these methods:
+
+**1. Environment Variables (.env file):**
+```bash
+cp .env.example .env
+# Edit .env with your AWS credentials
+docker-compose up -d
+```
+
+**2. Mount AWS Config:**
+```bash
+# Already configured in docker-compose.yml
+# Mounts ~/.aws to container automatically
+docker-compose up -d
+```
+
+**3. IAM Roles (Production):**
+```bash
+# When running on AWS (EC2/ECS/EKS)
+# No configuration needed - uses instance role
+docker-compose up -d
+```
+
+See [Docker AWS Setup Guide](./docs/docker-aws-setup.md) for detailed instructions.
+
+### Common Docker Commands
+
+```bash
+# AWS Tools Testing
+make aws-validate        # Validate AWS credentials
+make aws-list-profiles   # List AWS profiles
+make aws-account-info    # Get account information
+
+# Service Management
+make status             # Show service status
+make restart            # Restart services
+make logs-backend       # View backend logs only
+
+# Development
+make dev                # Start with logs attached
+make shell-backend      # Open shell in backend
+make test               # Run tests
+
+# Cleanup
+make clean              # Remove containers and volumes
+make clean-all          # Remove everything including images
 ```
 
 ## Testing
@@ -109,6 +182,25 @@ This project uses GitHub Actions for CI/CD. The following workflows are availabl
 
 The shared package has been designed to work in both Node.js and browser environments. For browser usage, a minimal version is provided that excludes server-specific dependencies.
 
+## Documentation
+
+### Quick Links
+- **[Documentation Index](./docs/INDEX.md)** - Complete documentation index
+- **[AWS Tools Guide](./docs/mcp-aws-tools.md)** - AWS tools full reference
+- **[Docker Quick Reference](./DOCKER_README.md)** - Docker commands cheat sheet
+- **[AWS Quick Start](./docs/aws-quickstart.md)** - Get started in 5 minutes
+
+### By Topic
+- **[Docker Setup](./docs/docker-aws-setup.md)** - Complete Docker deployment guide
+- **[MCP Integration](./docs/mcp_integration.md)** - MCP workflow designer integration
+- **[Developer Guide](./docs/developer-guide.md)** - Development guidelines
+- **[Architecture](./docs/ARCHITECTURE.md)** - System architecture
+- **[Testing](./docs/testing-strategy.md)** - Testing strategy
+
+### Implementation Details
+- **[AWS Implementation](./CHANGELOG_AWS_MCP.md)** - AWS MCP tools changelog
+- **[Docker Implementation](./DOCKER_IMPLEMENTATION_SUMMARY.md)** - Docker setup details
+
 ## Contributing
 
 1. Fork the repository
@@ -116,3 +208,5 @@ The shared package has been designed to work in both Node.js and browser environ
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+See [Developer Guide](./docs/developer-guide.md) for detailed contribution guidelines.
