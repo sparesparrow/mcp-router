@@ -21,6 +21,7 @@ from ..interfaces.service_interfaces import (
 from .security import SecurityManager
 from .metrics import MetricsCollector
 from .errors import SecurityError, ValidationError
+from .aws_tools import AWSEnvironmentTool, get_aws_tool_definitions
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,7 @@ class ToolRegistry:
         self.tools: Dict[str, Tool] = {}
         self.security_manager = SecurityManager()
         self.metrics_collector = MetricsCollector()
+        self.aws_tool = AWSEnvironmentTool()
         self.logger = logger.bind(component="tool_registry")
         
     async def register_tool(self, tool: Tool) -> None:
@@ -187,6 +189,7 @@ class ToolRegistry:
             self._register_audio_tools()
             self._register_state_tools()
             self._register_ai_tools()
+            self._register_aws_tools()
             logger.info(f"Loaded {len(self.tools)} built-in tools")
         except Exception as e:
             logger.error(f"Error loading built-in tools: {str(e)}")
@@ -782,6 +785,165 @@ class ToolRegistry:
         except Exception as e:
             logger.error(f"Network info collection failed: {str(e)}")
             raise ExecutionError("network_info_failed", str(e))
+
+    def _register_aws_tools(self) -> None:
+        """Register AWS environment and credential tools."""
+        self.register_tool(
+            "aws/get-credentials",
+            {
+                "name": "aws/get-credentials",
+                "description": "Retrieve AWS credentials and environment variables",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "profile": {
+                            "type": "string",
+                            "description": "AWS profile name (optional)"
+                        },
+                        "include_session_token": {
+                            "type": "boolean",
+                            "description": "Include session token in response",
+                            "default": False
+                        }
+                    }
+                },
+                "handler": self.handle_aws_get_credentials
+            }
+        )
+        
+        self.register_tool(
+            "aws/set-environment",
+            {
+                "name": "aws/set-environment",
+                "description": "Set AWS environment variables",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "access_key_id": {
+                            "type": "string",
+                            "description": "AWS access key ID"
+                        },
+                        "secret_access_key": {
+                            "type": "string",
+                            "description": "AWS secret access key"
+                        },
+                        "session_token": {
+                            "type": "string",
+                            "description": "AWS session token (optional)"
+                        },
+                        "region": {
+                            "type": "string",
+                            "description": "AWS region"
+                        }
+                    }
+                },
+                "handler": self.handle_aws_set_environment
+            }
+        )
+        
+        self.register_tool(
+            "aws/list-profiles",
+            {
+                "name": "aws/list-profiles",
+                "description": "List available AWS profiles from AWS config",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {}
+                },
+                "handler": self.handle_aws_list_profiles
+            }
+        )
+        
+        self.register_tool(
+            "aws/get-account-info",
+            {
+                "name": "aws/get-account-info",
+                "description": "Get AWS account information using STS",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "profile": {
+                            "type": "string",
+                            "description": "AWS profile name (optional)"
+                        }
+                    }
+                },
+                "handler": self.handle_aws_get_account_info
+            }
+        )
+        
+        self.register_tool(
+            "aws/validate-credentials",
+            {
+                "name": "aws/validate-credentials",
+                "description": "Validate AWS credentials by making a test API call",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "profile": {
+                            "type": "string",
+                            "description": "AWS profile name (optional)"
+                        }
+                    }
+                },
+                "handler": self.handle_aws_validate_credentials
+            }
+        )
+
+    async def handle_aws_get_credentials(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle AWS credentials retrieval."""
+        profile = params.get("profile")
+        include_session_token = params.get("include_session_token", False)
+        
+        try:
+            return await self.aws_tool.get_aws_credentials(
+                profile=profile,
+                include_session_token=include_session_token
+            )
+        except Exception as e:
+            logger.error(f"AWS credentials retrieval failed: {str(e)}")
+            raise ExecutionError("aws_credentials_failed", str(e))
+    
+    async def handle_aws_set_environment(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle AWS environment variables setting."""
+        try:
+            return await self.aws_tool.set_aws_environment(
+                access_key_id=params.get("access_key_id"),
+                secret_access_key=params.get("secret_access_key"),
+                session_token=params.get("session_token"),
+                region=params.get("region")
+            )
+        except Exception as e:
+            logger.error(f"AWS environment setup failed: {str(e)}")
+            raise ExecutionError("aws_environment_failed", str(e))
+    
+    async def handle_aws_list_profiles(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle AWS profiles listing."""
+        try:
+            return await self.aws_tool.list_aws_profiles()
+        except Exception as e:
+            logger.error(f"AWS profiles listing failed: {str(e)}")
+            raise ExecutionError("aws_profiles_failed", str(e))
+    
+    async def handle_aws_get_account_info(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle AWS account information retrieval."""
+        profile = params.get("profile")
+        
+        try:
+            return await self.aws_tool.get_aws_account_info(profile=profile)
+        except Exception as e:
+            logger.error(f"AWS account info retrieval failed: {str(e)}")
+            raise ExecutionError("aws_account_info_failed", str(e))
+    
+    async def handle_aws_validate_credentials(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle AWS credentials validation."""
+        profile = params.get("profile")
+        
+        try:
+            return await self.aws_tool.validate_aws_credentials(profile=profile)
+        except Exception as e:
+            logger.error(f"AWS credentials validation failed: {str(e)}")
+            raise ExecutionError("aws_validation_failed", str(e))
 
     async def handle_code_generation(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Generate code using AI with context-aware suggestions."""

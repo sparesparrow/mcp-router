@@ -1,10 +1,65 @@
+# Dependencies
 node_modules/
+bower_components/
+
+# Build outputs
 dist/
 build/
+*.min.js
+*.min.css
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Coverage
 coverage/
-packages/*/dist/
-packages/*/build/
-packages/frontend/build/
-**/*.d.ts
-.git
-.github/workflows/ 
+.nyc_output/
+htmlcov/
+
+# Documentation
+*.md
+
+# Configuration
+.vscode/
+.idea/
+
+# Generated files
+*.log
+*.lock
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github/
+
+# Vendor
+vendor/
+
+# Test artifacts
+test_coverage/
+test_logs/
+screenshots/
+cypress/
+.cypress/
+
+# AWS
+.aws/
+
+# Environment
+.env
+.env.*
+
+# Misc
+.DS_Store
+Thumbs.db
