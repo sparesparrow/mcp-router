@@ -2,8 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
 import WebSocket from 'ws';
-import { MCPRouter } from '../core/router';
-import { Logger } from '../utils/logger';
+import { MCPRouter } from '@mcp-router/shared';
+import { Logger } from '@mcp-router/shared';
 import { createRoutes } from './routes';
 import config from 'config';
 

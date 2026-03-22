@@ -13,5 +13,15 @@
     "composite": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "src/routes.ts",
+    "src/server.ts",
+    "src/mcpIntegration.ts",
+    "src/solidAnalyzerIntegration.ts",
+    "src/http/**/*",
+    "src/integration/MCPIntegrationService.ts"
+  ]
 } 

@@ -29,10 +29,9 @@ export * from './factory/TransportFactory';
 export * from './factory/ServerFactory';
 export * from './factory/ClientFactory';
 
-// Export HTTP components
-export * from './http/HttpServer';
-export * from './http/RouterApi';
-export * from './http/WebSocketServer';
+// Note: HTTP components (HttpServer, RouterApi, WebSocketServer) require
+// server-side packages (express, ws) that are not bundled with the shared
+// library. Import them directly from '@mcp-router/shared/http' in server contexts.
 
 // Export handlers
 export * from './handlers/MessageHandlerRegistry';
@@ -48,6 +47,7 @@ export * from './registry/ToolsRegistry';
 export * from './utils/IdGenerator';
 export * from './utils/Logger';
 export * from './utils/LoggerFactory';
+export * from './utils/SimpleEventEmitter';
 
-// Export integration
-export * from './integration/MCPIntegrationService';
+// Note: MCPIntegrationService requires Node.js-specific APIs (process, require).
+// It is excluded from the main build. Use it directly in Node.js server contexts.
