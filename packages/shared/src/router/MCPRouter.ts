@@ -1,7 +1,7 @@
 /**
  * Router for MCP requests
  */
-import { EventEmitter } from 'events';
+import { SimpleEventEmitter } from '../utils/SimpleEventEmitter';
 import { Message, Response, ServerInfo } from '../types/mcp';
 import { IRouter } from '../interfaces/IRouter';
 import { IServerRegistry } from '../interfaces/IServerRegistry';
@@ -15,7 +15,7 @@ import { ServerRegistry } from '../registry/ServerRegistry';
 // Map of server ID to client
 type ClientMap = Map<string, MCPClientCore>;
 
-export class MCPRouter extends EventEmitter implements IRouter {
+export class MCPRouter extends SimpleEventEmitter implements IRouter {
   private clients: ClientMap = new Map();
   private logger: Logger;
   

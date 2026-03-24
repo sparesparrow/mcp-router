@@ -7,7 +7,7 @@ import { Logger } from '../utils/Logger';
 type ResponseResolver = {
   resolve: (value: Response) => void;
   reject: (reason: any) => void;
-  timeout?: NodeJS.Timeout;
+  timeout?: ReturnType<typeof setTimeout>;
 };
 
 export class ResponseHandler {
@@ -38,7 +38,7 @@ export class ResponseHandler {
       existing?.reject(new Error('Request superseded by newer request with same ID'));
     }
 
-    let timeout: NodeJS.Timeout | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     
     // Set up timeout if specified or if default timeout is positive
     const timeoutDuration = timeoutMs !== undefined ? timeoutMs : this.defaultTimeout;
